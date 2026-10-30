@@ -1802,3 +1802,14 @@ img{display:inline;vertical-align:baseline}
 
 .fn-lg-toc-b .fn-chev{flex:none;width:32px;height:32px;border-radius:999px;display:flex;align-items:center;justify-content:center;color:var(--ink);background:var(--surf)}
 .fn-lg-toc-b[aria-expanded="true"] .fn-chev{transform:rotate(180deg);color:var(--bg);background:var(--ink)}
+
+/* service pages: hidden step/example data, panel pickers, terms drop-down */
+.fn-stp-d,.fn-dx{display:none}
+.fn-tp-off{display:none !important}
+.fn-terms-b .fn-chev{flex:none;width:32px;height:32px;border-radius:999px;display:flex;align-items:center;justify-content:center;color:var(--ink);background:var(--surf)}
+.fn-terms-b[aria-expanded="true"] .fn-chev{transform:rotate(180deg);color:var(--bg);background:var(--ink)}
+.fn-terms-b[aria-expanded="true"] + .fn-faq-body{grid-template-rows:1fr;opacity:1;visibility:visible}
+.fn-chev{flex:none;width:32px;height:32px;border-radius:999px;display:flex;align-items:center;justify-content:center;color:var(--ink);background:var(--card)}
+.fn-terms-b .fn-chev{background:var(--surf)}
+.fn-terms-b[aria-expanded="true"] .fn-chev{background:var(--ink)}
+

@@ -207,7 +207,7 @@
     this.currentMount(svcBtn);
   }
   // pages that have a "-redesign" twin while the redesign is previewed on webflow.io (emptied at launch)
-  previewPages() { return ['', 'about', 'privacy-policy', 'cookie-policy']; }
+  previewPages() { return ['', 'about', 'privacy-policy', 'cookie-policy', 'ai-automation']; }
   curPath() { return location.pathname.replace(/\/+$/, '').replace(/-redesign$/, ''); }
   isPreview() { return /\.webflow\.io$/i.test(location.hostname) && /-redesign\/?$/.test(location.pathname); }
   previewLinks() {
@@ -325,6 +325,89 @@
       });
     } catch (e) {}
   }
+  // ===== service pages: tab groups (approach stepper, example pickers, plan/format/pay toggles) and the terms drop-down =====
+  tabsMount() {
+    const d = document;
+    const $qa = (s, r) => Array.prototype.slice.call((r || d).querySelectorAll(s));
+    $qa('[data-tabs]').forEach((tl) => {
+      const g = tl.getAttribute('data-tabs');
+      const tabs = $qa('[role="tab"]', tl);
+      if (tabs.length < 2) return;
+      const mode = tl.getAttribute('data-mode') || 'step';
+      const panels = $qa('[data-tp="' + g + '"]');
+      const tp = d.querySelector('[data-tp-text="' + g + '"]');
+      const isSeg = tl.classList.contains('fn-seg');
+      let cur = Math.max(0, tabs.findIndex((t) => t.getAttribute('aria-selected') === 'true'));
+      let flip = 0, auto = tl.hasAttribute('data-auto'), hold = false;
+      const set = (k, v) => { const el = tp && tp.querySelector('[data-bind="' + k + '"]'); if (el) el.textContent = v; };
+      const foot = () => {
+        const f = tp && tp.querySelector('[data-foot-a]'); if (!f) return;
+        const nm = tabs[cur].querySelector('.fn-ax-nm');
+        f.textContent = (nm ? nm.textContent : '') + (auto ? f.getAttribute('data-foot-a') : f.getAttribute('data-foot-b'));
+      };
+      const arrows = () => {
+        if (mode !== 'step' || !tp) return;
+        const ar = $qa('.fn-stp-ar', tp);
+        if (ar[0]) { ar[0].classList.toggle('fn-off', cur === 0); ar[0].setAttribute('aria-disabled', cur === 0 ? 'true' : 'false'); }
+        if (ar[1]) { ar[1].classList.toggle('fn-off', cur === tabs.length - 1); ar[1].setAttribute('aria-disabled', cur === tabs.length - 1 ? 'true' : 'false'); }
+      };
+      const select = (i, quiet) => {
+        if (i === cur || i < 0 || i >= tabs.length) return;
+        if (!quiet) this.play('tab');
+        cur = i;
+        tabs.forEach((t, k) => {
+          t.setAttribute('aria-selected', k === i ? 'true' : 'false'); t.setAttribute('tabindex', k === i ? '0' : '-1');
+          t.classList.toggle('fn-on', k === i);
+          if (mode === 'step') t.classList.toggle('fn-dn', k < i);
+        });
+        if (isSeg) tl.style.setProperty('--k', String(i));
+        if (mode === 'panel') panels.forEach((p, k) => p.classList.toggle('tp-off', Number(p.getAttribute('data-i')) !== i));
+        else if (tp) {
+          if (tabs[i].id) tp.setAttribute('aria-labelledby', tabs[i].id);
+          if (mode === 'step') {
+            const x = tabs[i].querySelector('.fn-stp-d');
+            if (x) { set('h', x.getAttribute('data-h')); set('p', x.textContent); set('chip', x.getAttribute('data-chip')); set('big', x.getAttribute('data-big')); }
+          } else {
+            $qa('.fn-dx', tabs[i]).forEach((v) => set(v.getAttribute('data-v'), v.textContent));
+          }
+          flip ^= 1; tp.classList.remove('fn-p0', 'fn-p1'); tp.classList.add(flip ? 'fn-p1' : 'fn-p0');
+        }
+        arrows(); foot();
+        try { tl.dispatchEvent(new CustomEvent('fn-tab', { detail: { i, tab: tabs[i] }, bubbles: true })); } catch (e) {}
+      };
+      tabs.forEach((t, i) => t.addEventListener('click', () => { if (auto) { auto = false; } select(i); foot(); }));
+      tl.addEventListener('keydown', (e) => {
+        const n = tabs.length; let to = -1;
+        if (e.key === 'ArrowDown' || e.key === 'ArrowRight') to = (cur + 1) % n;
+        else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') to = (cur + n - 1) % n;
+        else if (e.key === 'Home') to = 0; else if (e.key === 'End') to = n - 1;
+        if (to < 0) return;
+        e.preventDefault(); auto = false; select(to);
+        setTimeout(() => { try { tabs[to].focus(); } catch (err) {} }, 30);
+      });
+      if (tp && mode === 'step') {
+        const ar = $qa('.fn-stp-ar', tp);
+        if (ar[0]) ar[0].addEventListener('click', () => select(Math.max(0, cur - 1)));
+        if (ar[1]) ar[1].addEventListener('click', () => select(Math.min(tabs.length - 1, cur + 1)));
+      }
+      if (tl.hasAttribute('data-auto')) {
+        const box = tl.parentNode;
+        box.addEventListener('mouseenter', () => { hold = true; }); box.addEventListener('mouseleave', () => { hold = false; });
+        let reduce = false; try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+        if (!reduce) setInterval(() => { if (auto && !hold && !d.hidden) select((cur + 1) % tabs.length, true); }, Number(tl.getAttribute('data-auto')) || 6500);
+      }
+      arrows(); foot();
+    });
+  }
+  termsMount() {
+    const b = document.querySelector('.fn-terms-b'); if (!b) return;
+    b.addEventListener('click', () => {
+      const open = b.getAttribute('aria-expanded') !== 'true';
+      this.play(open ? 'open' : 'close');
+      b.setAttribute('aria-expanded', open ? 'true' : 'false');
+      const hint = b.querySelector('i'); if (hint) hint.textContent = hint.textContent.replace(/Tap to (read|close)/, 'Tap to ' + (open ? 'close' : 'read'));
+    });
+  }
   boot() {
     this.injectSprite();
     this.applyFxStyles();
@@ -337,6 +420,8 @@
     this.sigMount();
     this.tocMount();
     this.nfMount();
+    this.tabsMount();
+    this.termsMount();
     if (this.homeMount) this.homeMount();
     this.fxMount();
   }
