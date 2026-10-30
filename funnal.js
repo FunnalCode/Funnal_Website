@@ -207,7 +207,7 @@
     this.currentMount(svcBtn);
   }
   // pages that have a "-redesign" twin while the redesign is previewed on webflow.io (emptied at launch)
-  previewPages() { return ['', 'about', 'privacy-policy', 'cookie-policy', 'ai-automation']; }
+  previewPages() { return ['', 'about', 'privacy-policy', 'cookie-policy', 'ai-automation', 'branding']; }
   curPath() { return location.pathname.replace(/\/+$/, '').replace(/-redesign$/, ''); }
   isPreview() { return /\.webflow\.io$/i.test(location.hostname) && /-redesign\/?$/.test(location.pathname); }
   previewLinks() {
@@ -331,13 +331,13 @@
     const $qa = (s, r) => Array.prototype.slice.call((r || d).querySelectorAll(s));
     $qa('[data-tabs]').forEach((tl) => {
       const g = tl.getAttribute('data-tabs');
-      const tabs = $qa('[role="tab"]', tl);
+      const tabs = $qa('[role="tab"], [role="radio"]', tl);
       if (tabs.length < 2) return;
       const mode = tl.getAttribute('data-mode') || 'step';
       const panels = $qa('[data-tp="' + g + '"]');
       const tp = d.querySelector('[data-tp-text="' + g + '"]');
       const isSeg = tl.classList.contains('fn-seg');
-      let cur = Math.max(0, tabs.findIndex((t) => t.getAttribute('aria-selected') === 'true'));
+      let cur = Math.max(0, tabs.findIndex((t) => t.getAttribute('aria-selected') === 'true' || t.getAttribute('aria-checked') === 'true'));
       let flip = 0, auto = tl.hasAttribute('data-auto'), hold = false;
       const set = (k, v) => { const el = tp && tp.querySelector('[data-bind="' + k + '"]'); if (el) el.textContent = v; };
       const foot = () => {
@@ -356,12 +356,12 @@
         if (!quiet) this.play('tab');
         cur = i;
         tabs.forEach((t, k) => {
-          t.setAttribute('aria-selected', k === i ? 'true' : 'false'); t.setAttribute('tabindex', k === i ? '0' : '-1');
+          t.setAttribute(t.getAttribute('role') === 'radio' ? 'aria-checked' : 'aria-selected', k === i ? 'true' : 'false'); t.setAttribute('tabindex', k === i ? '0' : '-1');
           t.classList.toggle('fn-on', k === i);
           if (mode === 'step') t.classList.toggle('fn-dn', k < i);
         });
         if (isSeg) tl.style.setProperty('--k', String(i));
-        if (mode === 'panel') panels.forEach((p, k) => p.classList.toggle('tp-off', Number(p.getAttribute('data-i')) !== i));
+        if (mode === 'panel') panels.forEach((p) => { const off = Number(p.getAttribute('data-i')) !== i; p.classList.toggle('fn-tp-off', off); });
         else if (tp) {
           if (tabs[i].id) tp.setAttribute('aria-labelledby', tabs[i].id);
           if (mode === 'step') {
@@ -399,6 +399,13 @@
       arrows(); foot();
     });
   }
+  // brand palette swatches (Branding page): tap to copy the hex value
+  copyMount() {
+    Array.prototype.slice.call(document.querySelectorAll('.fn-sw2')).forEach((b) => {
+      const m = (b.getAttribute('aria-label') || '').match(/^Copy (.+) (#[0-9A-Fa-f]{6})$/); if (!m) return;
+      b.addEventListener('click', () => this.copy(m[2], m[1] + ' ' + m[2] + ' copied'));
+    });
+  }
   termsMount() {
     const b = document.querySelector('.fn-terms-b'); if (!b) return;
     b.addEventListener('click', () => {
@@ -422,6 +429,7 @@
     this.nfMount();
     this.tabsMount();
     this.termsMount();
+    this.copyMount();
     if (this.homeMount) this.homeMount();
     this.fxMount();
   }
