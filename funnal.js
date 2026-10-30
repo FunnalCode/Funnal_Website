@@ -188,7 +188,7 @@
     on(mobSvc, 'click', () => { this.play(ST.mob ? 'close' : 'open'); setMob(!ST.mob); });
     $qa('a', sheet || d.createElement('i')).forEach((a) => on(a, 'click', () => { this.play('tab'); setMenu(false); }));
     on(nav, 'keydown', (e) => { if (e.key === 'Escape') { closeSvc(); if (ST.menu) setMenu(false); } });
-    on(window, 'resize', () => { if (ST.menu && window.innerWidth > 900) setMenu(false); });
+    on(window, 'resize', () => { if (ST.menu && window.innerWidth > 820) setMenu(false); });
 
     // sound switch
     const ICON_ON = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5Z"></path><path d="M15.5 8.5a5 5 0 0 1 0 7"></path><path d="M18.5 5.5a9 9 0 0 1 0 13"></path></svg>';
@@ -203,10 +203,46 @@
     on(soundBtn, 'click', () => { const nv = !this.soundOn(); this.state.sound = nv; paintSound(); if (nv) setTimeout(() => this.play('tab'), 30); });
     paintSound();
 
-    // the Services button looks "current" on service pages
+    // mark the current page in the nav (Webflow's own aria-current only matches exact hrefs)
+    this.currentMount(svcBtn);
+  }
+  // pages that have a "-redesign" twin while the redesign is previewed on webflow.io (emptied at launch)
+  previewPages() { return ['', 'about']; }
+  curPath() { return location.pathname.replace(/\/+$/, '').replace(/-redesign$/, ''); }
+  isPreview() { return /\.webflow\.io$/i.test(location.hostname) && /-redesign\/?$/.test(location.pathname); }
+  previewLinks() {
     try {
-      const p = location.pathname.replace(/\/+$/, '');
+      if (!this.isPreview()) return;
+      const have = this.previewPages();
+      Array.prototype.slice.call(document.querySelectorAll('a[href^="/"]')).forEach((a) => {
+        const h = a.getAttribute('href'); const m = h.match(/^(\/[^?#]*)([?#].*)?$/); if (!m) return;
+        const path = m[1].replace(/^\/+|\/+$/g, '');
+        if (have.indexOf(path) < 0) return;
+        a.setAttribute('href', (path ? '/' + path + '-redesign' : '/home-redesign') + (m[2] || ''));
+      });
+    } catch (e) {}
+  }
+  currentMount(svcBtn) {
+    try {
+      const p = this.curPath();
       if (svcBtn && /^\/(ai-automation|branding|email-sms|paid-advertisement|printing|services-new|social-media(-management)?|website|websites)$/.test(p)) svcBtn.setAttribute('aria-current', 'page');
+      Array.prototype.slice.call(document.querySelectorAll('.fn-nav-link[href], .fn-m-item[href]')).forEach((a) => {
+        const h = (a.getAttribute('href') || '').split(/[?#]/)[0].replace(/\/+$/, '').replace(/-redesign$/, '');
+        if (h && h === p) a.setAttribute('aria-current', 'page'); else if (a.getAttribute('aria-current') === 'page') a.removeAttribute('aria-current');
+      });
+    } catch (e) {}
+  }
+  // the hand-signed signatures are too heavy to build as page elements: fetched and dropped in on the pages that need them
+  sigMount() {
+    try {
+      Array.prototype.slice.call(document.querySelectorAll('[data-sig-src]')).forEach((box) => {
+        const name = box.getAttribute('data-sig-src');
+        fetch(BASE + 'assets/sig/' + name + '.svg').then((r) => { if (!r.ok) throw new Error('sig'); return r.text(); }).then((svg) => {
+          const x = box.querySelector('.fn-tm-x');
+          if (x) x.insertAdjacentHTML('afterend', svg); else box.insertAdjacentHTML('beforeend', svg);
+          if (this.fx && this.fx.sigScan) this.fx.sigScan();
+        }).catch(() => {});
+      });
     } catch (e) {}
   }
   faqMount() {
@@ -235,6 +271,8 @@
     d.addEventListener('click', (e) => {
       const m = e.target && e.target.closest ? e.target.closest('.fn-mail') : null;
       if (m) { this.copy('sam@funnal.co.uk', 'sam@funnal.co.uk copied', 'Email us at sam@funnal.co.uk'); return; }
+      const c = e.target && e.target.closest ? e.target.closest('[data-fn-copy]') : null;
+      if (c) { const v = c.getAttribute('data-fn-copy'); this.copy(v, c.getAttribute('data-fn-msg') || (v + ' copied'), 'Email us at ' + v); return; }
       const a = e.target && e.target.closest ? e.target.closest('a[href]') : null;
       if (a && !a.closest('.fn-toast')) this.play('tab');
     });
@@ -247,6 +285,8 @@
     this.navMount();
     this.faqMount();
     this.miscMount();
+    this.previewLinks();
+    this.sigMount();
     if (this.homeMount) this.homeMount();
     this.fxMount();
   }
