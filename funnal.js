@@ -207,7 +207,7 @@
     this.currentMount(svcBtn);
   }
   // pages that have a "-redesign" twin while the redesign is previewed on webflow.io (emptied at launch)
-  previewPages() { return ['', 'about']; }
+  previewPages() { return ['', 'about', 'privacy-policy', 'cookie-policy']; }
   curPath() { return location.pathname.replace(/\/+$/, '').replace(/-redesign$/, ''); }
   isPreview() { return /\.webflow\.io$/i.test(location.hostname) && /-redesign\/?$/.test(location.pathname); }
   previewLinks() {
@@ -277,6 +277,54 @@
       if (a && !a.closest('.fn-toast')) this.play('tab');
     });
   }
+  // legal pages: the "Contents" drop-down on small screens
+  tocMount() {
+    try {
+      const b = document.querySelector('.fn-lg-toc-b'); if (!b) return;
+      const l = document.getElementById(b.getAttribute('aria-controls')); if (!l) return;
+      const set = (v) => { b.setAttribute('aria-expanded', v ? 'true' : 'false'); l.classList.toggle('fn-shut', !v); };
+      b.addEventListener('click', () => { const open = b.getAttribute('aria-expanded') === 'true'; this.play(open ? 'close' : 'open'); set(!open); });
+      Array.prototype.slice.call(l.querySelectorAll('a')).forEach((a) => a.addEventListener('click', () => { if (b.getAttribute('aria-expanded') === 'true') set(false); }));
+    } catch (e) {}
+  }
+  // 404: the zero is a sonar screen; tapping it sends a ping (every few pings the one gold blip, a lead, shows up)
+  nfMount() {
+    try {
+      const d = document;
+      const btn = d.querySelector('.fn-nf-sonar'); if (!btn) return;
+      const o = btn.closest('.fn-nf-o'), joke = d.querySelector('.fn-nf-joke');
+      const stat = d.querySelectorAll('.fn-nf-sc b')[1];
+      const jokes = [
+        'Tap the screen in the zero to send a ping and see if anything’s out there.',
+        'Ping! Nothing back but a faint echo. Try again.',
+        'Ping! Still nothing. Could be a very shy page.',
+        'Ping! That was a fish, we think. Definitely not a page.',
+        'No page found, but we picked up one lead out here. It’s you.',
+        'That’s plenty of pinging. The page has gone, but we haven’t. Head home?'
+      ];
+      let n = 0, hk = 0;
+      const paint = () => {
+        if (joke) {
+          const span = joke.querySelector('span'); if (span) span.textContent = jokes[Math.min(n, jokes.length - 1)];
+          joke.classList.toggle('fn-hint', n === 0); joke.classList.toggle('fn-say', n !== 0);
+          let a = joke.querySelector('.fn-nf-jl');
+          if (n === 4 && !a) {
+            a = d.createElement('a'); a.className = 'fn-lg-link fn-nf-jl'; a.href = '/contact'; a.textContent = 'Say hello';
+            joke.appendChild(d.createTextNode(' ')); joke.appendChild(a);
+          } else if (n !== 4 && a) { if (a.previousSibling && a.previousSibling.nodeType === 3) a.previousSibling.remove(); a.remove(); }
+        }
+        if (stat) stat.textContent = String(n);
+        btn.setAttribute('aria-label', n === 0 ? 'Send a sonar ping' : 'Send another sonar ping (' + n + ' sent so far)');
+        if (o) { o.classList.remove('fn-ping-a', 'fn-ping-b'); if (hk > 0) o.classList.add(hk % 2 ? 'fn-ping-a' : 'fn-ping-b'); o.classList.toggle('fn-found', n >= 4); }
+      };
+      btn.addEventListener('click', () => {
+        const next = n + 1;
+        if (this.synth) this.synth('ping');
+        if (next === 4) setTimeout(() => this.play('success'), 650);
+        n = next; hk += 1; paint();
+      });
+    } catch (e) {}
+  }
   boot() {
     this.injectSprite();
     this.applyFxStyles();
@@ -287,6 +335,8 @@
     this.miscMount();
     this.previewLinks();
     this.sigMount();
+    this.tocMount();
+    this.nfMount();
     if (this.homeMount) this.homeMount();
     this.fxMount();
   }

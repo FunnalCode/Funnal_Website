@@ -1799,3 +1799,6 @@ img{display:inline;vertical-align:baseline}
 /* inline-style overrides from the prototype that need to beat the shared rules */
 .fn-sh.fn-faq-h{margin-bottom:clamp(8px,2vw,24px)}
 .fn-foot-mail{max-width:100%;font-size:16px;font-weight:600;text-align:left;letter-spacing:-0.01em;word-break:break-all}
+
+.fn-lg-toc-b .fn-chev{flex:none;width:32px;height:32px;border-radius:999px;display:flex;align-items:center;justify-content:center;color:var(--ink);background:var(--surf)}
+.fn-lg-toc-b[aria-expanded="true"] .fn-chev{transform:rotate(180deg);color:var(--bg);background:var(--ink)}
