@@ -887,7 +887,7 @@
         if (bad) cls = step === 0 ? 'bad flag' : 'bad gone';
         else {
           const g = Math.floor(gi / 12);
-          if (step >= 1) { const j = gi % 12; x = [20, 50, 80][g] + ((j % 4) - 1.5) * 5.6; y = 23.5 + (Math.floor(j / 4) - 1) * 5.6; cls = 'ok g' + g; }
+          if (step >= 1) { const j = gi % 12; x = [20, 50, 80][g] + ((j % 4) - 1.5) * 5.6; y = 23 + (Math.floor(j / 4) - 1) * 5.6; cls = 'ok g' + g; }
           if (step === 2) cls += ' ping';
           if (step === 4) cls += ' wave';
           gi++;
