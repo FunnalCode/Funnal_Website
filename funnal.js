@@ -472,11 +472,20 @@
     this.blMount();
     this.bpMount();
   }
-  // Blog index: topic filter. Every chip carries data-tag ('' = All) and every card data-tags ("A|B"); clicking the active chip clears the filter
+  // Blog index (CMS): chips come from the Topics collection (data-tag = slug) and each card lists its own topic tags. Webflow cannot build an item address, so every title carries its slug and gets /post/slug here; clicking the active chip clears the filter
   blMount() {
     const bar = document.querySelector('.fn-bl-filter'); if (!bar) return;
     const $qa = (s, r) => Array.prototype.slice.call((r || document).querySelectorAll(s));
     const chips = $qa('.fn-bl-f', bar), cards = $qa('.fn-bl-card');
+    $qa('a[data-slug]').forEach((a) => { a.setAttribute('href', '/post/' + a.getAttribute('data-slug')); });
+    const tagsOf = (c) => $qa('.fn-tg', c).map((t) => t.getAttribute('data-tag') || '');
+    cards.forEach((c) => c.setAttribute('data-tags', tagsOf(c).join('|')));
+    chips.forEach((c) => {
+      const t = c.getAttribute('data-tag') || '', b = c.querySelector('b');
+      const n = t ? cards.filter((a) => tagsOf(a).indexOf(t) >= 0).length : cards.length;
+      if (b) b.textContent = String(n);
+      if (t && !n) c.classList.add('fn-tp-off');
+    });
     let cur = '';
     const apply = (tag) => {
       cur = tag;

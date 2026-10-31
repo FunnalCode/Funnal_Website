@@ -1749,6 +1749,7 @@ img{max-width: 100%}
 .fn-ex .fn-chips-row .fn-chip{background: var(--surf)}
 @container (max-width: 520px){.fn-ex-lnk{display: none} .fn-ex-hrs span:nth-of-type(n+3){display: none} .fn-ex-hrs{gap: 2cqw}}
 
+
 /* ===== Webflow build extras (appended after the prototype rules) ===== */
 /* The prototype wrapped the page in a styled div; in Webflow that lives on the body. Also undo Webflow's default
    heading/paragraph/list/image spacing so unstyled elements look like the prototype (browser defaults). */
@@ -1827,3 +1828,22 @@ img{display:inline;vertical-align:baseline}
 .fn-ct-fail{margin:0;padding:14px 18px;border-radius:18px;background:color-mix(in srgb,#C0453A 10%,var(--bg));color:var(--ink);font-size:15px;line-height:1.5}
 .fn-ct-fail a{color:inherit;font-weight:600;text-decoration:underline}
 .fn-ct-submit{position:absolute;width:1px;height:1px;margin:0;padding:0;border:0;opacity:0;overflow:hidden;pointer-events:none}
+
+
+/* ===== CMS lists (Blog): Webflow wraps list items in .w-dyn-* divs; make them invisible to the layouts ===== */
+.fn-bl-filter .w-dyn-list,.fn-bl-filter .w-dyn-items,.fn-bl-filter .w-dyn-item,
+.fn-bl-list .w-dyn-list,.fn-bl-list .w-dyn-items,.fn-bl-list .w-dyn-item,
+.fn-bl-meta .w-dyn-list,.fn-bl-meta .w-dyn-items,.fn-bl-meta .w-dyn-item{display:contents}
+.fn-bl-filter .w-dyn-empty,.fn-bl-meta .w-dyn-empty,.fn-bl-list .w-dyn-empty{display:none}
+/* topic colour comes from the Topics "Colour" option */
+.fn-tg[data-k="Blue"],.fn-tg-dot[data-k="Blue"]{--k:var(--ac-blue)}
+.fn-tg[data-k="Gold"],.fn-tg-dot[data-k="Gold"]{--k:var(--ac-gold)}
+.fn-tg[data-k="Red"],.fn-tg-dot[data-k="Red"]{--k:var(--ac-red)}
+.fn-tg[data-k="Rose"],.fn-tg-dot[data-k="Rose"]{--k:#C7B1B1}
+/* cards are divs now (a collection list cannot sit inside a link): the title link covers the whole card */
+.fn-bl-card{position:relative}
+.fn-bl-lk{text-decoration:none;color:var(--ink)}
+.fn-bl-lk::after{content:"";position:absolute;inset:0;z-index:1;border-radius:32px}
+.fn-bl-lk:focus-visible{outline:none}
+.fn-bl-card:has(.fn-bl-lk:focus-visible){outline:2px solid var(--ink);outline-offset:3px}
+.fn-bl-date,.fn-bl-min{display:block}
