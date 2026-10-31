@@ -1815,3 +1815,15 @@ img{display:inline;vertical-align:baseline}
 
 /* tab buttons are divs in Webflow: centre their label the way a <button> does */
 .fn-seg-b{display:flex;align-items:center;justify-content:center;text-align:center}
+
+/* Contact page */
+.fn-ct-spin{border:2.5px solid var(--line);border-top-color:var(--ink)}
+.fn-pg-h1 > span[aria-hidden="true"]{margin-left:0.22em}
+.fn-qz-note [data-bind="pkg"]{margin-right:0.3em}
+.fn-ct-in{margin:0;height:auto}
+.fn-ct-f label{margin:0}
+.fn-ct-w{margin:0}
+.fn-ct-done{padding:0;text-align:left;background:transparent;color:inherit}
+.fn-ct-fail{margin:0;padding:14px 18px;border-radius:18px;background:color-mix(in srgb,#C0453A 10%,var(--bg));color:var(--ink);font-size:15px;line-height:1.5}
+.fn-ct-fail a{color:inherit;font-weight:600;text-decoration:underline}
+.fn-ct-submit{position:absolute;width:1px;height:1px;margin:0;padding:0;border:0;opacity:0;overflow:hidden;pointer-events:none}

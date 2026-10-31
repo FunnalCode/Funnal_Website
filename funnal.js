@@ -207,18 +207,25 @@
     this.currentMount(svcBtn);
   }
   // pages that have a "-redesign" twin while the redesign is previewed on webflow.io (emptied at launch)
-  previewPages() { return ['', 'about', 'privacy-policy', 'cookie-policy', 'ai-automation', 'branding', 'email-sms', 'paid-advertisement', 'printing', 'services-new', 'website', 'packages']; }
+  previewPages() { return ['', 'about', 'privacy-policy', 'cookie-policy', 'ai-automation', 'branding', 'email-sms', 'paid-advertisement', 'printing', 'services-new', 'website', 'packages', 'contact']; }
   curPath() { return location.pathname.replace(/\/+$/, '').replace(/-redesign$/, ''); }
   isPreview() { return /\.webflow\.io$/i.test(location.hostname) && /-redesign\/?$/.test(location.pathname); }
+  // an internal link as it should read on the preview (links built by script go through here too)
+  pvHref(h) {
+    try {
+      if (!this.isPreview()) return h;
+      const m = String(h).match(/^(\/[^?#]*)([?#].*)?$/); if (!m) return h;
+      const path = m[1].replace(/^\/+|\/+$/g, '');
+      if (this.previewPages().indexOf(path) < 0) return h;
+      return (path ? '/' + path + '-redesign' : '/home-redesign') + (m[2] || '');
+    } catch (e) { return h; }
+  }
   previewLinks() {
     try {
       if (!this.isPreview()) return;
-      const have = this.previewPages();
       Array.prototype.slice.call(document.querySelectorAll('a[href^="/"]')).forEach((a) => {
-        const h = a.getAttribute('href'); const m = h.match(/^(\/[^?#]*)([?#].*)?$/); if (!m) return;
-        const path = m[1].replace(/^\/+|\/+$/g, '');
-        if (have.indexOf(path) < 0) return;
-        a.setAttribute('href', (path ? '/' + path + '-redesign' : '/home-redesign') + (m[2] || ''));
+        const h = a.getAttribute('href'), n = this.pvHref(h);
+        if (n !== h) a.setAttribute('href', n);
       });
     } catch (e) {}
   }
@@ -449,6 +456,7 @@
     this.socMount();
     this.wsMount();
     this.pkMount();
+    this.ctMount();
   }
   // Websites: the step picker builds the illustrated site up one stage at a time (classes is{n} ge0..ge{n} on the picture)
   wsMount() {
@@ -632,6 +640,171 @@
       lf.setAttribute('aria-label', ARIA[step]);
     };
     tl.addEventListener('fn-tab', (e) => { if (e.detail && e.detail.i >= 0 && e.detail.i < 5) draw(e.detail.i); });
+  }
+  // Contact: the quiz is four stacked panels (three questions + the result) with the answers carried on data attributes;
+  // the form is a real Webflow form: checked here, then posted by Webflow, whose done / fail messages we watch
+  ctMount() {
+    const root = document.querySelector('.fn-qz'), form = document.getElementById('ct-form');
+    if (!root && !form) return;
+    const $qa = (s, r) => Array.prototype.slice.call((r || document).querySelectorAll(s));
+    const el = (id) => document.getElementById(id);
+    const reduced = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    let tell = () => {};
+    // ---------- the form ----------
+    if (form) {
+      form.noValidate = true;
+      const wrap = form.parentNode;
+      const kid = (n) => Array.prototype.filter.call(wrap.children, (c) => String(c.className).indexOf(n) > -1)[0];
+      const done = kid('w-form-done'), fail = kid('w-form-fail');
+      const shown = (n) => !!n && getComputedStyle(n).display !== 'none';
+      const fields = {
+        name: { input: el('ct-name'), err: el('ct-name-e') }, email: { input: el('ct-email'), err: el('ct-email-e') },
+        msg: { input: el('ct-msg'), err: el('ct-msg-e') }, cat: { err: el('ct-cat').nextElementSibling },
+        agree: { err: el('ct-agree-v').nextElementSibling, box: form.querySelector('.fn-ct-agree') } };
+      const setErr = (k, m) => {
+        const x = fields[k]; if (!x || !x.err) return;
+        x.err.textContent = m || '';
+        if (x.input) { x.input.classList.toggle('fn-bad', !!m); x.input.setAttribute('aria-invalid', m ? 'true' : 'false'); }
+        if (x.box) x.box.classList.toggle('fn-bad', !!m);
+      };
+      ['name', 'email', 'msg'].forEach((k) => fields[k].input.addEventListener('input', () => setErr(k, '')));
+      const chips = $qa('.fn-ct-chips .fn-chipb', form);
+      const pickCat = (i) => {
+        chips.forEach((c, j) => { c.classList.toggle('fn-on', j === i); c.setAttribute('aria-checked', j === i ? 'true' : 'false'); });
+        el('ct-cat').value = i >= 0 ? chips[i].textContent.trim() : '';
+        setErr('cat', '');
+      };
+      chips.forEach((c, i) => c.addEventListener('click', () => { this.play('tab'); pickCat(i); }));
+      const agree = fields.agree.box; let agreed = false;
+      const setAgree = (v) => { agreed = v; agree.classList.toggle('fn-on', v); agree.setAttribute('aria-checked', v ? 'true' : 'false'); el('ct-agree-v').value = v ? 'Yes' : ''; setErr('agree', ''); };
+      agree.addEventListener('click', () => { this.play(agreed ? 'close' : 'tab'); setAgree(!agreed); });
+      const btn = form.querySelector('[data-ct-send]'), spin = form.querySelector('.fn-ct-spin'), btnTxt = btn.querySelector('span');
+      let sending = false, first = '';
+      const setSending = (v) => { sending = v; btn.setAttribute('aria-disabled', v ? 'true' : 'false'); spin.classList.toggle('fn-on', v); btnTxt.textContent = v ? 'Sending' : 'Send message'; };
+      const validate = () => {
+        const name = el('ct-name').value.trim(), email = el('ct-email').value.trim(), msg = el('ct-msg').value.trim(), E = {};
+        if (!name) E.name = 'Please tell us your name.';
+        if (!email) E.email = 'Please add your email address.';
+        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) E.email = 'That email address doesn’t look quite right.';
+        if (!el('ct-cat').value) E.cat = 'Please choose a category.';
+        if (!msg) E.msg = 'Please add a short message.';
+        if (!agreed) E.agree = 'Please agree to the Privacy Policy to continue.';
+        ['name', 'email', 'cat', 'msg', 'agree'].forEach((k) => setErr(k, E[k]));
+        return { ok: !Object.keys(E).length, first: E.name ? 'ct-name' : E.email ? 'ct-email' : E.msg ? 'ct-msg' : null, name };
+      };
+      // captured at the document so nothing (Webflow included) sees a submit that failed our checks
+      document.addEventListener('submit', (e) => {
+        if (e.target !== form) return;
+        if (sending) { e.preventDefault(); e.stopImmediatePropagation(); return; }
+        const v = validate();
+        if (!v.ok) {
+          e.preventDefault(); e.stopImmediatePropagation(); this.play('close');
+          if (v.first) setTimeout(() => { try { el(v.first).focus(); } catch (x) {} }, 40);
+          return;
+        }
+        first = v.name.split(/\s+/)[0];
+        if (fail) fail.style.display = 'none';
+        this.play('tab'); setSending(true);
+      }, true);
+      btn.addEventListener('click', () => {
+        if (sending) return;
+        try { if (form.requestSubmit) form.requestSubmit(); else form.querySelector('input[type="submit"]').click(); } catch (e) {}
+      });
+      const reset = () => {
+        form.reset(); pickCat(-1); setAgree(false); setSending(false);
+        ['name', 'email', 'msg', 'cat', 'agree'].forEach((k) => setErr(k, ''));
+        if (done) done.style.display = 'none';
+        if (fail) fail.style.display = 'none';
+        form.style.display = '';
+      };
+      $qa('[data-ct-again]', wrap).forEach((b) => b.addEventListener('click', () => { this.play('open'); reset(); try { el('ct-name').focus({ preventScroll: true }); } catch (e) {} }));
+      try {
+        new MutationObserver(() => {
+          if (!sending) return;
+          if (shown(done)) {
+            const h = done.querySelector('h2'); if (h) h.textContent = 'Thanks' + (first ? ', ' + first : '') + '!';
+            setSending(false); this.play('success');
+          } else if (shown(fail)) { setSending(false); this.play('close'); }
+        }).observe(wrap, { attributes: true, subtree: true, attributeFilter: ['style', 'class'] });
+      } catch (e) {}
+      // "Tell us more" on the quiz result: choose the category, start the message, and bring the form into view
+      tell = (cat, msg) => {
+        this.play('tab');
+        if (shown(done)) reset();
+        const i = chips.findIndex((c) => c.textContent.trim() === cat);
+        if (i >= 0) pickCat(i);
+        setTimeout(() => {
+          try {
+            const m = el('ct-msg'); if (m && !m.value.trim()) m.value = msg;
+            const c = el('ct-card'); if (c && c.scrollIntoView) c.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
+            const n = el('ct-name'); if (n && n.focus) n.focus({ preventScroll: true });
+          } catch (e) {}
+        }, 140);
+      };
+    }
+    // ---------- the quiz ----------
+    if (!root) return;
+    const panels = $qa('[data-qz]', root), byKey = {};
+    panels.forEach((p) => { byKey[p.getAttribute('data-qz')] = p; });
+    const dots = $qa('.fn-qz-pd', root), pn = root.querySelector('.fn-qz-pn'), prog = root.querySelector('.fn-qz-prog');
+    const N = 3, st = { qs: 0, qa: [-1, -1, -1], lock: false, k: 0, r: null };
+    let timer = 0;
+    const at = (e, k) => (e && e.getAttribute(k)) || '';
+    const opts = (i) => $qa('.fn-qz-o', byKey[i]);
+    const txt = (o) => { const b = o && o.querySelector('.fn-qz-ot b'); return b ? b.textContent : ''; };
+    const sub = (o) => { const b = o && o.querySelector('.fn-qz-ot i'); return b ? b.textContent : ''; };
+    const show = (key, animate) => {
+      panels.forEach((p) => { const off = p.getAttribute('data-qz') !== String(key); p.classList.toggle('fn-tp-off', off); });
+      const p = byKey[key]; p.classList.remove('fn-a0', 'fn-a1');
+      if (animate && !reduced) { st.k++; p.classList.add(st.k % 2 ? 'fn-a0' : 'fn-a1'); }
+    };
+    const sync = () => {
+      const fin = st.qs >= N, step = Math.min(st.qs, N - 1), t = fin ? 'All done' : 'Question ' + (step + 1) + ' of ' + N;
+      dots.forEach((d, i) => { d.classList.toggle('fn-done', fin || i < st.qs); d.classList.toggle('fn-cur', !fin && i === st.qs); });
+      if (pn) pn.textContent = t;
+      if (prog) prog.setAttribute('aria-label', fin ? 'Quiz complete' : t);
+    };
+    const mark = (step) => opts(step).forEach((o, j) => { const on = st.qa[step] === j; o.classList.toggle('fn-on', on); o.setAttribute('aria-checked', on ? 'true' : 'false'); });
+    const res = byKey.res;
+    const setBind = (k, v) => $qa('[data-bind="' + k + '"]', res).forEach((e) => { e.textContent = v; });
+    const fill = () => {
+      const a = st.qa.map((v, i) => opts(i)[Math.max(0, v)]), g = a[1], svc = at(g, 'data-svc');
+      setBind('svc', svc); setBind('why', at(g, 'data-why')); setBind('pkg', at(a[0], 'data-pn')); setBind('time', at(a[2], 'data-n'));
+      $qa('.fn-qz-chip', res).forEach((c, i) => { c.textContent = txt(a[i]); });
+      const see = res.querySelector('[data-qz-see]'); if (see) see.setAttribute('href', this.pvHref(at(g, 'data-href')));
+      const use = res.querySelector('.fn-qz-tile use'); if (use) use.setAttribute('href', at(g, 'data-icon'));
+      const msg = 'Hi Funnal! I’m ' + at(a[0], 'data-m') + ', and I’m looking for ' + at(g, 'data-m') + '. ' + at(a[2], 'data-m');
+      const sum = 'Who I am: ' + txt(a[0]) + ' (' + sub(a[0]) + ')\nWhat I want to achieve: ' + txt(g) + ' (' + sub(g) + ')\nHow soon: ' + txt(a[2]) + '\nSuggested best fit: ' + svc;
+      const body = 'Hi Funnal,\n\nI took the quiz on your website. Here is my outcome:\n\n' + sum + '\n\nMy name:\nBest way to reach me:\n';
+      const mail = res.querySelector('[data-qz-mail]');
+      if (mail) mail.setAttribute('href', 'mailto:sam@funnal.co.uk?subject=' + encodeURIComponent('Quiz outcome: ' + svc) + '&body=' + encodeURIComponent(body));
+      st.r = { cat: at(g, 'data-cat'), msg, sum };
+    };
+    const pick = (step, i) => {
+      if (st.lock) return;
+      this.play('tab'); st.qa[step] = i; mark(step);
+      if (this.synth) this.synth('step', step);
+      st.lock = true; clearTimeout(timer);
+      timer = setTimeout(() => {
+        st.lock = false;
+        if (step >= N - 1) { this.play('success'); fill(); }
+        st.qs = step + 1; sync(); show(st.qs >= N ? 'res' : st.qs, true);
+      }, 460);
+    };
+    [0, 1, 2].forEach((step) => {
+      opts(step).forEach((o, i) => o.addEventListener('click', () => pick(step, i)));
+      const back = byKey[step].querySelector('.fn-qz-back');
+      if (back) back.addEventListener('click', () => { if (st.lock || st.qs <= 0) return; this.play('close'); st.qs--; sync(); show(st.qs, true); });
+    });
+    const redo = res.querySelector('[data-qz-redo]');
+    if (redo) redo.addEventListener('click', () => {
+      this.play('open'); clearTimeout(timer); st.lock = false; st.qs = 0; st.qa = [-1, -1, -1];
+      [0, 1, 2].forEach(mark); sync(); show(0, true);
+    });
+    const tl = res.querySelector('[data-qz-tell]');
+    if (tl) tl.addEventListener('click', () => { if (st.r) tell(st.r.cat, st.r.msg); });
+    const ml = res.querySelector('[data-qz-mail]');
+    if (ml) ml.addEventListener('click', () => { if (st.r) this.copy('Quiz outcome\n' + st.r.sum, 'Summary copied. If your email app did not open, paste it into an email to sam@funnal.co.uk.'); });
   }
 
   // ===== soft synthesized UI sounds (no files): sit quietly under the reel sounds =====
