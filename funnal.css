@@ -1973,3 +1973,40 @@ img{display:inline;vertical-align:baseline}
 .fn-wk-grid .w-dyn-item:nth-child(-n+3)>.fn-wk-item{grid-column:span 2}
 .fn-wk-grid .w-dyn-item:nth-child(n+4):last-child:nth-child(even)>.fn-wk-item{grid-column:span 6}
 }
+/* Webflow renamed .fn-art-lg to -1 on the Printing page */
+.fn-br-t .fn-art-lg-1{display: block;width: 6cqw;height: 6cqw}
+.fn-br-t .fn-art-lg-1 svg{fill: currentcolor}
+.fn-br-t .fn-art-lg-1 svg{width: 100%;height: 100%}
+.fn-pr-art .fn-art-lg-1{display: block;width: 7cqw;height: 7cqw}
+.fn-pr-art .fn-art-lg-1 svg{width: 100%;height: 100%}
+.fn-pr-f .fn-art-lg-1{display: block;width: 5cqw;height: 5cqw;flex: 0 0 auto}
+.fn-pr-f .fn-art-lg-1 svg{width: 100%;height: 100%}
+.fn-pr-art .fn-art-lg-1, .fn-pr-f .fn-art-lg-1{display: flex;align-items: center;gap: 1.4cqw;width: auto;height: auto;font-size: max(11px, 2.3cqw);font-weight: 700;letter-spacing: 0.1em;white-space: nowrap}
+.fn-art-lg-1 .fn-lt{font-style: normal}
+.fn-pr-f .fn-art-lg-1 svg{width: max(14px, 5cqw);height: max(14px, 5cqw);flex: 0 0 auto}
+.fn-pr-art .fn-art-lg-1 svg{width: 6.4cqw;height: 6.4cqw;flex: 0 0 auto;fill: currentcolor}
+.fn-pr-f .fn-art-lg-1 svg{width: 4.6cqw;height: 4.6cqw;flex: 0 0 auto;fill: currentcolor}
+.fn-pr-f.fn-c .fn-art-lg-1{flex: 1 1 0%;min-width: 0px}
+.fn-pr-f.fn-c .fn-art-lg-1 svg{width: 4.2cqw;height: 4.2cqw}
+.fn-wb-f .fn-nv .fn-art-lg-1{display: block;width: 6cqw;height: 6cqw;margin-right: auto;color: var(--ink)}
+.fn-wb-f .fn-nv .fn-art-lg-1 svg{width: 100%;height: 100%}
+.fn-wb-p .fn-art-lg-1{display: block;width: 5cqw;height: 5cqw}
+.fn-wb-p .fn-art-lg-1 svg{width: 100%;height: 100%}
+.fn-dd-panel{background:var(--bg)}
+
+/* feedback round 1 */
+.fn-face>b,.fn-dp-in>b{display:none}
+.fn-bl-card{cursor:pointer}
+.fn-rec-chip{display:flex;width:fit-content;min-height:26px;padding:3px 12px;margin-bottom:10px;font-size:12px;font-weight:600;letter-spacing:.02em;background:linear-gradient(135deg,var(--pink),var(--peach));color:var(--ink-d)}
+#addons .inline-p-0,#problem .inline-p-0-1-2-3-4{font-size:clamp(26px,3.2vw,42px);font-weight:600;line-height:1.12;letter-spacing:-.04em}
+#addons p.inline-p-2,#addons p.inline-p-2 span,#problem .inline-p-1,#problem .inline-p-1 span{font-size:clamp(18px,1.8vw,22px);line-height:1.3;letter-spacing:-.03em}
+#addons .fn-lede,#approach .fn-lede,#explorer .fn-lede{font-size:16px;letter-spacing:-.02em}
+/* Home work chips: vary the palette card by card */
+.fn-wk-grid .w-dyn-item:nth-child(5n+2) .fn-work-chips .fn-chip:nth-child(1){--c:var(--ac-red)}
+.fn-wk-grid .w-dyn-item:nth-child(5n+2) .fn-work-chips .fn-chip:nth-child(2){--c:#C7B1B1;--on:#2A2B2D}
+.fn-wk-grid .w-dyn-item:nth-child(5n+3) .fn-work-chips .fn-chip:nth-child(1){--c:var(--ac-gold);--on:#2A2B2D}
+.fn-wk-grid .w-dyn-item:nth-child(5n+3) .fn-work-chips .fn-chip:nth-child(2){--c:var(--ac-blue);--on:#fff}
+.fn-wk-grid .w-dyn-item:nth-child(5n+4) .fn-work-chips .fn-chip:nth-child(1){--c:#C7B1B1;--on:#2A2B2D}
+.fn-wk-grid .w-dyn-item:nth-child(5n+4) .fn-work-chips .fn-chip:nth-child(2){--c:var(--ac-red);--on:#fff}
+.fn-wk-grid .w-dyn-item:nth-child(5n+5) .fn-work-chips .fn-chip:nth-child(1){--c:var(--ac-blue);--on:#fff}
+.fn-wk-grid .w-dyn-item:nth-child(5n+5) .fn-work-chips .fn-chip:nth-child(2){--c:var(--ac-red);--on:#fff}
