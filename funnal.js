@@ -206,8 +206,8 @@
     // mark the current page in the nav (Webflow's own aria-current only matches exact hrefs)
     this.currentMount(svcBtn);
   }
-  // pages that have a "-redesign" twin while the redesign is previewed on webflow.io (emptied at launch)
-  previewPages() { return ['', 'about', 'privacy-policy', 'cookie-policy', 'ai-automation', 'branding', 'email-sms', 'paid-advertisement', 'printing', 'services-new', 'website', 'packages', 'contact', 'blog']; }
+  // pages that have a "-redesign" twin while the redesign is previewed on webflow.io (empty now the redesign is live)
+  previewPages() { return []; }
   curPath() { return location.pathname.replace(/\/+$/, '').replace(/-redesign$/, ''); }
   isPreview() { return /\.webflow\.io$/i.test(location.hostname) && (/-redesign\/?$/.test(location.pathname) || /^\/(post|work|topics)\//.test(location.pathname)); }
   // an internal link as it should read on the preview (links built by script go through here too)
