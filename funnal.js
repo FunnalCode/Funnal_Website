@@ -478,10 +478,13 @@
     const $qa = (s, r) => Array.prototype.slice.call((r || document).querySelectorAll(s));
     const chips = $qa('.fn-bl-f', bar), cards = $qa('.fn-bl-card');
     $qa('a[data-slug]').forEach((a) => { a.setAttribute('href', '/post/' + a.getAttribute('data-slug')); });
-    const tagsOf = (c) => $qa('.fn-tg', c).map((t) => t.getAttribute('data-tag') || '');
+    // Tag chips and card tags both come from the Topics collection, so they are matched by their label (a topic renamed in the CMS stays in sync)
+    const lab = (el) => ((el.querySelector('div') || el).textContent || '').replace(/\s+/g, ' ').trim().toLowerCase();
+    const keyOf = (c) => (c.getAttribute('data-tag') === '' ? '' : lab(c));
+    const tagsOf = (c) => $qa('.fn-tg', c).map(lab);
     cards.forEach((c) => c.setAttribute('data-tags', tagsOf(c).join('|')));
     chips.forEach((c) => {
-      const t = c.getAttribute('data-tag') || '', b = c.querySelector('b');
+      const t = keyOf(c), b = c.querySelector('b');
       const n = t ? cards.filter((a) => tagsOf(a).indexOf(t) >= 0).length : cards.length;
       if (b) b.textContent = String(n);
       if (t && !n) c.classList.add('fn-tp-off');
@@ -490,7 +493,7 @@
     const apply = (tag) => {
       cur = tag;
       chips.forEach((c) => {
-        const on = (c.getAttribute('data-tag') || '') === tag;
+        const on = keyOf(c) === tag;
         c.classList.toggle('fn-on', on);
         c.setAttribute('aria-pressed', on ? 'true' : 'false');
       });
@@ -500,7 +503,7 @@
       });
     };
     chips.forEach((c) => c.addEventListener('click', () => {
-      const t = c.getAttribute('data-tag') || '';
+      const t = keyOf(c);
       this.play('tab');
       apply(cur === t ? '' : t);
     }));
