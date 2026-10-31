@@ -1921,6 +1921,8 @@ img{display:inline;vertical-align:baseline}
 .fn-cs-gals:not(:has(.fn-cs-gi)){display:none}
 .fn-cs-gal{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:10px}
 .fn-cs-gw,.fn-cs-gl{display:contents}
+.fn-cs-gl::before,.fn-cs-gl::after{content:none;display:none}
+.fn-cs-gi.w-col{float:none;width:auto;padding:0;margin:0}
 .fn-cs-gi{margin:0;padding:0;border-radius:16px;overflow:hidden;aspect-ratio:617/436;background:var(--card2);min-width:0}
 .fn-cs-gimg{display:block;width:100%;height:100%;object-fit:cover;transition:transform .8s cubic-bezier(.2,.8,.2,1)}
 .fn-cs-gi:hover .fn-cs-gimg{transform:scale(1.04)}
