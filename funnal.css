@@ -2064,3 +2064,31 @@ a[x-apple-data-detectors],.fn-wb-f a[href^="tel"],.fn-ws-bd a[href^="tel"]{color
 .fn-pr-marks,.fn-pr-bar{opacity:0;transition:opacity .8s ease 1.7s}
 .fn-pr-reg.fn-is-in .fn-pr-marks,.fn-pr-reg.fn-is-in .fn-pr-bar{opacity:1}
 @media (prefers-reduced-motion:reduce){.fn-pr-plate{transform:none;transition:none}.fn-pr-marks,.fn-pr-bar{opacity:1;transition:none}.fn-pr-caret{animation:none}}
+
+/* ===== Round three ===== */
+/* services dropdown: no outline, shadow only */
+.fn-drop.fn-dd-panel{border:0!important}
+/* team photo: the builder left a 40% opacity on the first face */
+.fn-ph{opacity:1!important}
+/* case-study quotes: the builder's default blockquote box ignored dark mode */
+.fn-q blockquote,.fn-rt blockquote,blockquote{background:transparent!important;border:0!important;box-shadow:none!important;padding-left:0;padding-right:0;color:var(--ink)}
+.fn-q blockquote{padding:0}
+/* brand intro (loader + logo click) */
+html.fn-ld-on body{overflow:hidden}
+html.fn-ld-on::after{content:"";position:fixed;inset:0;z-index:99998;background:var(--bg,#fff);animation:fnLdFail .01s 4s forwards}
+@keyframes fnLdFail{to{opacity:0;visibility:hidden}}
+.fn-ld{--ld-1:var(--ac-blue);--ld-2:var(--ac-red);--ld-3:var(--ac-gold);position:fixed;inset:0;z-index:99999;display:grid;place-items:center;background:var(--bg);opacity:1;transition:opacity .45s ease}
+.fn-ld[data-out]{opacity:0;pointer-events:none}
+.fn-ld svg{width:min(42vw,190px);height:auto;overflow:visible;filter:drop-shadow(0 18px 24px color-mix(in srgb,var(--ink) 14%,transparent))}
+.fn-ld .fn-ld-c1{stop-color:var(--ld-1)}.fn-ld .fn-ld-c2{stop-color:var(--ld-2)}.fn-ld .fn-ld-c3{stop-color:var(--ld-3)}
+.fn-ld-f{fill:var(--ink);opacity:0;transform-box:fill-box;transform-origin:50% 55%;transform:scale(.9)}
+.fn-ld-st{fill:none;stroke-width:5.5;stroke-linecap:round;stroke-linejoin:round}
+.fn-ld-s{stroke-dasharray:1 1;stroke-dashoffset:1}
+.fn-ld[data-go] .fn-ld-s{animation:fnLdDraw 1.35s cubic-bezier(.65,0,.2,1) .1s forwards}
+.fn-ld[data-go] .fn-ld-st{animation:fnLdStroke .5s ease 1.2s forwards}
+.fn-ld[data-go] .fn-ld-f{animation:fnLdFill .75s cubic-bezier(.3,1.5,.5,1) .95s forwards}
+@keyframes fnLdDraw{0%{stroke-dashoffset:1}100%{stroke-dashoffset:0}}
+@keyframes fnLdStroke{to{opacity:0;stroke-width:1}}
+@keyframes fnLdFill{0%{opacity:0;transform:scale(.9)}60%{opacity:1;transform:scale(1.04)}100%{opacity:1;transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){.fn-ld{display:none}html.fn-ld-on::after{display:none}}
+.fn-pr-reg-p{max-width:46ch;margin:14px 0 0;font-size:clamp(15px,1.5vw,17px);line-height:1.55;color:var(--mu)}

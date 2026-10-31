@@ -484,10 +484,51 @@
       const hint = b.querySelector('i'); if (hint) hint.textContent = hint.textContent.replace(/Tap to (read|close)/, 'Tap to ' + (open ? 'close' : 'read'));
     });
   }
+  // Brand intro: the logo draws itself as a gradient line, then fills in. Plays as the first-visit loader and when the logo is clicked.
+  ldMount() {
+    const root = document.documentElement;
+    const reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    let busy = false;
+    const build = () => {
+      const src = document.querySelector('#ic-logo path'); if (!src) return null;
+      const d = src.getAttribute('d') || '';
+      const strokes = d.split(/(?=M)/).filter(Boolean).map((s) => '<path d="' + s + '" pathLength="1" class="fn-ld-s"></path>').join('');
+      const el = document.createElement('div'); el.className = 'fn-ld'; el.setAttribute('aria-hidden', 'true');
+      el.innerHTML = '<svg viewBox="-16 -16 327 327" fill="none"><defs><linearGradient id="ld-g" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="295" y2="295"><stop offset="0" class="fn-ld-c1"></stop><stop offset=".55" class="fn-ld-c2"></stop><stop offset="1" class="fn-ld-c3"></stop></linearGradient></defs>' +
+        '<path class="fn-ld-f" fill-rule="evenodd" d="' + d + '"></path><g class="fn-ld-st" stroke="url(#ld-g)">' + strokes + '</g></svg>';
+      return el;
+    };
+    const run = (done, hold, keep) => {
+      if (busy) return; busy = true;
+      const el = build();
+      if (!el) { root.classList.remove('fn-ld-on'); busy = false; if (done) done(); return; }
+      document.body.appendChild(el);
+      root.classList.remove('fn-ld-on');
+      void el.offsetWidth;
+      el.setAttribute('data-go', '1');
+      setTimeout(() => {
+        if (keep) { if (done) done(); return; }
+        el.setAttribute('data-out', '1');
+        setTimeout(() => { try { el.remove(); } catch (e) {} busy = false; if (done) done(); }, 480);
+      }, hold || 2000);
+    };
+    if (root.classList.contains('fn-ld-on')) { if (reduce) root.classList.remove('fn-ld-on'); else run(); }
+    const logo = document.querySelector('.fn-hdr .fn-logo');
+    if (logo && !reduce) {
+      logo.addEventListener('click', (e) => {
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return;
+        e.preventDefault();
+        const home = /^\/?$/.test(location.pathname);
+        if (this.closeServicesNow) this.closeServicesNow();
+        run(() => { if (!home) location.href = logo.getAttribute('href') || '/'; }, home ? 2000 : 1750, !home);
+      });
+    }
+  }
   boot() {
     this.injectSprite();
     this.iconFix();
     this.tokenFix();
+    this.ldMount();
     this.applyFxStyles();
     this.a11yMount();
     this.audioInit();
@@ -878,7 +919,7 @@
     if (location.pathname.replace(/\/+$/, '') !== '/printing' || document.querySelector('.fn-pr-reg')) return;
     const anchor = document.getElementById('investment'); if (!anchor) return;
     const reduced = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-    const TXT = 'Print that feels as good in hand.';
+    const TXT = 'Print that feels as good in the hand as it looks on screen.';
     const plates = [['c', '#00aeef', 15, 'translate(-30px,-20px) rotate(-3deg)'], ['m', '#ec008c', 75, 'translate(26px,-22px) rotate(3deg)'], ['y', '#ffd400', 0, 'translate(6px,30px) rotate(-2deg)'], ['k', 'var(--ink)', 45, 'translate(-10px,12px) rotate(2deg)']];
     let defs = '', layers = '';
     plates.forEach((pl) => {
@@ -892,6 +933,7 @@
     sec.className = P('wrap sec pr-reg'); sec.setAttribute('aria-labelledby', 'pr-reg-h');
     sec.innerHTML = '<div class="' + P('pr-reg-card') + '"><p class="' + P('chip') + '">Printing</p>' +
       '<h2 class="' + P('pr-reg-h') + '" id="pr-reg-h" aria-label="' + TXT + '"><span class="' + P('pr-reg-t') + '" aria-hidden="true"></span><i class="' + P('pr-caret') + '" aria-hidden="true"></i></h2>' +
+      '<p class="' + P('pr-reg-p') + '">Flyers, menus, packaging and signs, colour-matched to your brand and finished properly, so people pick them up, keep them and show them to someone else.</p>' +
       '<svg class="' + P('pr-reg-svg') + '" viewBox="0 0 400 400" role="img" aria-label="The four print colours lining up into the Funnal logo"><defs>' + defs + '</defs>' +
       '<g class="' + P('pr-marks') + '" style="color:var(--mu)">' + crop + mark(200, 22) + mark(200, 378) + '</g>' +
       '<g class="' + P('pr-plates') + '">' + layers + '</g><g class="' + P('pr-bar') + '">' + bar + '</g></svg></div>';
