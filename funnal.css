@@ -1813,3 +1813,5 @@ img{display:inline;vertical-align:baseline}
 .fn-terms-b .fn-chev{background:var(--surf)}
 .fn-terms-b[aria-expanded="true"] .fn-chev{background:var(--ink)}
 
+/* tab buttons are divs in Webflow: centre their label the way a <button> does */
+.fn-seg-b{display:flex;align-items:center;justify-content:center;text-align:center}

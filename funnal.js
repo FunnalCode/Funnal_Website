@@ -446,6 +446,35 @@
     this.lfMount();
     this.adsMount();
     this.fmMount();
+    this.socMount();
+  }
+  // Social Media: package cards switch the calendar and scroll to it; each card has a "what's included" drop-down
+  socMount() {
+    const seg = document.querySelector('[data-tabs="pk"]'); if (!seg) return;
+    const btns = Array.prototype.slice.call(document.querySelectorAll('.fn-pcard [data-pk]'));
+    const tabs = Array.prototype.slice.call(seg.querySelectorAll('[role="tab"]'));
+    const sync = (cur) => btns.forEach((b) => {
+      const me = Number(b.getAttribute('data-pk')) === cur;
+      b.textContent = me ? 'Showing in your month' : 'Show in your month';
+      b.classList.toggle('fn-ghost', !me);
+    });
+    seg.addEventListener('fn-tab', (e) => { if (e.detail) sync(e.detail.i); });
+    btns.forEach((b) => b.addEventListener('click', () => {
+      const i = Number(b.getAttribute('data-pk'));
+      if (tabs[i] && tabs[i].getAttribute('aria-selected') !== 'true') tabs[i].click();
+      const el = document.getElementById('calendar');
+      try { if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (err) {}
+    }));
+    Array.prototype.slice.call(document.querySelectorAll('.fn-dd-b')).forEach((b) => {
+      const dd = document.getElementById(b.getAttribute('aria-controls')), label = b.querySelector('span');
+      b.addEventListener('click', () => {
+        const open = b.getAttribute('aria-expanded') !== 'true';
+        this.play('tab');
+        b.setAttribute('aria-expanded', open ? 'true' : 'false');
+        if (dd) dd.classList.toggle('fn-open', open);
+        if (label) label.textContent = label.textContent.replace(/^(See|Hide)/, open ? 'Hide' : 'See');
+      });
+    });
   }
   // Printing: one paper sheet morphs between business card, brochure, leaflet, flyer and poster proportions
   fmMount() {
