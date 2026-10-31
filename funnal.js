@@ -882,7 +882,7 @@
     const plates = [['c', '#00aeef', 15, 'translate(-30px,-20px) rotate(-3deg)'], ['m', '#ec008c', 75, 'translate(26px,-22px) rotate(3deg)'], ['y', '#ffd400', 0, 'translate(6px,30px) rotate(-2deg)'], ['k', 'var(--ink)', 45, 'translate(-10px,12px) rotate(2deg)']];
     let defs = '', layers = '';
     plates.forEach((pl) => {
-      defs += '<pattern id="prp-' + pl[0] + '" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(' + pl[2] + ')"><circle cx="3.5" cy="3.5" r="2.5" style="fill:' + pl[1] + '"></circle></pattern>';
+      defs += '<pattern id="prp-' + pl[0] + '" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(' + pl[2] + ')"><circle cx="3.5" cy="3.5" r="' + (pl[0] === 'k' ? '3.1' : '2.4') + '" style="fill:' + pl[1] + '"></circle></pattern>';
       layers += '<g class="' + P('pr-plate pr-' + pl[0]) + '" style="--from:' + pl[3] + '"><use href="#ic-logo" x="70" y="70" width="260" height="260" fill="url(#prp-' + pl[0] + ')"></use></g>';
     });
     const mark = (x, y) => '<g transform="translate(' + x + ' ' + y + ')"><circle r="7" fill="none" stroke="currentColor" stroke-width="1.2"></circle><path d="M-11 0H11M0 -11V11" stroke="currentColor" stroke-width="1.2"></path></g>';

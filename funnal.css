@@ -2034,7 +2034,7 @@ a[x-apple-data-detectors],.fn-wb-f a[href^="tel"],.fn-ws-bd a[href^="tel"]{color
   #problem .inline-h2-0{font-size:20px;font-weight:600}
 }
 /* Email & SMS scroll scene: dots and the "Message sent" chip centred */
-.fn-sx-em .fn-em-d{margin-left:-3.5cqw}
+.fn-sx-em .fn-em-d{margin-left:-4.4cqw}
 .fn-sx-em .fn-sx-chip.fn-sx-pink.fn-o3{left:0!important;right:0;margin-inline:auto;width:fit-content}
 /* Social phone mock: calmer hearts that drift up with a gentle sway */
 .fn-so-h{translate:calc(sin(var(--q) * 9.4) * 1.6cqw) calc(var(--q) * -16cqw);scale:calc(.6 + .55 * var(--q))}
@@ -2055,7 +2055,11 @@ a[x-apple-data-detectors],.fn-wb-f a[href^="tel"],.fn-ws-bd a[href^="tel"]{color
 .fn-pr-plates{isolation:isolate}
 .fn-pr-plate{mix-blend-mode:multiply;transform-box:view-box;transform-origin:50% 50%;transform:var(--from);transition:transform 2.3s cubic-bezier(.2,.85,.2,1)}
 [data-theme="dark"] .fn-pr-plate{mix-blend-mode:screen}
-.fn-pr-reg.fn-is-in .fn-pr-plate{transform:none}
+.fn-pr-reg.fn-is-in .fn-pr-c{transform:translate(-1.6px,-1px)}
+.fn-pr-reg.fn-is-in .fn-pr-m{transform:translate(1.6px,-1.2px)}
+.fn-pr-reg.fn-is-in .fn-pr-y{transform:translate(0,1.8px)}
+.fn-pr-reg.fn-is-in .fn-pr-k{transform:none}
+.fn-pr-k{mix-blend-mode:normal}
 .fn-pr-c{transition-delay:0s}.fn-pr-m{transition-delay:.12s}.fn-pr-y{transition-delay:.24s}.fn-pr-k{transition-delay:.36s}
 .fn-pr-marks,.fn-pr-bar{opacity:0;transition:opacity .8s ease 1.7s}
 .fn-pr-reg.fn-is-in .fn-pr-marks,.fn-pr-reg.fn-is-in .fn-pr-bar{opacity:1}
