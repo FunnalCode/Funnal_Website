@@ -207,7 +207,7 @@
     this.currentMount(svcBtn);
   }
   // pages that have a "-redesign" twin while the redesign is previewed on webflow.io (emptied at launch)
-  previewPages() { return ['', 'about', 'privacy-policy', 'cookie-policy', 'ai-automation', 'branding', 'email-sms', 'paid-advertisement', 'printing', 'services-new', 'website', 'packages', 'contact']; }
+  previewPages() { return ['', 'about', 'privacy-policy', 'cookie-policy', 'ai-automation', 'branding', 'email-sms', 'paid-advertisement', 'printing', 'services-new', 'website', 'packages', 'contact', 'blog', 'blog-post']; }
   curPath() { return location.pathname.replace(/\/+$/, '').replace(/-redesign$/, ''); }
   isPreview() { return /\.webflow\.io$/i.test(location.hostname) && /-redesign\/?$/.test(location.pathname); }
   // an internal link as it should read on the preview (links built by script go through here too)
@@ -231,7 +231,7 @@
   }
   currentMount(svcBtn) {
     try {
-      const p = this.curPath();
+      const p = this.curPath().replace(/^\/blog-post$/, '/blog');
       if (svcBtn && /^\/(ai-automation|branding|email-sms|paid-advertisement|printing|services-new|social-media(-management)?|website|websites)$/.test(p)) svcBtn.setAttribute('aria-current', 'page');
       Array.prototype.slice.call(document.querySelectorAll('.fn-nav-link[href], .fn-m-item[href]')).forEach((a) => {
         const h = (a.getAttribute('href') || '').split(/[?#]/)[0].replace(/\/+$/, '').replace(/-redesign$/, '');
@@ -419,6 +419,17 @@
       b.addEventListener('click', () => this.copy(m[2], m[1] + ' ' + m[2] + ' copied'));
     });
   }
+  // pictures hosted in the repo: Webflow's Image element only takes a library asset, so the wrapper keeps the address (data-img, data-alt) and the <img> is built here
+  imgMount() {
+    Array.prototype.slice.call(document.querySelectorAll('[data-img]')).forEach((w) => {
+      if (w.querySelector('img')) return;
+      const i = document.createElement('img');
+      i.setAttribute('alt', w.getAttribute('data-alt') || '');
+      i.setAttribute('loading', 'lazy'); i.setAttribute('decoding', 'async');
+      i.setAttribute('src', w.getAttribute('data-img'));
+      w.insertBefore(i, w.firstChild);
+    });
+  }
   termsMount() {
     const b = document.querySelector('.fn-terms-b'); if (!b) return;
     b.addEventListener('click', () => {
@@ -443,6 +454,7 @@
     this.tabsMount();
     this.termsMount();
     this.copyMount();
+    this.imgMount();
     if (this.svcMount) this.svcMount();
     if (this.homeMount) this.homeMount();
     this.fxMount();
@@ -457,6 +469,77 @@
     this.wsMount();
     this.pkMount();
     this.ctMount();
+    this.blMount();
+    this.bpMount();
+  }
+  // Blog index: topic filter. Every chip carries data-tag ('' = All) and every card data-tags ("A|B"); clicking the active chip clears the filter
+  blMount() {
+    const bar = document.querySelector('.fn-bl-filter'); if (!bar) return;
+    const $qa = (s, r) => Array.prototype.slice.call((r || document).querySelectorAll(s));
+    const chips = $qa('.fn-bl-f', bar), cards = $qa('.fn-bl-card');
+    let cur = '';
+    const apply = (tag) => {
+      cur = tag;
+      chips.forEach((c) => {
+        const on = (c.getAttribute('data-tag') || '') === tag;
+        c.classList.toggle('fn-on', on);
+        c.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+      cards.forEach((a) => {
+        const off = !!tag && (a.getAttribute('data-tags') || '').split('|').indexOf(tag) < 0;
+        a.classList.toggle('fn-tp-off', off);
+      });
+    };
+    chips.forEach((c) => c.addEventListener('click', () => {
+      const t = c.getAttribute('data-tag') || '';
+      this.play('tab');
+      apply(cur === t ? '' : t);
+    }));
+  }
+  // Blog post page: every post is its own <article data-post=slug>; the hash (#p=slug) picks the one shown, the last one read is the fallback
+  bpMount() {
+    const arts = Array.prototype.slice.call(document.querySelectorAll('[data-post]')); if (!arts.length) return;
+    const slugs = arts.map((a) => a.getAttribute('data-post'));
+    const fromHash = () => { const m = /(?:^|[#&])p=([\w-]+)/.exec(location.hash || ''); return m && slugs.indexOf(m[1]) >= 0 ? m[1] : ''; };
+    const artOf = (slug) => arts.filter((a) => a.getAttribute('data-post') === slug)[0];
+    let now = '';
+    const show = (slug) => {
+      now = slug;
+      arts.forEach((a) => {
+        const off = a.getAttribute('data-post') !== slug;
+        a.classList.toggle('fn-tp-off', off);
+      });
+      const cur = artOf(slug);
+      if (cur) document.title = 'Funnal | ' + cur.getAttribute('data-title');
+      try { localStorage.setItem('fnl-post', slug); } catch (e) {}
+    };
+    let first = fromHash();
+    if (!first) { try { first = localStorage.getItem('fnl-post') || ''; } catch (e) {} }
+    if (slugs.indexOf(first) < 0) first = slugs[0];
+    show(first);
+    if (!fromHash()) { try { history.replaceState(null, '', '#p=' + first); } catch (e) {} }
+    window.addEventListener('hashchange', () => { const h = fromHash(); if (h && h !== now) show(h); });
+    document.addEventListener('click', (e) => {
+      const t = e.target && e.target.closest ? e.target : null; if (!t) return;
+      const more = t.closest('[data-post-link]');
+      if (more) {
+        e.preventDefault();
+        const sl = more.getAttribute('data-post-link');
+        this.play('tab');
+        try { history.replaceState(null, '', '#p=' + sl); } catch (x) {}
+        show(sl);
+        try { window.scrollTo(0, 0); } catch (x) {}
+        return;
+      }
+      const toc = t.closest('a[data-toc]');
+      if (toc) {
+        const dest = document.getElementById((toc.getAttribute('href') || '').replace('#', ''));
+        if (dest) { e.preventDefault(); this.play('tab'); dest.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+        return;
+      }
+      const cp = t.closest('[data-copy-link]');
+      if (cp) { const art = cp.closest('[data-post]'); if (art) this.copy(art.getAttribute('data-share'), 'Link copied'); }
+    });
   }
   // Websites: the step picker builds the illustrated site up one stage at a time (classes is{n} ge0..ge{n} on the picture)
   wsMount() {
