@@ -207,7 +207,7 @@
     this.currentMount(svcBtn);
   }
   // pages that have a "-redesign" twin while the redesign is previewed on webflow.io (emptied at launch)
-  previewPages() { return ['', 'about', 'privacy-policy', 'cookie-policy', 'ai-automation', 'branding']; }
+  previewPages() { return ['', 'about', 'privacy-policy', 'cookie-policy', 'ai-automation', 'branding', 'email-sms']; }
   curPath() { return location.pathname.replace(/\/+$/, '').replace(/-redesign$/, ''); }
   isPreview() { return /\.webflow\.io$/i.test(location.hostname) && /-redesign\/?$/.test(location.pathname); }
   previewLinks() {
@@ -354,6 +354,7 @@
       const select = (i, quiet) => {
         if (i === cur || i < 0 || i >= tabs.length) return;
         if (!quiet) this.play('tab');
+        const prev = cur;
         cur = i;
         tabs.forEach((t, k) => {
           t.setAttribute(t.getAttribute('role') === 'radio' ? 'aria-checked' : 'aria-selected', k === i ? 'true' : 'false'); t.setAttribute('tabindex', k === i ? '0' : '-1');
@@ -361,7 +362,12 @@
           if (mode === 'step') t.classList.toggle('fn-dn', k < i);
         });
         if (isSeg) tl.style.setProperty('--k', String(i));
-        if (mode === 'panel') panels.forEach((p) => { const off = Number(p.getAttribute('data-i')) !== i; p.classList.toggle('fn-tp-off', off); });
+        if (mode === 'panel') {
+          flip ^= 1;
+          panels.forEach((p) => { const off = Number(p.getAttribute('data-i')) !== i; p.classList.toggle('fn-tp-off', off); p.classList.remove('fn-p0', 'fn-p1'); if (!off) p.classList.add(flip ? 'fn-p1' : 'fn-p0'); });
+          const pa = panels.filter((p) => Number(p.getAttribute('data-i')) === prev)[0], pb = panels.filter((p) => Number(p.getAttribute('data-i')) === i)[0];
+          if (pa && pb && this.odoRoll) this.odoRoll(pa, pb);
+        }
         else if (tp) {
           if (tabs[i].id) tp.setAttribute('aria-labelledby', tabs[i].id);
           if (mode === 'step') {
@@ -430,8 +436,59 @@
     this.tabsMount();
     this.termsMount();
     this.copyMount();
+    if (this.svcMount) this.svcMount();
     if (this.homeMount) this.homeMount();
     this.fxMount();
+  }
+
+  // ===== service pages: page-specific pictures and calculators =====
+  svcMount() {
+    this.lfMount();
+  }
+  // odometer prices: roll from the figures of the panel being left to the ones being shown
+  odoRoll(from, to) {
+    const A = Array.prototype.slice.call(from.querySelectorAll('.fn-st')), B = Array.prototype.slice.call(to.querySelectorAll('.fn-st'));
+    B.forEach((st, n) => {
+      if (!A[n]) return;
+      const target = st.style.getPropertyValue('--d'), start = A[n].style.getPropertyValue('--d'), dly = st.style.transitionDelay;
+      if (target === start) return;
+      st.style.transition = 'none'; st.style.setProperty('--d', start); void st.offsetHeight;
+      st.style.transition = ''; st.style.transitionDelay = dly; st.style.setProperty('--d', target);
+    });
+  }
+  // Email & SMS: 48 contacts that get tidied, split into groups, mailed and topped up as the approach steps change
+  lfMount() {
+    const lf = document.querySelector('.fn-lf'); if (!lf) return;
+    const dots = Array.prototype.slice.call(lf.querySelectorAll('.fn-lf-d'));
+    const leg = document.querySelector('.fn-lf-leg'), tl = document.querySelector('[data-tabs="stp"]');
+    if (dots.length < 64 || !tl) return;
+    const BAD = [2, 5, 9, 14, 17, 22, 26, 29, 33, 38, 41, 45];
+    const G = [['g0', 'Nurture'], ['g1', 'Convert'], ['g2', 'Re-engage']];
+    const LEG = [[['ok', 'Verified contacts'], ['bad', 'Outdated or duplicate']], G, G, G.concat([['nw', 'New prospects']]), G.concat([['nw', 'New prospects']])];
+    const ARIA = ['48 contacts, 12 of them outdated or duplicates being removed', 'Verified contacts grouped into three segments', 'Campaigns going out to each segment', 'New verified prospects joining the audience', 'The whole audience being tested and refined every month'];
+    const draw = (step) => {
+      let gi = 0;
+      for (let k = 0; k < 48; k++) {
+        const col = k % 12, row = Math.floor(k / 12), bad = BAD.indexOf(k) >= 0;
+        let x = 50 + (col - 5.5) * 7, y = 23 + (row - 1.5) * 7, cls = 'ok';
+        if (bad) cls = step === 0 ? 'bad flag' : 'bad gone';
+        else {
+          const g = Math.floor(gi / 12);
+          if (step >= 1) { const j = gi % 12; x = [20, 50, 80][g] + ((j % 4) - 1.5) * 5.6; y = 23.5 + (Math.floor(j / 4) - 1) * 5.6; cls = 'ok g' + g; }
+          if (step === 2) cls += ' ping';
+          if (step === 4) cls += ' wave';
+          gi++;
+        }
+        dots[k].className = P('lf-d ' + cls); dots[k].style.left = x.toFixed(1) + 'cqw'; dots[k].style.top = y.toFixed(1) + 'cqw';
+      }
+      for (let n = 0; n < 16; n++) {
+        const on = step >= 3, d = dots[48 + n];
+        d.className = P('lf-d nw' + (on ? '' : ' gone')); d.style.left = (10 + n * 5.333).toFixed(1) + 'cqw'; d.style.top = (on ? 38 : 58) + 'cqw';
+      }
+      if (leg) leg.innerHTML = LEG[step].map((x) => '<span class="' + P('lf-k') + '"><i class="' + P(x[0]) + '"></i>' + x[1] + '</span>').join('');
+      lf.setAttribute('aria-label', ARIA[step]);
+    };
+    tl.addEventListener('fn-tab', (e) => { if (e.detail && e.detail.i >= 0 && e.detail.i < 5) draw(e.detail.i); });
   }
 
   // ===== soft synthesized UI sounds (no files): sit quietly under the reel sounds =====
