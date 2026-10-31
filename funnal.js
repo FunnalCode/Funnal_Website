@@ -113,8 +113,8 @@
       Array.prototype.slice.call(el.childNodes).forEach((x) => { if (x.nodeType === 3 && re.test(x.nodeValue)) x.parentNode.removeChild(x); });
     });
     // the Social phone mock arrives without its classes
-    const ph = document.querySelector('.fn-sx-so > div[data-fx-style]');
-    if (ph && !ph.className) ph.className = P('so-ph sp sx-a i3');
+    const soIn = document.querySelector('.fn-sx-so .fn-so-in'), ph = soIn && soIn.parentElement;
+    if (ph && !/so-ph/.test(ph.className)) ph.className = P('so-ph sp sx-a i3');
     // Packages: mark Executive as the recommended tier
     if (/^\/packages\/?$/.test(location.pathname)) {
       Array.prototype.slice.call(document.querySelectorAll('.fn-t-name')).forEach((n) => {
@@ -389,7 +389,7 @@
       const tp = d.querySelector('[data-tp-text="' + g + '"]');
       const isSeg = tl.classList.contains('fn-seg');
       let cur = Math.max(0, tabs.findIndex((t) => t.getAttribute('aria-selected') === 'true' || t.getAttribute('aria-checked') === 'true'));
-      let flip = 0, auto = tl.hasAttribute('data-auto'), hold = false;
+      let flip = 0, auto = tl.hasAttribute('data-auto') && !(g === 'ax' && window.matchMedia && window.matchMedia('(max-width: 900px)').matches), hold = false;
       const set = (k, v) => { const el = tp && tp.querySelector('[data-bind="' + k + '"]'); if (el) el.textContent = v; };
       const foot = () => {
         const f = tp && tp.querySelector('[data-foot-a]'); if (!f) return;
@@ -430,6 +430,7 @@
           flip ^= 1; tp.classList.remove('fn-p0', 'fn-p1'); tp.classList.add(flip ? 'fn-p1' : 'fn-p0');
         }
         arrows(); foot();
+        if (g === 'ax' && tl.scrollWidth > tl.clientWidth + 4) { try { tl.scrollTo({ left: Math.max(0, tabs[i].offsetLeft - (tl.clientWidth - tabs[i].offsetWidth) / 2), behavior: 'smooth' }); } catch (e) {} }
         try { tl.dispatchEvent(new CustomEvent('fn-tab', { detail: { i, tab: tabs[i] }, bubbles: true })); } catch (e) {}
       };
       tabs.forEach((t, i) => t.addEventListener('click', () => { if (auto) { auto = false; } select(i); foot(); }));
@@ -509,6 +510,7 @@
   // ===== service pages: page-specific pictures and calculators =====
   svcMount() {
     this.lfMount();
+    this.prMount();
     this.adsMount();
     this.fmMount();
     this.socMount();
@@ -526,6 +528,8 @@
     const $qa = (s, r) => Array.prototype.slice.call((r || document).querySelectorAll(s));
     const chips = $qa('.fn-bl-f', bar), cards = $qa('.fn-bl-card');
     $qa('a[data-slug]').forEach((a) => { a.setAttribute('href', '/post/' + a.getAttribute('data-slug')); });
+    // the whole card opens the post (a tap anywhere on it, not just the title); a text selection is left alone
+    cards.forEach((c) => { c.addEventListener('click', (e) => { if (e.target.closest('a')) return; const sel = window.getSelection && String(window.getSelection()); if (sel) return; const l = c.querySelector('a[href]'); if (l) { this.play && this.play('tab'); location.href = l.getAttribute('href'); } }); });
     // Tag chips and card tags both come from the Topics collection, so they are matched by their label (a topic renamed in the CMS stays in sync)
     const lab = (el) => ((el.querySelector('div') || el).textContent || '').replace(/\s+/g, ' ').trim().toLowerCase();
     const keyOf = (c) => (c.getAttribute('data-tag') === '' ? '' : lab(c));
@@ -869,6 +873,43 @@
       st.style.transition = ''; st.style.transitionDelay = dly; st.style.setProperty('--d', target);
     });
   }
+  // Printing: the four colour plates (cyan, magenta, yellow, black) start out of register and slide together into the logo
+  prMount() {
+    if (location.pathname.replace(/\/+$/, '') !== '/printing' || document.querySelector('.fn-pr-reg')) return;
+    const anchor = document.getElementById('investment'); if (!anchor) return;
+    const reduced = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    const TXT = 'Print that feels as good in hand.';
+    const plates = [['c', '#00aeef', 15, 'translate(-30px,-20px) rotate(-3deg)'], ['m', '#ec008c', 75, 'translate(26px,-22px) rotate(3deg)'], ['y', '#ffd400', 0, 'translate(6px,30px) rotate(-2deg)'], ['k', 'var(--ink)', 45, 'translate(-10px,12px) rotate(2deg)']];
+    let defs = '', layers = '';
+    plates.forEach((pl) => {
+      defs += '<pattern id="prp-' + pl[0] + '" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(' + pl[2] + ')"><circle cx="3.5" cy="3.5" r="2.5" style="fill:' + pl[1] + '"></circle></pattern>';
+      layers += '<g class="' + P('pr-plate pr-' + pl[0]) + '" style="--from:' + pl[3] + '"><use href="#ic-logo" x="70" y="70" width="260" height="260" fill="url(#prp-' + pl[0] + ')"></use></g>';
+    });
+    const mark = (x, y) => '<g transform="translate(' + x + ' ' + y + ')"><circle r="7" fill="none" stroke="currentColor" stroke-width="1.2"></circle><path d="M-11 0H11M0 -11V11" stroke="currentColor" stroke-width="1.2"></path></g>';
+    const crop = '<path d="M30 54V30H54M346 30H370V54M30 346V370H54M346 370H370V346" fill="none" stroke="currentColor" stroke-width="1.4"></path>';
+    const bar = ['#00aeef', '#ec008c', '#ffd400', '#111', '#8a8f94'].map((c, i) => '<rect x="' + (300 + i * 14) + '" y="378" width="12" height="10" fill="' + c + '"></rect>').join('');
+    const sec = document.createElement('section');
+    sec.className = P('wrap sec pr-reg'); sec.setAttribute('aria-labelledby', 'pr-reg-h');
+    sec.innerHTML = '<div class="' + P('pr-reg-card') + '"><p class="' + P('chip') + '">Printing</p>' +
+      '<h2 class="' + P('pr-reg-h') + '" id="pr-reg-h" aria-label="' + TXT + '"><span class="' + P('pr-reg-t') + '" aria-hidden="true"></span><i class="' + P('pr-caret') + '" aria-hidden="true"></i></h2>' +
+      '<svg class="' + P('pr-reg-svg') + '" viewBox="0 0 400 400" role="img" aria-label="The four print colours lining up into the Funnal logo"><defs>' + defs + '</defs>' +
+      '<g class="' + P('pr-marks') + '" style="color:var(--mu)">' + crop + mark(200, 22) + mark(200, 378) + '</g>' +
+      '<g class="' + P('pr-plates') + '">' + layers + '</g><g class="' + P('pr-bar') + '">' + bar + '</g></svg></div>';
+    anchor.parentNode.insertBefore(sec, anchor);
+    const t = sec.querySelector('.fn-pr-reg-t'), cr = sec.querySelector('.fn-pr-caret');
+    let timer = 0;
+    const type = () => {
+      clearInterval(timer); t.textContent = '';
+      if (reduced) { t.textContent = TXT; return; }
+      let i = 0; timer = setInterval(() => { t.textContent = TXT.slice(0, ++i); if (i >= TXT.length) clearInterval(timer); }, 38);
+    };
+    if (!('IntersectionObserver' in window)) { sec.classList.add(P('is-in')); t.textContent = TXT; return; }
+    const io = new IntersectionObserver((es) => es.forEach((e) => {
+      if (e.isIntersecting) { sec.classList.add(P('is-in')); type(); }
+      else if (e.intersectionRatio === 0) { sec.classList.remove(P('is-in')); clearInterval(timer); t.textContent = ''; }
+    }), { threshold: [0, 0.45] });
+    io.observe(sec.querySelector('.fn-pr-reg-card'));
+  }
   // Email & SMS: 48 contacts that get tidied, split into groups, mailed and topped up as the approach steps change
   lfMount() {
     const lf = document.querySelector('.fn-lf'); if (!lf) return;
@@ -1068,6 +1109,7 @@
       tl.addEventListener('click', () => { if (st.r) tell(st.r.cat, st.r.msg + '\n\n' + st.r.sum); });
       const tn = tl.firstChild; if (tn && tn.nodeType === 3) tn.nodeValue = 'Send this to us';
     }
+    const hint = res.querySelector('.fn-qz-hint'); if (hint) hint.textContent = '“Send this to us” puts your answers into the contact form below, ready to send straight to the team.';
     const ml = res.querySelector('[data-qz-mail]');
     if (ml) { ml.removeAttribute('href'); ml.style.display = 'none'; }
   }

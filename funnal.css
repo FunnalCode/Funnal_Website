@@ -2015,3 +2015,48 @@ img{display:inline;vertical-align:baseline}
 .fn-pcard{position:relative}
 /* Websites scene: the browser-bar must not inherit the burger-menu bar rule (fixed 18px wide) */
 .fn-wb-f .fn-bar{width:auto;border-radius:0;transition:none}
+
+/* ===== Round 2 ===== */
+/* Home: hero text sits a little lower on phones */
+@media (max-width:720px){.fn-hero{padding-top:clamp(28px,9vw,52px)}}
+/* Meet the team (home): Sam first, in front, never faded or blurred */
+.fn-faces .fn-face.fn-f1,.fn-faces .fn-face.fn-f2{animation:none!important;opacity:1!important;filter:none!important}
+.fn-faces .fn-face.fn-f1{z-index:2}
+.fn-faces .fn-face.fn-f2{z-index:1}
+/* iPhone turns phone numbers into blue links: keep our colours */
+a[x-apple-data-detectors],.fn-wb-f a[href^="tel"],.fn-ws-bd a[href^="tel"]{color:inherit!important;text-decoration:none!important;font:inherit!important}
+/* Contact quiz: space between "See" and the service name */
+[data-qz-see]>span{margin-left:.3em}
+/* Packages: stack the two-column intro rows on phones so sizes match */
+@media (max-width:720px){
+  #addons>.inline-div-0,#problem>.inline-div-0{flex-direction:column!important;align-items:flex-start!important;gap:10px!important}
+  #addons>.inline-div-0>*,#problem>.inline-div-0>*{width:100%!important;max-width:none!important;flex:none!important}
+  #problem .inline-h2-0{font-size:20px;font-weight:600}
+}
+/* Email & SMS scroll scene: dots and the "Message sent" chip centred */
+.fn-sx-em .fn-em-d{margin-left:-3.5cqw}
+.fn-sx-em .fn-sx-chip.fn-sx-pink.fn-o3{left:0!important;right:0;margin-inline:auto;width:fit-content}
+/* Social phone mock: calmer hearts that drift up with a gentle sway */
+.fn-so-h{translate:calc(sin(var(--q) * 9.4) * 1.6cqw) calc(var(--q) * -16cqw);scale:calc(.6 + .55 * var(--q))}
+.fn-so-ph .fn-ac .fn-hr{transform-origin:center}
+/* AI Automation examples: one swipeable row of tabs on phones, result right underneath */
+@media (max-width:900px){
+  .fn-ax-list{flex-flow:row nowrap!important;overflow-x:auto;overflow-y:hidden;gap:8px;padding:10px;scroll-snap-type:x proximity;scrollbar-width:none;-webkit-overflow-scrolling:touch;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 12px,#000 calc(100% - 26px),transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 12px,#000 calc(100% - 26px),transparent 100%)}
+  .fn-ax-list::-webkit-scrollbar{display:none}
+  .fn-ax-b{flex:0 0 auto;white-space:nowrap;scroll-snap-align:center}
+  .fn-ax-nm{white-space:nowrap}
+}
+/* Printing: the four colour plates sliding into register */
+.fn-pr-reg-card{position:relative;border-radius:28px;background:linear-gradient(135deg,var(--pink),var(--peach));padding:clamp(22px,4vw,48px);display:flex;flex-direction:column;align-items:center;gap:clamp(14px,2vw,24px);text-align:center;overflow:hidden}
+.fn-pr-reg-h{margin:0;font-size:clamp(26px,4.4vw,46px);font-weight:700;letter-spacing:-.035em;line-height:1.12;max-width:12em;min-height:2.3em;color:var(--ink)}
+.fn-pr-caret{display:inline-block;width:3px;height:.85em;margin-left:4px;vertical-align:-.1em;background:#d6a24a;animation:fnPrBlink 1s steps(2,start) infinite}
+@keyframes fnPrBlink{to{opacity:0}}
+.fn-pr-reg-svg{width:min(100%,440px);height:auto;aspect-ratio:1;overflow:visible;isolation:isolate}
+.fn-pr-plates{isolation:isolate}
+.fn-pr-plate{mix-blend-mode:multiply;transform-box:view-box;transform-origin:50% 50%;transform:var(--from);transition:transform 2.3s cubic-bezier(.2,.85,.2,1)}
+[data-theme="dark"] .fn-pr-plate{mix-blend-mode:screen}
+.fn-pr-reg.fn-is-in .fn-pr-plate{transform:none}
+.fn-pr-c{transition-delay:0s}.fn-pr-m{transition-delay:.12s}.fn-pr-y{transition-delay:.24s}.fn-pr-k{transition-delay:.36s}
+.fn-pr-marks,.fn-pr-bar{opacity:0;transition:opacity .8s ease 1.7s}
+.fn-pr-reg.fn-is-in .fn-pr-marks,.fn-pr-reg.fn-is-in .fn-pr-bar{opacity:1}
+@media (prefers-reduced-motion:reduce){.fn-pr-plate{transform:none;transition:none}.fn-pr-marks,.fn-pr-bar{opacity:1;transition:none}.fn-pr-caret{animation:none}}
