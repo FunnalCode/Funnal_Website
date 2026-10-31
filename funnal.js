@@ -207,7 +207,7 @@
     this.currentMount(svcBtn);
   }
   // pages that have a "-redesign" twin while the redesign is previewed on webflow.io (emptied at launch)
-  previewPages() { return ['', 'about', 'privacy-policy', 'cookie-policy', 'ai-automation', 'branding', 'email-sms', 'paid-advertisement', 'printing', 'services-new']; }
+  previewPages() { return ['', 'about', 'privacy-policy', 'cookie-policy', 'ai-automation', 'branding', 'email-sms', 'paid-advertisement', 'printing', 'services-new', 'website']; }
   curPath() { return location.pathname.replace(/\/+$/, '').replace(/-redesign$/, ''); }
   isPreview() { return /\.webflow\.io$/i.test(location.hostname) && /-redesign\/?$/.test(location.pathname); }
   previewLinks() {
@@ -447,6 +447,18 @@
     this.adsMount();
     this.fmMount();
     this.socMount();
+    this.wsMount();
+  }
+  // Websites: the step picker builds the illustrated site up one stage at a time (classes is{n} ge0..ge{n} on the picture)
+  wsMount() {
+    const stp = document.querySelector('[data-tabs="stp"]'), bw = document.querySelector('.fn-bw'); if (!stp || !bw) return;
+    const cap = document.querySelector('.fn-bw-cap');
+    stp.addEventListener('fn-tab', (e) => {
+      const x = e.detail && e.detail.tab ? e.detail.tab.querySelector('.fn-stp-d') : null; if (!x) return;
+      bw.className = P('bw ' + (x.getAttribute('data-bw') || ''));
+      if (cap) cap.textContent = x.getAttribute('data-cap') || '';
+      bw.setAttribute('aria-label', x.getAttribute('data-aria') || '');
+    });
   }
   // Social Media: package cards switch the calendar and scroll to it; each card has a "what's included" drop-down
   socMount() {
