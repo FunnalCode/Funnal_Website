@@ -1959,3 +1959,17 @@ img{display:inline;vertical-align:baseline}
 .fn-cs-mc-s{margin:0;font-size:13px;color:var(--mu)}
 .fn-cs-mc-t{margin:0;font-size:14px;line-height:1.5;color:var(--tx)}
 @media (prefers-reduced-motion:reduce){.fn-cs-mc,.fn-cs-mc:hover{transform:none}}
+
+/* ===== Home work grid (CMS list): Webflow's list wrappers step aside so each card sits straight in the grid ===== */
+.fn-wk-grid .w-dyn-list,.fn-wk-grid .w-dyn-items,.fn-wk-grid .w-dyn-item{display:contents}
+.fn-wk-item{display:flex;flex-direction:column;min-width:0}
+.fn-wk-item>.fn-work{flex:1 1 auto}
+.fn-work-chips .fn-chip:empty{display:none}
+.fn-work-chips:not(:has(.fn-chip:not(:empty))){display:none}
+.fn-work-tag:empty,.fn-work-sum:empty{display:none}
+@media (min-width:640px) and (max-width:999px){.fn-wk-grid .w-dyn-item:last-child:nth-child(odd)>.fn-wk-item{grid-column:span 2}}
+@media (min-width:1000px){
+.fn-wk-grid .w-dyn-item>.fn-wk-item{grid-column:span 3}
+.fn-wk-grid .w-dyn-item:nth-child(-n+3)>.fn-wk-item{grid-column:span 2}
+.fn-wk-grid .w-dyn-item:nth-child(n+4):last-child:nth-child(even)>.fn-wk-item{grid-column:span 6}
+}
