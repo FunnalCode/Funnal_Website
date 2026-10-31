@@ -207,7 +207,7 @@
     this.currentMount(svcBtn);
   }
   // pages that have a "-redesign" twin while the redesign is previewed on webflow.io (emptied at launch)
-  previewPages() { return ['', 'about', 'privacy-policy', 'cookie-policy', 'ai-automation', 'branding', 'email-sms', 'paid-advertisement', 'printing', 'services-new', 'website']; }
+  previewPages() { return ['', 'about', 'privacy-policy', 'cookie-policy', 'ai-automation', 'branding', 'email-sms', 'paid-advertisement', 'printing', 'services-new', 'website', 'packages']; }
   curPath() { return location.pathname.replace(/\/+$/, '').replace(/-redesign$/, ''); }
   isPreview() { return /\.webflow\.io$/i.test(location.hostname) && /-redesign\/?$/.test(location.pathname); }
   previewLinks() {
@@ -448,6 +448,7 @@
     this.fmMount();
     this.socMount();
     this.wsMount();
+    this.pkMount();
   }
   // Websites: the step picker builds the illustrated site up one stage at a time (classes is{n} ge0..ge{n} on the picture)
   wsMount() {
@@ -459,6 +460,56 @@
       if (cap) cap.textContent = x.getAttribute('data-cap') || '';
       bw.setAttribute('aria-label', x.getAttribute('data-aria') || '');
     });
+  }
+  // Packages: the hero stairs, the explorer tabs and the comparison table share one tier; the add-on builder keeps its own base package
+  pkMount() {
+    const ex = document.querySelector('[data-tabs="tier"]'); if (!ex) return;
+    const $qa = (s, r) => Array.prototype.slice.call((r || document).querySelectorAll(s));
+    const tabs = $qa('[role="tab"]', ex), steps = $qa('.fn-stairs .fn-step'), heads = $qa('.fn-cmp-head .fn-cmp-h'), cmp = document.querySelector('.fn-cmp');
+    const sync = (i) => {
+      steps.forEach((s, k) => s.classList.toggle('fn-on', k === i));
+      heads.forEach((h, k) => h.setAttribute('aria-pressed', k === i ? 'true' : 'false'));
+      if (cmp) { cmp.style.setProperty('--k', String(i)); $qa('.fn-cmp-row', cmp).forEach((r) => $qa('.fn-cmp-c', r).forEach((c, k) => c.classList.toggle('fn-on', k === i))); }
+    };
+    ex.addEventListener('fn-tab', (e) => { if (e.detail) sync(e.detail.i); });
+    const pick = (i) => { if (tabs[i] && tabs[i].getAttribute('aria-selected') !== 'true') tabs[i].click(); };
+    steps.forEach((s, i) => s.addEventListener('click', () => pick(i)));
+    heads.forEach((h, i) => h.addEventListener('click', () => pick(i)));
+    // comparison drop-down
+    const tg = document.querySelector('.fn-cmp-tg'), dd = document.getElementById('cmp-dd');
+    if (tg && dd) tg.addEventListener('click', () => {
+      const open = tg.getAttribute('aria-expanded') !== 'true';
+      this.play('tab');
+      tg.setAttribute('aria-expanded', open ? 'true' : 'false');
+      dd.classList.toggle('fn-open', open);
+      const lb = tg.querySelector('.fn-cmp-act > span'); if (lb) lb.textContent = open ? 'Hide comparison' : 'Show comparison';
+    });
+    // add-on builder
+    const base = document.querySelector('[data-tabs="base"]'), row = document.querySelector('.fn-plan-row'), line = document.querySelector('.fn-plan-ct');
+    const aos = $qa('.fn-ao'), mail = document.querySelector('.fn-plan-act a'), cp = document.querySelector('.fn-plan-act .fn-ghost');
+    if (!base || !row || !line) return;
+    const names = $qa('[role="radio"]', base).map((t) => t.textContent.trim());
+    const picks = []; let bi = 0, txt = '';
+    const draw = () => {
+      const bn = names[bi] || '', chosen = aos.filter((a, i) => picks[i]).map((a) => a.querySelector('.fn-ao-t b').textContent.trim());
+      row.textContent = '';
+      const b = document.createElement('span'); b.className = 'fn-chip-b'; b.textContent = bn + ' package'; row.appendChild(b);
+      chosen.forEach((n) => { const c = document.createElement('span'); c.className = 'fn-chip-a'; c.textContent = n; row.appendChild(c); });
+      line.textContent = chosen.length === 0 ? 'Just the package for now. Tap any add-on above to build your own.'
+        : chosen.length + (chosen.length === 1 ? ' add-on' : ' add-ons') + ' on top of ' + bn + '. We’ll confirm one clear monthly fee.';
+      txt = 'Hi Funnal,\n\nI’d like to talk about the ' + bn + ' package' + (chosen.length ? ' with these add-ons:\n' + chosen.map((c) => '- ' + c).join('\n') : '.') + '\n\nThanks';
+      if (mail) mail.setAttribute('href', 'mailto:sam@funnal.co.uk?subject=' + encodeURIComponent('Funnal ' + bn + ' package') + '&body=' + encodeURIComponent(txt));
+    };
+    base.addEventListener('fn-tab', (e) => { if (e.detail) { bi = e.detail.i; draw(); } });
+    aos.forEach((a, i) => a.addEventListener('click', () => {
+      this.play('tab');
+      picks[i] = !picks[i];
+      a.classList.toggle('fn-on', !!picks[i]); a.setAttribute('aria-pressed', picks[i] ? 'true' : 'false');
+      draw();
+    }));
+    if (mail) mail.addEventListener('click', () => this.play('tab'));
+    if (cp) cp.addEventListener('click', () => this.copy(txt, 'Your plan is copied'));
+    draw();
   }
   // Social Media: package cards switch the calendar and scroll to it; each card has a "what's included" drop-down
   socMount() {
