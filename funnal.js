@@ -207,7 +207,7 @@
     this.currentMount(svcBtn);
   }
   // pages that have a "-redesign" twin while the redesign is previewed on webflow.io (emptied at launch)
-  previewPages() { return ['', 'about', 'privacy-policy', 'cookie-policy', 'ai-automation', 'branding', 'email-sms', 'paid-advertisement']; }
+  previewPages() { return ['', 'about', 'privacy-policy', 'cookie-policy', 'ai-automation', 'branding', 'email-sms', 'paid-advertisement', 'printing']; }
   curPath() { return location.pathname.replace(/\/+$/, '').replace(/-redesign$/, ''); }
   isPreview() { return /\.webflow\.io$/i.test(location.hostname) && /-redesign\/?$/.test(location.pathname); }
   previewLinks() {
@@ -445,6 +445,23 @@
   svcMount() {
     this.lfMount();
     this.adsMount();
+    this.fmMount();
+  }
+  // Printing: one paper sheet morphs between business card, brochure, leaflet, flyer and poster proportions
+  fmMount() {
+    const seg = document.querySelector('[data-tabs="fm"]'), panel = document.querySelector('[data-tp-text="fm"]');
+    if (!seg || !panel) return;
+    const sheet = panel.querySelector('.fn-fm-sheet'), stage = panel.querySelector('.fn-fm-stage');
+    if (!sheet) return;
+    const pps = Array.prototype.slice.call(sheet.querySelectorAll('.fn-pp'));
+    seg.addEventListener('fn-tab', (e) => {
+      const i = e.detail ? e.detail.i : -1, t = e.detail ? e.detail.tab : null;
+      if (i < 0 || !t) return;
+      sheet.style.setProperty('--sw', t.getAttribute('data-sw'));
+      sheet.style.setProperty('--sh', t.getAttribute('data-sh'));
+      pps.forEach((p) => { const off = Number(p.getAttribute('data-i')) !== i; p.classList.toggle('fn-tp-off', off); });
+      if (stage) stage.setAttribute('aria-label', t.getAttribute('data-aria') || '');
+    });
   }
   // Paid Advertisement: platforms x monthly ad spend -> Funnal's management fee, with the odometer, the spend/fee bar and the guidance text
   adsMount() {
