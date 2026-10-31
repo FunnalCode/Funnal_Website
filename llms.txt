@@ -1,0 +1,22 @@
+# Funnal
+
+> Funnal is a lead generation and social media agency based in Holmfirth, West Yorkshire, UK. We help small and local businesses win more customers with websites, branding, social media, paid ads, email and SMS, AI automation and print. We work with businesses across Huddersfield, Kirklees, Leeds, Sheffield and Greater Manchester.
+
+## Services
+- [Social Media Management](https://www.funnal.co.uk/services-new): content planned monthly across Instagram, Facebook, LinkedIn, TikTok and Pinterest.
+- [Websites](https://www.funnal.co.uk/website): professional design, build and ongoing support for small business websites.
+- [Branding](https://www.funnal.co.uk/branding): logo, colours, guidelines and stationery in a complete brand identity.
+- [Paid Advertisement](https://www.funnal.co.uk/paid-advertisement): Google and Meta ads with a simple base fee plus a share of ad spend.
+- [Email & SMS](https://www.funnal.co.uk/email-sms): list cleanup, campaigns and automated flows.
+- [AI Automation](https://www.funnal.co.uk/ai-automation): AI receptionists, lead sorting, quoting and other repeat jobs automated.
+- [Printing](https://www.funnal.co.uk/printing): print designed and managed so it arrives on brand.
+
+## Company
+- [About Funnal](https://www.funnal.co.uk/about): who we are and the team.
+- [Packages](https://www.funnal.co.uk/packages): clear packages so you know what you get and what it costs.
+- [Blog](https://www.funnal.co.uk/blog): practical marketing advice for local businesses.
+- [Contact](https://www.funnal.co.uk/contact): get in touch.
+
+## Policies
+- [Privacy Policy](https://www.funnal.co.uk/privacy-policy)
+- [Cookie Policy](https://www.funnal.co.uk/cookie-policy)
