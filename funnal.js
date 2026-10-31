@@ -472,6 +472,7 @@
     this.blMount();
     this.bpMount();
     this.bpTplMount();
+    this.csTplMount();
   }
   // Blog index (CMS): chips come from the Topics collection (data-tag = slug) and each card lists its own topic tags. Webflow cannot build an item address, so every title carries its slug and gets /post/slug here; clicking the active chip clears the filter
   blMount() {
@@ -588,6 +589,81 @@
     const url = location.origin + location.pathname;
     const li = art.querySelector('a[data-share-li]'); if (li) li.setAttribute('href', 'https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(url));
     const cp = art.querySelector('[data-copy-link]'); if (cp) cp.addEventListener('click', () => this.copy(url, 'Link copied'));
+  }
+
+  csTplMount() {
+    const art = document.querySelector('[data-cs-tpl]'); if (!art) return;
+    const $qa = (s, r) => Array.prototype.slice.call((r || document).querySelectorAll(s));
+    const slug = decodeURIComponent(location.pathname.replace(/\/+$/, '').split('/').pop() || '');
+    const txt = (el) => ((el && el.textContent) || '').replace(/[\s​‍]+/g, ' ').trim();
+    // year: a Number field can come through as "2,024"
+    const yr = art.querySelector('.fn-cs-year');
+    if (yr) yr.textContent = txt(yr).replace(/^(\d),(\d{3})$/, '$1$2');
+    // results heading falls back to "Results"
+    const rh = art.querySelector('.fn-cs-rh'); if (rh && !txt(rh)) rh.textContent = 'Results';
+    // result tiles: "+585%" becomes + / a counting 585 / %. Empty tiles are removed.
+    const io = 'IntersectionObserver' in window ? new IntersectionObserver((es) => es.forEach((en) => {
+      if (en.isIntersecting) { en.target.classList.add('fn-t'); io.unobserve(en.target); }
+    }), { threshold: 0.6 }) : null;
+    $qa('.fn-cs-tile', art).forEach((tile) => {
+      const tn = tile.querySelector('.fn-cs-tn'), full = txt(tn);
+      if (!tn || !full) { if (tile.parentNode) tile.parentNode.removeChild(tile); return; }
+      const m = full.match(/^([^\d]*)(\d+)(.*)$/);
+      tn.setAttribute('aria-hidden', 'true');
+      if (m) {
+        const n = parseInt(m[2], 10);
+        tn.innerHTML = this.esc(m[1]) + '<span class="fn-num" style="--cn:' + n + '"></span>' + this.esc(m[3]);
+        const num = tn.querySelector('.fn-num'); if (num && n > 1 && io) io.observe(num);
+      }
+      const sr = document.createElement('span'); sr.className = 'fn-sr'; sr.textContent = full;
+      tn.parentNode.insertBefore(sr, tn.nextSibling);
+    });
+    // brand colours: "Name #HEX" per line becomes tap-to-copy swatches
+    const pt = art.querySelector('.fn-cs-pal-t');
+    if (pt) {
+      const raw = (pt.textContent || '').replace(/\r/g, '').trim();
+      let lines = raw.split(/\n+/).map((l) => l.trim()).filter(Boolean);
+      if (lines.length < 2) { const parts = raw.replace(/\s+/g, ' ').split(/(#[0-9a-fA-F]{6}\b|#[0-9a-fA-F]{3}\b)/); lines = []; for (let i = 0; i + 1 < parts.length; i += 2) lines.push((parts[i] + ' ' + parts[i + 1]).trim()); }
+      const cols = [];
+      lines.forEach((l) => {
+        const mm = l.match(/^(.*?)\s*(#[0-9a-fA-F]{3,8})\s*$/); if (!mm) return;
+        let hx = mm[2].toUpperCase(); if (hx.length === 4) hx = '#' + hx[1] + hx[1] + hx[2] + hx[2] + hx[3] + hx[3];
+        const rgb = [1, 3, 5].map((k) => parseInt(hx.slice(k, k + 2), 16) / 255).map((v) => v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4));
+        const L = 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
+        cols.push({ n: mm[1].replace(/[\s,;:\-]+$/, '') || hx, h: hx, fg: (L + 0.05) / 0.0594 >= 1.05 / (L + 0.05) ? '#2B2B2B' : '#FFFFFF' });
+      });
+      if (cols.length) {
+        pt.innerHTML = '<div class="fn-swatches">' + cols.map((c) => '<button type="button" class="fn-sw" data-copy="' + this.esc(c.h) + '" aria-label="' + this.esc('Copy ' + c.n + ' ' + c.h) + '" style="background: ' + this.esc(c.h) + '; color: ' + c.fg + '"><b>' + this.esc(c.n) + '</b><i>' + this.esc(c.h) + '</i></button>').join('') + '</div>';
+        pt.addEventListener('click', (e) => { const b = e.target && e.target.closest ? e.target.closest('button[data-copy]') : null; if (b) { const hx = b.getAttribute('data-copy'); this.copy(hx, hx + ' copied'); } });
+        pt.classList.add('fn-cs-done');
+      } else { const s = art.querySelector('.fn-cs-pals'); if (s) s.classList.add('fn-cs-hide'); }
+    }
+    // gallery: one image fills the row; a lone image in the last block spans the row when the block before has several
+    const gal = art.querySelector('.fn-cs-gal'), gs = $qa('.fn-cs-gi', art), sec = art.querySelector('.fn-cs-gals');
+    if (gal && gs.length) {
+      if (gs.length === 1) gal.classList.add('fn-cs-one');
+      const wraps = $qa('.fn-cs-gw', gal), last = wraps[wraps.length - 1], prev = wraps[wraps.length - 2];
+      if (last && prev && last.querySelectorAll('.fn-cs-gi').length === 1 && prev.querySelectorAll('.fn-cs-gi').length > 1) { const it = last.querySelector('.fn-cs-gi'); if (it) it.classList.add('fn-cs-wide'); }
+      const h = sec && sec.querySelector('.fn-cs-ey'); if (h && art.querySelector('.fn-cs-pal-t.fn-cs-done')) h.textContent = 'The brand';
+    } else if (sec) sec.classList.add('fn-cs-hide');
+    // full story: hide headings with nothing under them, and the whole block when there is no old text
+    const fb = art.querySelector('.fn-cs-fullb'), fs = art.querySelector('.fn-cs-fulls');
+    if (fb) {
+      let any = false;
+      $qa('.fn-cs-fh', fb).forEach((h) => {
+        const rt = h.nextElementSibling;
+        if (rt && txt(rt)) any = true; else { h.classList.add('fn-cs-hide'); if (rt) rt.classList.add('fn-cs-hide'); }
+      });
+      if (!any && fs) fs.classList.add('fn-cs-hide');
+    }
+    // More work: the other case studies, without the one being read
+    let kept = 0;
+    $qa('.fn-cs-mc-lk[data-slug]', art).forEach((a) => {
+      const s = a.getAttribute('data-slug') || '', item = a.parentNode && a.parentNode.parentNode && a.parentNode.parentNode.parentNode;
+      if (!s || s === slug || kept >= 3) { if (item && item.parentNode) item.parentNode.removeChild(item); return; }
+      a.setAttribute('href', '/work/' + s); kept++;
+    });
+    const more = art.querySelector('.fn-cs-mores'); if (more && !kept) more.classList.add('fn-cs-hide');
   }
   // Websites: the step picker builds the illustrated site up one stage at a time (classes is{n} ge0..ge{n} on the picture)
   wsMount() {
