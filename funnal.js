@@ -207,9 +207,9 @@
     this.currentMount(svcBtn);
   }
   // pages that have a "-redesign" twin while the redesign is previewed on webflow.io (emptied at launch)
-  previewPages() { return ['', 'about', 'privacy-policy', 'cookie-policy', 'ai-automation', 'branding', 'email-sms', 'paid-advertisement', 'printing', 'services-new', 'website', 'packages', 'contact', 'blog', 'blog-post']; }
+  previewPages() { return ['', 'about', 'privacy-policy', 'cookie-policy', 'ai-automation', 'branding', 'email-sms', 'paid-advertisement', 'printing', 'services-new', 'website', 'packages', 'contact', 'blog']; }
   curPath() { return location.pathname.replace(/\/+$/, '').replace(/-redesign$/, ''); }
-  isPreview() { return /\.webflow\.io$/i.test(location.hostname) && /-redesign\/?$/.test(location.pathname); }
+  isPreview() { return /\.webflow\.io$/i.test(location.hostname) && (/-redesign\/?$/.test(location.pathname) || /^\/(post|work|topics)\//.test(location.pathname)); }
   // an internal link as it should read on the preview (links built by script go through here too)
   pvHref(h) {
     try {
@@ -231,7 +231,7 @@
   }
   currentMount(svcBtn) {
     try {
-      const p = this.curPath().replace(/^\/blog-post$/, '/blog');
+      const p = this.curPath().replace(/^\/post\/[^/]+$/, '/blog');
       if (svcBtn && /^\/(ai-automation|branding|email-sms|paid-advertisement|printing|services-new|social-media(-management)?|website|websites)$/.test(p)) svcBtn.setAttribute('aria-current', 'page');
       Array.prototype.slice.call(document.querySelectorAll('.fn-nav-link[href], .fn-m-item[href]')).forEach((a) => {
         const h = (a.getAttribute('href') || '').split(/[?#]/)[0].replace(/\/+$/, '').replace(/-redesign$/, '');
@@ -471,6 +471,7 @@
     this.ctMount();
     this.blMount();
     this.bpMount();
+    this.bpTplMount();
   }
   // Blog index (CMS): chips come from the Topics collection (data-tag = slug) and each card lists its own topic tags. Webflow cannot build an item address, so every title carries its slug and gets /post/slug here; clicking the active chip clears the filter
   blMount() {
@@ -552,6 +553,41 @@
       const cp = t.closest('[data-copy-link]');
       if (cp) { const art = cp.closest('[data-post]'); if (art) this.copy(art.getAttribute('data-share'), 'Link copied'); }
     });
+  }
+  // Blog post (CMS template): one article bound to the open post. Builds the contents list from the body's headings, drops the open post out of "Keep reading" and wires the share buttons
+  bpTplMount() {
+    const art = document.querySelector('[data-post-tpl]'); if (!art) return;
+    const $qa = (s, r) => Array.prototype.slice.call((r || document).querySelectorAll(s));
+    const slug = decodeURIComponent(location.pathname.replace(/\/+$/, '').split('/').pop() || '');
+    const body = art.querySelector('.fn-po-rt'), grid = art.querySelector('.fn-po-grid'), nav = art.querySelector('.fn-po-toc nav');
+    const heads = body ? $qa('h2', body) : [];
+    if (!heads.length || !nav) { if (grid) grid.classList.add('fn-po-notoc'); }
+    else {
+      heads.forEach((h, i) => {
+        const id = 'sec-' + (i + 1); h.id = id;
+        const a = document.createElement('a'), n = document.createElement('i'), t = document.createElement('span');
+        a.setAttribute('data-toc', '1'); a.setAttribute('href', '#' + id);
+        n.textContent = (i < 9 ? '0' : '') + (i + 1); t.textContent = (h.textContent || '').trim();
+        a.appendChild(n); a.appendChild(t); nav.appendChild(a);
+      });
+      nav.addEventListener('click', (e) => {
+        const a = e.target && e.target.closest ? e.target.closest('a[data-toc]') : null; if (!a) return;
+        const dest = document.getElementById((a.getAttribute('href') || '').replace('#', ''));
+        if (dest) { e.preventDefault(); this.play('tab'); try { dest.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (x) { dest.scrollIntoView(); } }
+      });
+    }
+    // Keep reading: the newest few posts, without the one being read (Webflow cannot filter out the open item here)
+    let kept = 0;
+    $qa('.fn-po-more-g a[data-slug]', art).forEach((a) => {
+      const s = a.getAttribute('data-slug') || '', item = a.parentNode;
+      if (!s || s === slug || kept >= 3) { if (item && item.parentNode) item.parentNode.removeChild(item); return; }
+      a.setAttribute('href', '/post/' + s); kept++;
+    });
+    const more = art.querySelector('.fn-po-more'); if (more && !kept) more.classList.add('fn-tp-off');
+    // share
+    const url = location.origin + location.pathname;
+    const li = art.querySelector('a[data-share-li]'); if (li) li.setAttribute('href', 'https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(url));
+    const cp = art.querySelector('[data-copy-link]'); if (cp) cp.addEventListener('click', () => this.copy(url, 'Link copied'));
   }
   // Websites: the step picker builds the illustrated site up one stage at a time (classes is{n} ge0..ge{n} on the picture)
   wsMount() {
