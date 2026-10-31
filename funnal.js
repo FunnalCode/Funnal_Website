@@ -528,7 +528,6 @@
     this.injectSprite();
     this.iconFix();
     this.tokenFix();
-    this.ldMount();
     this.applyFxStyles();
     this.a11yMount();
     this.audioInit();
