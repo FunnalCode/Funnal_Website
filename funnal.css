@@ -2082,13 +2082,16 @@ html.fn-ld-on::after{content:"";position:fixed;inset:0;z-index:99998;background:
 .fn-ld svg{width:min(42vw,190px);height:auto;overflow:visible;filter:drop-shadow(0 18px 24px color-mix(in srgb,var(--ink) 14%,transparent))}
 .fn-ld .fn-ld-c1{stop-color:var(--ld-1)}.fn-ld .fn-ld-c2{stop-color:var(--ld-2)}.fn-ld .fn-ld-c3{stop-color:var(--ld-3)}
 .fn-ld-f{fill:var(--ink);opacity:0;transform-box:fill-box;transform-origin:50% 55%;transform:scale(.9)}
-.fn-ld-st{fill:none;stroke-width:5.5;stroke-linecap:round;stroke-linejoin:round}
+.fn-ld-st{fill:none;stroke-width:12;stroke-linecap:round;stroke-linejoin:round}
 .fn-ld-s{stroke-dasharray:1 1;stroke-dashoffset:1}
 .fn-ld[data-go] .fn-ld-s{animation:fnLdDraw 1.35s cubic-bezier(.65,0,.2,1) .1s forwards}
 .fn-ld[data-go] .fn-ld-st{animation:fnLdStroke .5s ease 1.2s forwards}
 .fn-ld[data-go] .fn-ld-f{animation:fnLdFill .75s cubic-bezier(.3,1.5,.5,1) .95s forwards}
 @keyframes fnLdDraw{0%{stroke-dashoffset:1}100%{stroke-dashoffset:0}}
-@keyframes fnLdStroke{to{opacity:0;stroke-width:1}}
+@keyframes fnLdStroke{to{opacity:0;stroke-width:4}}
 @keyframes fnLdFill{0%{opacity:0;transform:scale(.9)}60%{opacity:1;transform:scale(1.04)}100%{opacity:1;transform:scale(1)}}
 @media (prefers-reduced-motion:reduce){.fn-ld{display:none}html.fn-ld-on::after{display:none}}
 .fn-pr-reg-p{max-width:46ch;margin:14px 0 0;font-size:clamp(15px,1.5vw,17px);line-height:1.55;color:var(--mu)}
+/* dark mode: text that kept a fixed dark colour on dark cards, and a white label on a light-blue button */
+[data-theme="dark"] .fn-kit .fn-kit-tag,[data-theme="dark"] .fn-kit .fn-kit-tag *{color:var(--ink)!important}
+[data-theme="dark"] .fn-btn{color:var(--brand-d)}
