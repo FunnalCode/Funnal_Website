@@ -207,7 +207,7 @@
     this.currentMount(svcBtn);
   }
   // pages that have a "-redesign" twin while the redesign is previewed on webflow.io (emptied at launch)
-  previewPages() { return ['', 'about', 'privacy-policy', 'cookie-policy', 'ai-automation', 'branding', 'email-sms']; }
+  previewPages() { return ['', 'about', 'privacy-policy', 'cookie-policy', 'ai-automation', 'branding', 'email-sms', 'paid-advertisement']; }
   curPath() { return location.pathname.replace(/\/+$/, '').replace(/-redesign$/, ''); }
   isPreview() { return /\.webflow\.io$/i.test(location.hostname) && /-redesign\/?$/.test(location.pathname); }
   previewLinks() {
@@ -383,9 +383,9 @@
       };
       tabs.forEach((t, i) => t.addEventListener('click', () => { if (auto) { auto = false; } select(i); foot(); }));
       tl.addEventListener('keydown', (e) => {
-        const n = tabs.length; let to = -1;
-        if (e.key === 'ArrowDown' || e.key === 'ArrowRight') to = (cur + 1) % n;
-        else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') to = (cur + n - 1) % n;
+        const n = tabs.length, wrap = !tl.hasAttribute('data-nowrap'); let to = -1;
+        if (e.key === 'ArrowDown' || e.key === 'ArrowRight') to = wrap ? (cur + 1) % n : Math.min(n - 1, cur + 1);
+        else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') to = wrap ? (cur + n - 1) % n : Math.max(0, cur - 1);
         else if (e.key === 'Home') to = 0; else if (e.key === 'End') to = n - 1;
         if (to < 0) return;
         e.preventDefault(); auto = false; select(to);
@@ -444,6 +444,40 @@
   // ===== service pages: page-specific pictures and calculators =====
   svcMount() {
     this.lfMount();
+    this.adsMount();
+  }
+  // Paid Advertisement: platforms x monthly ad spend -> Funnal's management fee, with the odometer, the spend/fee bar and the guidance text
+  adsMount() {
+    const pln = document.querySelector('.fn-pln[data-base]'); if (!pln) return;
+    const plat = pln.querySelector('[data-tabs="plat"]'), stops = pln.querySelector('[data-tabs="stops"]'); if (!plat || !stops) return;
+    const base = Number(pln.getAttribute('data-base')), pct = Number(pln.getAttribute('data-pct'));
+    const vals = Array.prototype.slice.call(stops.querySelectorAll('[role="radio"]')).map((b) => Number(b.getAttribute('data-v')));
+    const fill = stops.querySelector('.fn-stops-rail i'), odo = pln.querySelector('.fn-odo'), notes = pln.querySelectorAll('.fn-pln-n');
+    const cols = Array.prototype.slice.call(odo.querySelectorAll('.fn-dg')), cm = odo.querySelector('.fn-cm');
+    const money = (n) => '£' + String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    let pi = 0, si = 0;
+    const draw = () => {
+      const spend = vals[si], comm = Math.round(spend * pct / 100), fee = base + comm, total = spend + fee;
+      const plats = pi + 1, recMin = 500 * plats, below = spend < recMin, pw = plats === 1 ? 'one platform' : plats + ' platforms';
+      const len = String(fee).length, dg = String(fee).padStart(5, '0').split('');
+      cols.forEach((c, i) => { c.classList.toggle(P('hide'), (5 - i) > len); const st = c.querySelector('.fn-st'); if (st) st.style.setProperty('--d', dg[i]); });
+      if (cm) cm.classList.toggle(P('hide'), len <= 3);
+      if (fill) fill.style.width = (si / (vals.length - 1) * 100) + '%';
+      if (notes[0]) notes[0].textContent = 'Google, Meta, TikTok and beyond. We recommend starting with at least ' + money(recMin) + ' a month in ad spend for ' + pw + '.';
+      if (notes[1]) { notes[1].textContent = below ? 'That’s below our recommended ' + money(recMin) + ' for ' + pw + '. We’ll still work with it, but campaigns have less room to optimise.' : 'That gives campaigns room to optimise effectively.'; notes[1].classList.toggle('fn-warn', below); }
+      const sr = pln.querySelector('.fn-price .fn-sr'), sum = pln.querySelector('.fn-pln-sum'), bar = pln.querySelector('.fn-pln-bar');
+      const bs = pln.querySelector('.fn-pb-spend'), bf = pln.querySelector('.fn-pb-fee');
+      if (sr) sr.textContent = money(fee) + ' per month in management fees';
+      if (sum) sum.textContent = money(base) + ' base + ' + pct + '% of ' + money(spend) + ' ad spend';
+      if (bar) bar.setAttribute('aria-label', money(spend) + ' ad spend and ' + money(fee) + ' management');
+      if (bs) bs.style.flexBasis = (spend / total * 100).toFixed(2) + '%';
+      if (bf) bf.style.flexBasis = (fee / total * 100).toFixed(2) + '%';
+      const key = pln.querySelectorAll('.fn-pln-key span');
+      if (key[0]) { const b = key[0].querySelector('b'); if (b) b.textContent = money(spend); }
+      if (key[1]) { const b = key[1].querySelector('b'), em = key[1].querySelector('em'); if (b) b.textContent = money(fee); if (em) em.textContent = money(base) + ' base + ' + money(comm) + ' commission'; }
+    };
+    plat.addEventListener('fn-tab', (e) => { if (e.detail) { pi = e.detail.i; draw(); } });
+    stops.addEventListener('fn-tab', (e) => { if (e.detail) { si = e.detail.i; draw(); } });
   }
   // odometer prices: roll from the figures of the panel being left to the ones being shown
   odoRoll(from, to) {
