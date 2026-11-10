@@ -524,6 +524,41 @@
       });
     }
   }
+  // SEO: structured data and tags for CMS pages, built from what is on the page so it never drifts
+  seoMount() {
+    try {
+      const O = 'https://www.funnal.co.uk';
+      const path = location.pathname.replace(/\/+$/, '') || '/';
+      const url = O + path;
+      const T = (el) => (el ? el.textContent.replace(/\s+/g, ' ').trim() : '');
+      const add = (obj) => { const s = document.createElement('script'); s.type = 'application/ld+json'; s.textContent = JSON.stringify(obj); document.head.appendChild(s); };
+      const md = document.querySelector('meta[name="description"]');
+      const desc = md ? md.content : '';
+      const h1 = T(document.querySelector('h1'));
+      const org = { '@type': 'Organization', '@id': O + '/#organization', name: 'Funnal', url: O + '/', logo: { '@type': 'ImageObject', url: 'https://cdn.jsdelivr.net/gh/FunnalCode/Funnal_Website@0e58bbb8a29b01a47297eadd0e19eccf6fb60dc2/assets/email/logo-blue.png' } };
+      const crumbs = (items) => add({ '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: items.map((it, i) => ({ '@type': 'ListItem', position: i + 1, name: it[0], item: it[1] })) });
+      const abs = (im) => { try { return im ? new URL(im.getAttribute('src'), location.href).href : undefined; } catch (e) { return undefined; } };
+      if (!document.querySelector('link[rel="canonical"]')) {
+        const l = document.createElement('link'); l.rel = 'canonical'; l.href = url; document.head.appendChild(l);
+      }
+      const faqs = [...document.querySelectorAll('.fn-faq-item')].map((it) => ({ q: T(it.querySelector('.fn-faq-q')), a: T(it.querySelector('.fn-faq-a')) })).filter((f) => f.q && f.a);
+      if (faqs.length) add({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faqs.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) });
+      if (/^\/post\/[^/]+$/.test(path) && h1) {
+        const d = new Date(T(document.querySelector('.fn-po-date')));
+        const p2 = (n) => String(n).padStart(2, '0');
+        const iso = isNaN(d) ? undefined : d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate());
+        const body = document.querySelector('.fn-po-rt');
+        add({ '@context': 'https://schema.org', '@type': 'BlogPosting', headline: h1.slice(0, 110), description: desc, image: abs(document.querySelector('.fn-po-cover img')), datePublished: iso, dateModified: iso, author: org, publisher: org, mainEntityOfPage: { '@type': 'WebPage', '@id': url }, wordCount: body ? T(body).split(' ').length : undefined, inLanguage: 'en-GB' });
+        crumbs([['Home', O + '/'], ['Blog', O + '/blog'], [h1, url]]);
+      }
+      if (/^\/work\/[^/]+$/.test(path) && h1) {
+        add({ '@context': 'https://schema.org', '@type': 'CreativeWork', name: h1 + ' case study', headline: h1, description: desc, image: abs(document.querySelector('.fn-cs-himg')), creator: org, url: url, inLanguage: 'en-GB' });
+        crumbs([['Home', O + '/'], [h1 + ' case study', url]]);
+        let n = 0;
+        document.querySelectorAll('.fn-cs-gimg').forEach((im) => { n += 1; if (!im.getAttribute('alt')) im.setAttribute('alt', h1 + ' project image ' + n); });
+      }
+    } catch (e) {}
+  }
   boot() {
     this.injectSprite();
     this.iconFix();
@@ -542,6 +577,7 @@
     this.termsMount();
     this.copyMount();
     this.imgMount();
+    this.seoMount();
     if (this.svcMount) this.svcMount();
     if (this.homeMount) this.homeMount();
     this.fxMount();
