@@ -411,8 +411,8 @@ const AWARDS = [
 
 /* ============================== v4 CONTENT ============================== */
 DEFAULT_CONFIG.sightingMode='auto'; // 'auto' = game picks the daily time itself; 'email' = a scheduled email task opens the sighting
-/* ---------- Emissary flag: crew DMs today raise the grade; higher grade = DMs worth more ---------- */
-const EMISSARY=[{at:0,mult:1,name:'Grade I'},{at:20,mult:1.2,name:'Grade II'},{at:45,mult:1.4,name:'Grade III'},{at:70,mult:1.7,name:'Grade IV'},{at:100,mult:2,name:'Grade V'}];
+/* ---------- Emissary flag: YOUR DMs today raise YOUR grade; higher grade = your DMs worth more ---------- */
+const EMISSARY=[{at:0,mult:1,name:'Grade I'},{at:10,mult:1.2,name:'Grade II'},{at:22,mult:1.4,name:'Grade III'},{at:35,mult:1.7,name:'Grade IV'},{at:50,mult:2,name:'Grade V'}];
 const emGrade=n=>EMISSARY.reduce((g,x,i)=>n>=x.at?i:g,0);
 /* ---------- Golden Tide: one 25-minute double-score window every working day ---------- */
 const GOLDEN_LEN=25;
@@ -737,7 +737,7 @@ function derive(){
   for(const e of evs){const D=dayOf(e.date),c=D.p[e.pid];c[e.k]++;const lm=L(e.t);e.min=lm.min;
     if(e.k==='d'){D.seq.push(e);if(e.min<510)c.early++;if(e.min<600)c.b10++;if(e.min<720)c.b12++;}
     const mod=modFor(e.date).id;const rw=rewardFor(e,mod,e.min);let mult=1;
-    if(e.k==='d'){const sofar=teamSoFar[e.date]||0;mult*=EMISSARY[emGrade(sofar)].mult;teamSoFar[e.date]=sofar+1;if(sofar>=100)st0[e.pid].em5=1;}
+    if(e.k==='d'){const kk=e.date+'|'+e.pid;const sofar=teamSoFar[kk]||0;mult*=EMISSARY[emGrade(sofar)].mult;teamSoFar[kk]=sofar+1;if(sofar>=EMISSARY[4].at)st0[e.pid].em5=1;}
     const gt=goldenFor(e.date);if(isWork(e.date,cfg)&&e.min>=gt.start&&e.min<gt.end){mult*=2;if(e.k==='d')st0[e.pid].goldenDms++;}
     per[e.pid].xp+=Math.round(rw.xp*mult);per[e.pid].g+=Math.round(rw.g*mult);
     const it=lootFor(e,mod);if(it){const L2=per[e.pid].loot;if(L2[it.id])per[e.pid].dupes++;else L2[it.id]=e.t;per[e.pid].lootLog.push({it,t:e.t,id:e.id});}
@@ -1285,7 +1285,7 @@ function drawHarbour(c,t){
   const P=G.P;const lead=today.leader;
   P.forEach((p,i)=>{const pl=S.players[p]||{};const x=i?142:58,y=154+i*4;const ch=activeForfeitsFor(p).some(f=>f.result==='chicken');
     const fire=S.fired&&S.fired[p]?Math.max(0,1-(performance.now()-S.fired[p])/600):0;
-    drawShip(c,x,y,.62,pl,t,{pid:p,chicken:ch,moth:G.players[p]?.moth,phase:i*2,firing:fire,em:emGrade(today.team),pet:PET_BY_ID[pl.pet]});
+    drawShip(c,x,y,.62,pl,t,{pid:p,chicken:ch,moth:G.players[p]?.moth,phase:i*2,firing:fire,em:emGrade(today.p[p]?.d||0),pet:PET_BY_ID[pl.pet]});
     hit(x-24,y-50,50,52,`Captain ${pnameRaw(p)}'s ship`,`${today.p[p].d} DMs today. Tap Ship below to customise yours.`);
     if(lead===p){const cx=x,cy=y-56+Math.sin(t/400)*1.2;poly(c,[[cx-5,cy+3],[cx-5,cy-2],[cx-2.5,cy+.5],[cx,cy-3.5],[cx+2.5,cy+.5],[cx+5,cy-2],[cx+5,cy+3]],'#DDA94D');}
     txt(c,C().players[p]?.name||p,x,y+4,pcolHex(p),8,'center');});
@@ -1296,7 +1296,7 @@ function drawHarbour(c,t){
   updateLanterns(c,t);harbourNight(c,t,B);
   if(teamFog){c.fillStyle='rgba(200,206,220,.5)';c.fillRect(0,0,W,H);for(let i=0;i<6;i++){const x=(i*67+t/80)%380-30,y=60+(i%3)*30;for(let k=0;k<5;k++)disc(c,x+k*7,y+Math.sin(k)*3,10,'rgba(240,242,248,.55)');}txt(c,'Team forfeit: the fog moved in for the day',160,6,'#3F5160',8,'center');}
 }
-function launchLantern(p){if(!G)return;const i=G.P.indexOf(p);const voy=S.focus?S.focusMode==='voyage':S.screen==='lockin';if(voy&&p===S.me&&!S.target)return;S.fired=S.fired||{};S.fired[p]=performance.now();S.lanterns.push({x:voy?126:(i?168:84),y:voy?122:140+i*4,born:performance.now(),col:pcolHex(p),tx:S.target?.x||262,ty:S.target?.y||78,st:(ALL_ITEMS[S.players[p]?.shot]||{}).st});if(S.lanterns.length>40)S.lanterns.shift();}
+function launchLantern(p){if(!G)return;const i=G.P.indexOf(p);const voy=S.focus?S.focusMode==='voyage':S.screen==='lockin';if(voy&&p===S.me&&!S.target){const lk=S.players[p]?.lock;if(lk&&lk.mode!=='fish'){S.haul={at:performance.now(),n:(S.haul&&S.haul.lk===lk.id?S.haul.n:0)+1,lk:lk.id};}return;}S.fired=S.fired||{};S.fired[p]=performance.now();S.lanterns.push({x:voy?126:(i?168:84),y:voy?122:140+i*4,born:performance.now(),col:pcolHex(p),tx:S.target?.x||262,ty:S.target?.y||78,st:(ALL_ITEMS[S.players[p]?.shot]||{}).st});if(S.lanterns.length>40)S.lanterns.shift();}
 function updateLanterns(c,t){const nowp=performance.now();S.lanterns=S.lanterns.filter(l=>{const age=(nowp-l.born)/1000;if(age>1.6)return false;const p=Math.min(1,age/1.1);const x=l.x+(l.tx-l.x)*p,y=l.y+(l.ty-l.y)*p-Math.sin(p*Math.PI)*40;
   for(let k=1;k<5;k++){const q=Math.max(0,p-k*.04);disc(c,l.x+(l.tx-l.x)*q,l.y+(l.ty-l.y)*q-Math.sin(q*Math.PI)*40,1.6-k*.3,`rgba(255,255,255,${.5-k*.1})`);}
   drawShot(c,x,y,l.st,t);if(p>=1&&!l.hit){l.hit=true;S.bossFlash=t+110;S.boom={x,y,t:nowp};}return p<1;});
@@ -1311,8 +1311,8 @@ function drawShipScene(c,t,pid){
   sea(c,110,t,{glow:fx==='fx_biolum'});
   if(fx==='fx_whale')whale(c,t);
   const ch=act.some(f=>f.result==='chicken'),dance=act.some(f=>f.result==='dance');
-  drawShip(c,140,152,1.55,pl,t,{pid,chicken:ch,dance,moth:me.moth,em:emGrade(G.days[G.today].team),pet:PET_BY_ID[pl.pet]});
-  hit(140-20,30,40,20,'Emissary flag',`Grade ${['I','II','III','IV','V'][emGrade(G.days[G.today].team)]}: rises with the crew's DMs today (20, 45, 70, 100). Higher grades make every DM worth more, up to double.`);
+  drawShip(c,140,152,1.55,pl,t,{pid,chicken:ch,dance,moth:me.moth,em:emGrade(G.days[G.today].p[pid]?.d||0),pet:PET_BY_ID[pl.pet]});
+  hit(140-20,30,40,20,'Emissary flag',`Grade ${['I','II','III','IV','V'][emGrade(G.days[G.today].p[pid]?.d||0)]}: ${pname(pid)}'s own flag. It rises with their DMs today (10, 22, 35, 50) and resets each morning. Higher grades make each of their DMs worth more, up to double, on voyages too.`);
   hit(140+2,152-104,20,14,'Your flag',`${(it(pl.flag||SHIP_DEFAULT.flag)||{}).name}. Change it under Wardrobe & rigging.`);
   hit(140-30,152-90,50,50,'Sails',`${(it(pl.sail||SHIP_DEFAULT.sail)||{}).name}. Change them under Wardrobe & rigging.`);
   hit(140-55,152-30,120,32,'Hull',`${(it(pl.hull||SHIP_DEFAULT.hull)||{}).name}${pl.figure?' with a '+it(pl.figure).name:''}.`);
@@ -1375,10 +1375,10 @@ function drawVoyage(c,t,lk,dms,progress){
     if(type==='seal'){const sc=vd.col||'#9AA8B8';ell(c,mx,my+4,r,r*.62,sc);disc(c,mx+r*.6,my-r*.2,r*.55,sc);disc(c,mx+r*.45,my-r*.35,r*.12,'#3F3A30');disc(c,mx+r*.85,my-r*.35,r*.12,'#3F3A30');ell(c,mx+r*.7,my-r*.05,r*.22,r*.14,'#5A5650');line(c,mx+r*.95,my,mx+r*1.4,my-r*.1,'#5A5650',.4);c.globalAlpha=.5;disc(c,mx+r*.35,my,r*.12,'#F49A9A');c.globalAlpha=1;}
     else drawBoss(c,{type:type==='ghost'?'ship':type,ghost:type==='ghost',rare:lk.diff==='goldleviathan'?0:0,col:vd.col||(type==='kraken'?'#9B5DE5':'#7FB59A'),eye:'#3F3A30'},mx,my-r*.3,r,left/vb.hp,t,S.bossFlash>t,my+r*.2);
     hit(mx-r-4,my-r-4,r*2+8,r*2+8,vb.name,vb.desc+'. '+`${left} of ${vb.hp} HP left. Every DM you log this voyage hits it. Defeat it before the timer ends for +${vb.xp} XP and ${vb.g} doubloons.`);S.target={x:mx,y:my};}
-  else{S.target=null;}
+  else{S.target=null;drawPlunder(c,t,lk,dms,vb);}
   // treasure island arrives at the end
   if(progress>.86){const q=Math.min(1,(progress-.86)/.14);const ix=340-q*120;island(c,ix,128,36,8,t);palm(c,ix-10,122,14,t);palm(c,ix+12,123,11,t+300);rr(c,ix-4,116,8,5,1,'#A8704A');R(c,ix-.5,116,1,5,'#F2C462');line(c,ix+16,122,ix+20,126,'#D9485F',1);line(c,ix+20,122,ix+16,126,'#D9485F',1);txt(c,'Treasure Island',ix,100,'#E06034',8,'center');hit(ix-36,100,72,32,'Treasure Island','Reach it when the timer ends. Your chest is worth 3 doubloons for every DM you sent on this voyage.');}
-  drawShip(c,90,146,1.05,pl,t,{moving:lk.mode!=='fish',pid:S.me,moth:G?.players[S.me]?.moth,pet:PET_BY_ID[pl.pet],firing:S.fired&&S.fired[S.me]?Math.max(0,1-(performance.now()-S.fired[S.me])/600):0});
+  drawShip(c,90+(S.haul?Math.max(0,1-(performance.now()-S.haul.at)/700)*5:0),146,1.05,pl,t,{em:emGrade(G.days[G.today]?.p[S.me]?.d||0),moving:lk.mode!=='fish',pid:S.me,moth:G?.players[S.me]?.moth,pet:PET_BY_ID[pl.pet],firing:S.fired&&S.fired[S.me]?Math.max(0,1-(performance.now()-S.fired[S.me])/600):0});
   for(let i=0;i<6;i++){const x=48-i*8-((t/30*speed)%8);line(c,x,148,x+5,148,'rgba(255,255,255,.85)',1);}
   updateLanterns(c,t);
   if(enc)txt(c,enc.text,160,6,'#3F5160',8,'center');
@@ -2052,7 +2052,7 @@ function reminder(){
 
 /* ============================== FX ============================== */
 let AC=null;
-function tone(f,d=.08,type='square',vol=.05,when=0){if(!S.sound)return;try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.value=f;g.gain.value=vol;o.connect(g);g.connect(AC.destination);const t=AC.currentTime+when;o.start(t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.stop(t+d+.02);}catch(e){}}
+function tone(f,d=.08,type='square',vol=.05,when=0){if(!S.sound)return;try{AC=AC||getAC();const o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.value=f;g.gain.value=vol;o.connect(g);g.connect(AC.destination);const t=AC.currentTime+when;o.start(t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.stop(t+d+.02);}catch(e){}}
 const SFX={d:()=>{tone(660,.06);tone(990,.08,'square',.04,.05);},r:()=>{[523,659,784].forEach((f,i)=>tone(f,.1,'triangle',.06,i*.07));},v:()=>{[523,659,784,1046].forEach((f,i)=>tone(f,.12,'triangle',.06,i*.07));},m:()=>{[392,523,659,784,1046].forEach((f,i)=>tone(f,.14,'triangle',.07,i*.08));},c:()=>{[523,659,784,1046,784,1046,1318].forEach((f,i)=>tone(f,.18,'square',.06,i*.1));},no:()=>tone(140,.15,'sawtooth',.04),lvl:()=>{[784,988,1175,1568].forEach((f,i)=>tone(f,.15,'triangle',.07,i*.09));},ach:()=>{[880,1320].forEach((f,i)=>tone(f,.15,'triangle',.06,i*.1));}};
 function floatText(text,x,y,col){const el=document.createElement('div');el.className='float';el.textContent=text;el.style.left=x+'px';el.style.top=y+'px';if(col)el.style.color=col;$('#fx').appendChild(el);setTimeout(()=>el.remove(),1000);}
 function coins(n,from){const to=$('#glowBox').getBoundingClientRect();const r=from.getBoundingClientRect();for(let i=0;i<n;i++){const el=document.createElement('div');el.className='coin';const sx=r.left+r.width/2+(Math.random()-.5)*40,sy=r.top+r.height/2;el.style.left=sx+'px';el.style.top=sy+'px';$('#fx').appendChild(el);
@@ -2365,8 +2365,17 @@ function csvText(){const P=G.P;const ds=Object.keys(G.days).sort();const head=['
   return [head.join(','),...ds.map(d=>{const D=G.days[d];return [d,DAYN[wd(d)],D.target||0,D.team,...P.flatMap(p=>KK.map(k=>D.p[p][k]))].join(',');})].join('\n');}
 
 /* ============================== SOUND (synthesised, same family as funnal.co.uk) ============================== */
+/* one shared audio context, unlocked on the first tap, and allowed to play when an iPhone is on silent */
+function getAC(){try{if(!window.__hlAC){window.__hlAC=new (window.AudioContext||window.webkitAudioContext)();}const a=window.__hlAC;if(a.state!=='running')a.resume().catch(()=>{});return a;}catch(e){return null;}}
+(function(){try{if(navigator.audioSession)navigator.audioSession.type='playback';}catch(e){}
+  let el=null;const unlock=()=>{const a=getAC();if(a){try{const b=a.createBuffer(1,1,22050),s=a.createBufferSource();s.buffer=b;s.connect(a.destination);s.start(0);}catch(e){}}
+    try{if(!el){el=document.createElement('audio');el.setAttribute('playsinline','');el.setAttribute('x-webkit-airplay','deny');el.loop=true;el.preload='auto';
+      el.src='data:audio/wav;base64,UklGRkQDAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YSADAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgA==';}const p=el.play();if(p&&p.catch)p.catch(()=>{});}catch(e){}
+    if(a&&a.state==='running'){['touchend','pointerdown','keydown','click'].forEach(ev=>document.removeEventListener(ev,unlock,true));}};
+  ['touchend','pointerdown','keydown','click'].forEach(ev=>document.addEventListener(ev,unlock,true));
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&window.__hlAC&&window.__hlAC.state!=='running')window.__hlAC.resume().catch(()=>{});});})();
 const SND=(()=>{let ac=null,master=null;let last={};
-  function ctx(){if(!S.sound)return null;try{if(!ac){ac=new (window.AudioContext||window.webkitAudioContext)();master=ac.createGain();master.gain.value=.55;master.connect(ac.destination);}if(ac.state==='suspended')ac.resume();return ac;}catch(e){return null;}}
+  function ctx(){if(!S.sound)return null;try{if(!ac){ac=getAC();if(!ac)return null;master=ac.createGain();master.gain.value=.55;master.connect(ac.destination);}if(ac.state==='suspended')ac.resume();return ac;}catch(e){return null;}}
   function osc(type,f0,f1,dur,vol,when=0){const a=ctx();if(!a)return;const o=a.createOscillator(),g=a.createGain();o.type=type;const t=a.currentTime+when;o.frequency.setValueAtTime(f0,t);if(f1)o.frequency.exponentialRampToValueAtTime(f1,t+dur);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.008);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(master);o.start(t);o.stop(t+dur+.03);}
   function noise(dur,vol,freq,q=1,when=0,type='lowpass'){const a=ctx();if(!a)return;const n=Math.floor(a.sampleRate*dur);const b=a.createBuffer(1,n,a.sampleRate);const d=b.getChannelData(0);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/n,2);const s=a.createBufferSource();s.buffer=b;const f=a.createBiquadFilter();f.type=type;f.frequency.value=freq;f.Q.value=q;const g=a.createGain();g.gain.value=vol;s.connect(f);f.connect(g);g.connect(master);s.start(a.currentTime+when);}
   const thr=(k,ms)=>{const n=performance.now();if(last[k]&&n-last[k]<ms)return false;last[k]=n;return true;};
@@ -2411,8 +2420,8 @@ async function collectFloat(a){if(!S.me||G.players[S.me].claimed.has(a.collect))
 function eventsHtml(){
   const now=Date.now(),T=L(now),D=G.days[G.today];const work=isWork(G.today);let out='';
   // emissary
-  const gr=emGrade(D.team);const nx=EMISSARY[gr+1];
-  out+=`<div class="ev em" data-act="help" data-h="Emissary flag"><span class="emflag g${gr}"><i></i><b>${['I','II','III','IV','V'][gr]}</b></span><div class="grow"><b>Emissary ${EMISSARY[gr].name}</b><small>DMs worth \u00d7${EMISSARY[gr].mult}${nx?` \u00b7 Grade ${['I','II','III','IV','V'][gr+1]} at ${nx.at} crew DMs (${nx.at-D.team} to go)`:' \u00b7 maximum grade!'}</small></div><span class="q">?</span></div>`;
+  const myD=D.p[S.me]?.d||0;const gr=emGrade(myD);const nx=EMISSARY[gr+1];
+  out+=`<div class="ev em" data-act="help" data-h="Emissary flag"><span class="emflag g${gr}"><i></i><b>${['I','II','III','IV','V'][gr]}</b></span><div class="grow"><b>Emissary ${EMISSARY[gr].name}</b><small>DMs worth \u00d7${EMISSARY[gr].mult}${nx?` \u00b7 Grade ${['I','II','III','IV','V'][gr+1]} at ${nx.at} of your DMs (${nx.at-myD} to go)`:' \u00b7 maximum grade!'}</small></div><span class="q">?</span></div>`;
   if(work){const gt=goldenFor(G.today);const live=T.min>=gt.start&&T.min<gt.end;const done=T.min>=gt.end;const hm2=m=>String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
     out+=`<div class="ev gold ${live?'live':''}" data-act="help" data-h="Golden Tide"><span class="sun"></span><div class="grow"><b>${live?'GOLDEN TIDE: everything scores double!':done?'Golden Tide has passed':'Golden Tide today'}</b><small>${live?`ends ${hm2(gt.end)} \u00b7 <span class="cdn" data-t="${londonTs(G.today,gt.end)}"></span> left`:done?`It was ${hm2(gt.start)}\u2013${hm2(gt.end)}. Back tomorrow.`:`A surprise 25 minutes of double XP and doubloons. ${T.min<gt.start-120?'Time revealed at '+hm2(Math.max(0,gt.start-120))+'.':'Starts at '+hm2(gt.start)+'.'}`}</small></div><span class="q">?</span></div>`;}
   const sg=sightingFor(G.today);const ss=sightingState(S.me,sg,now);
@@ -2517,7 +2526,7 @@ function gate(){return new Promise(resolve=>{
 });}
 
 /* ---------- Harbour: calmer layout, details on tap ---------- */
-function statusChips(){const now=Date.now(),T=L(now),D=G.days[G.today];const gr=emGrade(D.team);let out=`<button class="sChip em g${gr}" data-act="evInfo"><span class="emflag g${gr}"><i></i><b>${['I','II','III','IV','V'][gr]}</b></span><span>\u00d7${EMISSARY[gr].mult}</span></button>`;
+function statusChips(){const now=Date.now(),T=L(now),D=G.days[G.today];const gr=emGrade(D.p[S.me]?.d||0);let out=`<button class="sChip em g${gr}" data-act="evInfo"><span class="emflag g${gr}"><i></i><b>${['I','II','III','IV','V'][gr]}</b></span><span>\u00d7${EMISSARY[gr].mult}</span></button>`;
   if(isWork(G.today)){const gt=goldenFor(G.today);const live=T.min>=gt.start&&T.min<gt.end;const hm2=m=>String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
     out+=`<button class="sChip gold ${live?'live':''}" data-act="evInfo"><span class="sun sm"></span><span>${live?'Golden Tide!':T.min>=gt.end?'Tide passed':T.min<gt.start-120?'Golden Tide later':'Gold '+hm2(gt.start)}</span></button>`;}
   const ss=sightingState(S.me,sightingFor(G.today),now);
@@ -2593,7 +2602,7 @@ const AMB=(()=>{let ac=null,out=null,live=[],on=false,timers=[];
   function creak(){if(!on||!ac)return;const t=ac.currentTime+.05;const o=ac.createOscillator(),g=ac.createGain(),f=ac.createBiquadFilter();o.type='sawtooth';f.type='bandpass';f.frequency.value=320;f.Q.value=6;o.frequency.setValueAtTime(62,t);o.frequency.linearRampToValueAtTime(84,t+.5);o.frequency.linearRampToValueAtTime(58,t+1);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.03,t+.2);g.gain.exponentialRampToValueAtTime(.0001,t+1.05);o.connect(f);f.connect(g);g.connect(out);o.start(t);o.stop(t+1.1);}
   const loop=(fn,min,max)=>{const go=()=>{timers.push(setTimeout(()=>{fn();if(on)go();},(min+Math.random()*(max-min))*1000));};go();};
   return{get on(){return on;},
-    start(){if(on||!S.sound||!S.amb)return;try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();out=ac.createGain();out.gain.setValueAtTime(.0001,ac.currentTime);out.gain.exponentialRampToValueAtTime(.9,ac.currentTime+2);out.connect(ac.destination);on=true;
+    start(){if(on||!S.sound||!S.amb)return;try{ac=ac||getAC();if(!ac)throw 0;if(ac.state==='suspended')ac.resume();out=ac.createGain();out.gain.setValueAtTime(.0001,ac.currentTime);out.gain.exponentialRampToValueAtTime(.9,ac.currentTime+2);out.connect(ac.destination);on=true;
       layer(ac,true,'lowpass',520,.4,.2,.11,.13);            // the swell
       layer(ac,false,'bandpass',1500,.5,.03,.083,.026);       // surf hiss as each wave breaks
       layer(ac,false,'bandpass',620,1.4,.035,.047,.028,.031,260); // wind, wandering in pitch
@@ -2715,6 +2724,19 @@ function drawEmissary(c,x,y,grade,t){const col=EM_COLS[grade];const len=10+grade
 
 const _bookV7=SCREENS.book;SCREENS.book=()=>{const h=_bookV7();if(S.view.bookCat)return h;return h.replace(/<\/div>\s*$/,'')+trophyHtml(S.view.bookP||S.me)+'</div>';};
 
+/* after the voyage monster sinks: every DM hauls plunder out of the wreck */
+function drawPlunder(c,t,lk,dms,vb){const wx=232-((t/40)%40),wy=124;
+  // the wreck, slowly going down, with flotsam
+  c.save();c.translate(258,120+Math.sin(t/900)*1.2);c.rotate(-.35);R(c,-14,-2,26,6,'#6B4429');R(c,-14,-2,26,1.4,'#8A5A3A');R(c,-2,-18,1.4,16,'#7A4E30');poly(c,[[-1,-17],[8,-12],[-1,-8]],'#3F3A30');c.restore();
+  for(let i=0;i<5;i++){const fx=((300-(t/30)-i*44)%340+340)%340-20,fy=130+i%3*6+Math.sin(t/500+i)*1.4;if(i%2)rr(c,fx-3,fy-2,6,3.4,.8,'#A8704A');else{disc(c,fx,fy,1.8,'#F2C462');disc(c,fx-.5,fy-.5,.6,'#FFF3B8');}}
+  for(let i=0;i<3;i++){const q=((t/1400)+i/3)%1;c.strokeStyle=`rgba(255,255,255,${.6*(1-q)})`;c.lineWidth=.6;c.beginPath();c.ellipse(258,128,8+q*14,2+q*3,0,0,TAU);c.stroke();}
+  const H=S.haul&&S.haul.lk===lk.id?S.haul:null;const n=H?H.n:0;
+  txt(c,n?`Monster sunk! Plunder hauled: ${n} \u00b7 chest ${dms*3}`:'Monster sunk! Keep logging DMs to haul plunder from the wreck',160,16,'#3F5160',7,'center');
+  hit(236,100,44,34,'The wreck',`${vb.name||'The monster'} is sunk. Every DM you log now hauls treasure out of the wreck into your chest (3 doubloons each, banked when you reach Treasure Island), and your emissary flag still multiplies your DMs.`);
+  if(H){const a=(performance.now()-H.at)/900;if(a<1){for(let i=0;i<7;i++){const q=Math.min(1,a*1.2+i*.04);const x=250-q*150,y=118-Math.sin(q*Math.PI)*(34+i*3)+q*12;disc(c,x,y,1.6,'#F2C462');disc(c,x-.4,y-.4,.6,'#FFF3B8');}
+    lamp(c,250,120,14*(1-a),.6*(1-a),'255,214,110');c.globalAlpha=1-a;txt(c,'+3',112,96-a*12,'#C07E0C',9,'center');c.globalAlpha=1;
+    if(a<.4)for(let i=0;i<8;i++){const an=-Math.PI*(i+.5)/8;disc(c,252+Math.cos(an)*a*30,124+Math.sin(an)*a*20,1.1,'rgba(255,255,255,.9)');}}}}
+
 /* ============================== SUPABASE STORE (used when hosted on funnal.co.uk) ============================== */
 // Mirrors the small slice of the artifact db API the game uses: doc().get/set/update/delete/acquire/onSnapshot, collection().doc/onSnapshot.
 const HL_EMAIL={sam:'sam@funnal.co.uk',james:'james@funnal.co.uk'};
@@ -2810,7 +2832,7 @@ function afterDerive(){
     {const T=L(),gt=goldenFor(G.today);const ws=isWork(G.today)&&T.min>=gt.start&&T.min<gt.end;if(ws&&!S.goldenShown){S.goldenShown=G.today;banner('GOLDEN TIDE','25 minutes of double XP and doubloons');SND.horn();}if(!ws)S.goldenShown=null;}
     {const sg=sightingFor(G.today);const ss=sightingState(S.me,sg);if(ss&&ss.phase==='live'&&S.sightShown!==G.today){S.sightShown=G.today;banner(ss.pet.rar.toUpperCase()+' PET SPOTTED',`${ss.pet.name}: log ${ss.need} DMs in ${ss.win} minutes`);SND.horn();}
      if(ss&&ss.phase==='live'&&!ss.claimed&&ss.ok&&S.sightOk!==G.today){S.sightOk=G.today;toast(`<b>You've done it!</b> Claim your ${esc(ss.pet.name)} on the Harbour.`,'',6000);SND.unlock();}}
-    {const pD=prev.days[G.today];if(pD&&emGrade(D.team)>emGrade(pD.team)){const g=emGrade(D.team);banner('EMISSARY '+EMISSARY[g].name.toUpperCase(),`DMs now worth \u00d7${EMISSARY[g].mult}`);SND.unlock();}}
+    {const pD=prev.days[G.today];if(pD&&emGrade(D.p[S.me]?.d||0)>emGrade(pD.p[S.me]?.d||0)){const g=emGrade(D.p[S.me]?.d||0);banner('EMISSARY '+EMISSARY[g].name.toUpperCase(),`DMs now worth \u00d7${EMISSARY[g].mult}`);SND.unlock();}}
     G.pendingConf.filter(e=>e.pid!==S.me&&!prev.pendingConf.some(x=>x.id===e.id)).forEach(e=>{toast(`<b>${pname(e.pid)} logged a ${e.k==='c'?'new client':'meeting request'}!</b> Confirm it on the Harbour.`,'',6000);tone(660,.1,'triangle',.05);});
     G.chals.forEach(ch=>{const p0=prev.chals.find(x=>x.id===ch.id);if(!p0&&ch.state==='pending'&&ch.c.by!==S.me)toast(`<b>${pname(ch.c.by)} challenges you!</b> Open Lock In to accept.`,'',6000);});
     G.chals.forEach(ch=>{const p=prev.chals.find(x=>x.id===ch.id);if(p&&p.state!==ch.state){if(ch.state==='live'){banner('GO!','Challenge started');tone(880,.2);}if(ch.state==='done'){const w=G.P.find(x=>ch.won[x]);banner(ch.coop?(ch.won[G.P[0]]?'CHALLENGE WON':'SO CLOSE'):(w?`${(C().players[w]?.name||'').toUpperCase()} WINS`:'DRAW'),`${G.P.map(x=>ch.cnt[x]).join(' \u2013 ')}`);}}
