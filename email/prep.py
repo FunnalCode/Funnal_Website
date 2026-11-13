@@ -23,14 +23,13 @@ def workday(D):
     try:
         r=urllib.request.Request('https://uyycrmgszzbfltfeveen.supabase.co/rest/v1/rpc/hl_is_workday',data=json.dumps({'d':D}).encode(),headers={'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json'})
         return urllib.request.urlopen(r,timeout=10).read().decode().strip()!='false'
-    except Exception: return datetime.date.fromisoformat(D).weekday()<5
+    except Exception: return True
 cmd=sys.argv[1] if len(sys.argv)>1 else 'mail'
 if cmd=='week':
     now=datetime.datetime.now(UK);d=now.date()
     for i in range(7):
         day=d+datetime.timedelta(days=i);D=day.isoformat()
         if i and day.weekday()==0: break
-        if day.weekday()>=5: continue
         st=sighting(D)[3];t=datetime.datetime.fromisoformat(D+'T'+st).replace(tzinfo=UK)
         if t>now and workday(D): print(D+'T'+st+':00[Europe/London]')
     sys.exit()
