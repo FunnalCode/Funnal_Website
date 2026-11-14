@@ -39,9 +39,9 @@ rar,need,win,st,en=sighting(D)
 C={'common':('#7D8894','small and slightly suspicious'),'uncommon':('#2F8F62','unusual'),'rare':('#2A6FBF','properly rare'),'epic':('#7440C4','epic'),'legendary':('#C07E0C','legendary'),'mythic':('#B92A62','mythic, which almost never happens,')}[rar]
 joke=random.choice(['Gary saw it first and has not stopped talking about it.','It looked at the lighthouse like it owns the place.','The parrot is already jealous.','It has not signed any paperwork yet.','Please do not tell it about the cannons.','Finders keepers is legally binding at sea.'])
 html=open(os.path.join(HERE,'template.html')).read().strip()
-for a,b in [('COLOUR',C[0]),('RARITY',rar),('PHRASE',C[1]),('NEED',str(need)),('WINDOW',str(win)),('START',st),('END',en),('JOKE',joke)]: html=html.replace(a,b)
-img=os.path.join(HERE,'pet-%s.jpg'%rar);hx=hashlib.sha256(open(img,'rb').read()).hexdigest()
+EMO={'common':'&#x1F980;','uncommon':'&#x1F422;','rare':'&#x1F99C;','epic':'&#x1F419;','legendary':'&#x1F984;','mythic':'&#x1F409;'}[rar]
+for a,b in [('PETEMOJI',EMO),('RARITYUP',rar.upper()),('COLOUR',C[0]),('RARITY',rar),('PHRASE',C[1]),('NEED',str(need)),('WINDOW',str(win)),('START',st),('END',en),('JOKE',joke)]: html=html.replace(a,b)
 json.dump({'to':['sam@funnal.co.uk','james@funnal.co.uk'],'subject':'Pet sighting now: %s pet, %d DMs by %s'%(rar.capitalize(),need,en),
   'body':'A %s pet is in Funnal Cove right now. Log %d DMs in Hundred Cannons by %s UK time to claim it. Board the ship: https://funnal.co.uk/crew  -- Gary the gull'%(rar,need,en),
-  'htmlBody':html,'attachments':[{'filename':'pet-sighting.jpg','mimeType':'image/jpeg','inline':True,'content':'sha256:%s:%s'%(hx,img)}]},open('/tmp/mail.json','w'))
+  'htmlBody':html},open('/tmp/mail.json','w'))
 print('SEND')
