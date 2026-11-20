@@ -13,14 +13,15 @@ window.HL_CONTENT={
   },
   // boss settings for the boss builder (see bosskit.js); the Christmas pair goes live in Stage 1
   bossKits:{
-    grinchfish:{name:'The Grinchfish',title:'Thief of Quest Rewards',kit:{body:'fish',col:'#6FAE4A',col2:'#D7EFB8',pat:'scales',eyes:2,eyeStyle:'angry',mouth:'fangs',acc:['santa','fins'],mood:'smug'}},
-    past_due:{name:'Ghost of Christmas Past Due Invoice',title:'Overdue since 2019',kit:{body:'jelly',col:'#BFD8E8',col2:'#EAF5FB',eyes:2,eyeStyle:'specs',mouth:'pout',acc:['clipboard','tinsel'],mood:'calm',floats:true}},
-    circle_back:{name:'Circle Back Crab',title:'Will Circle Back',kit:{body:'crab',col:'#E0704A',eyes:2,mouth:'smirk',acc:['claws','headset','clipboard','bubbles'],mood:'smug'}},
-    not_now:{name:'Not Right Now Narwhal',title:'Maybe Next Quarter',kit:{body:'fish',col:'#8FA9C9',col2:'#E6EEF7',pat:'spots',eyes:2,eyeStyle:'sleepy',mouth:'pout',acc:['tusk','phone'],mood:'sleepy'}},
-    gatekeeper:{name:'The Gatekeeper Puffer',title:'Assistant to the Assistant',kit:{body:'puffer',col:'#E8A23A',col2:'#FFF1C9',eyes:2,eyeStyle:'specs',mouth:'smirk',acc:['tie','headset'],mood:'smug'}},
-    ghosted:{name:'Ghosted Ray',title:'Read 3 Days Ago',kit:{body:'ray',col:'#9C8FC4',eyes:2,eyeStyle:'shades',mouth:'grin',acc:['phone'],mood:'calm',floats:true}},
-    budget_squid:{name:'No Budget Squid',title:'Has To Ask Finance',kit:{body:'squid',col:'#C76A9A',eyes:3,mouth:'beak',acc:['tophat','monocle'],mood:'angry'}},
-    hermit:{name:'Happy With Current Supplier Hermit',title:'Very Loyal, Very Small',kit:{body:'shell',col:'#E5866A',col2:'#F2E3C4',eyes:2,mouth:'grin',acc:['bubbles'],mood:'scared'}}
+    grinchfish:{name:'The Grinchfish',title:'Thief of Christmas',kit:{body:'fish',col:'#6FAE4A',col2:'#D7EFB8',pat:'scales',eyes:2,eyeStyle:'angry',mouth:'fangs',acc:['santa','fins'],mood:'smug'}},
+    christmas_past:{name:'The Ghost of Christmas Past',title:'Rattler of Chains',kit:{body:'jelly',col:'#BFD8E8',col2:'#EAF5FB',eyes:2,mouth:'pout',acc:['chains','tinsel'],mood:'calm',floats:true}},
+    ironclaw:{name:'Ironclaw',title:'Crusher of Hulls',kit:{body:'crab',col:'#C9583A',pat:'spots',eyes:2,eyeStyle:'angry',mouth:'fangs',acc:['claws','barnacles','scars','bubbles'],mood:'angry'}},
+    frostfang:{name:'Frostfang Narwhal',title:'Terror of the Ice Shelf',kit:{body:'fish',col:'#8FA9C9',col2:'#E6EEF7',pat:'spots',eyes:2,eyeStyle:'angry',mouth:'smirk',acc:['tusk','fins','frost'],mood:'smug'}},
+    pufferdread:{name:'Pufferdread',title:'Swells With Fury',kit:{body:'puffer',col:'#E8A23A',col2:'#FFF1C9',eyes:2,eyeStyle:'angry',mouth:'fangs',acc:['horns','scars'],mood:'angry'}},
+    shadowwing:{name:'Shadowwing Ray',title:'Glides Unseen',kit:{body:'ray',col:'#5C4F86',col2:'#8E80B8',eyes:2,eyeStyle:'shades',mouth:'smirk',acc:['bubbles'],mood:'smug',floats:true}},
+    inkmaw:{name:'Inkmaw',title:'Three Eyes of the Trench',kit:{body:'squid',col:'#8E3E6E',eyes:3,mouth:'beak',acc:['crown','eyepatch'],mood:'angry'}},
+    shellback:{name:'Old Shellback',title:'Lives In A Skull',kit:{body:'shell',col:'#E5866A',col2:'#F2E3C4',eyes:2,mouth:'grin',acc:['barnacles','bubbles'],mood:'scared'}},
+    lanternjaw:{name:'Lanternjaw Angler',title:'Follow The Light',kit:{body:'blob',col:'#3E4A6E',col2:'#5C6A94',eyes:2,eyeStyle:'round',mouth:'fangs',acc:['lure','spikes'],mood:'smug'}}
   },
   lines:{
     // Barnacle Bill, out of nowhere (used by the Tavern in Stage 5)
