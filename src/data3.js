@@ -1,0 +1,19 @@
+/* ============================== v6: more jokes ============================== */
+Object.assign(REMINDERS,{
+  nobody:[...REMINDERS.nobody,"Your inbox called. It's lonely.","The sea foe is sunbathing. Unbothered. Moisturised. Undefeated.","Fun fact: zero DMs converts at exactly 0%.","Gary has started a book club because nobody is sending DMs.","Even the barnacles are more productive right now.","The cannons are cold. The tea is not. Choose wisely."],
+  lagger:[...REMINDERS.lagger,"{lagger} is currently in stealth mode. Very stealthy. Too stealthy.","{leader}: {lead}. {lagger}: a strong commitment to mystery.","Gary is drafting a missing-person poster for {lagger}.","{lagger}'s parrot is now taking DMs from {leader} out of pity."],
+  ahead:[...REMINDERS.ahead,"{leader} is {gap} ahead and has started humming. Loudly.","{gap} DMs between you. That's roughly one {lagger}-sized excuse each.","{leader} is ordering a victory biscuit in advance. Bold."],
+  overtaken:[...REMINDERS.overtaken,"{leader} sails past {lagger} and doesn't even wave. Cold.","New leader: {leader}. {lagger} is said to be 'regrouping'. Sure."],
+  close:[...REMINDERS.close,"{left} DMs left. The monster has started writing its will.","The foe is down to {left} HP and has asked for a lawyer."],
+  deadline:[...REMINDERS.deadline,"{left} to go, {mins} minutes left. This is the montage bit. Cue music.","The clock is ticking louder than Gary's opinions. {left} DMs, {mins} minutes."],
+  missed:[...REMINDERS.missed,"Yesterday's monster is still telling everyone about it. Make it stop.","We don't talk about yesterday. We just send DMs today."],
+  won:[...REMINDERS.won,"Monster sunk. Gary is doing a little dance. Please don't look directly at it.","Target hit. Every DM now is pure showing off. Encouraged showing off."],
+  steady:[...REMINDERS.steady,"Remember: personalised DMs only. 'Hey' is not a sales pitch.","You're doing great. Gary is contractually obliged to say that, but still.","Tip: compliments that mention something specific work better than 'love your vibe'.","Hydrate, captain. Then DM. Then hydrate again."],
+  golden:["Golden Tide is LIVE. Every DM counts double. Gary also counts double, emotionally.","Double points right now. This is not a drill. Well, it's a bit of a drill.","Golden Tide! The doubloons are basically falling out of the sky. Catch them."],
+  pet:["A {rar} pet has been spotted. It's not going to adopt itself.","There's a {rar} pet out there with your name on it. Possibly literally.","Pet sighting! {need} DMs and it's yours. Gary will be jealous, but that's his problem."],
+});
+JOKES.push("Woah there, speedy.","Even cannons need a cuppa between shots.","That's not a DM, that's a drum solo.","The button is reloading. Use this moment to reflect on your choices.","Slow down, the fish are getting dizzy.","Patience. Rome wasn't DM'd in a day.");
+const DM_QUIPS=["fire away","boom, another one","the inbox trembles","Gary approves","pew pew","that one was spicy","personalised, right?","nice aim, captain","straight to the DMs","they'll love that one","cannon reloading","splash","excellent outreach","chef's kiss","plot armour activated","main character energy"];
+const LEVEL_QUIPS=["Your hat feels slightly fancier.","Gary nods. Respectfully.","The sea foes have heard of you now.","You may now say 'arr' in meetings.","Somewhere, a prospect felt a disturbance.","Your parrot has updated its LinkedIn."];
+const WRONG_PW=["Nope. Gary is pretending he didn't see that.","That's not it. Try the one you didn't write on a sticky note.","Wrong password. The ship remains unboarded.","Incorrect. The parrot is judging you silently."];
+const ACH_QUIPS=["Frame it.","Tell your mum.","Gary is impressed. Don't tell him we told you.","Shiny.","One for the trophy cabinet.","Absolute scenes."];
