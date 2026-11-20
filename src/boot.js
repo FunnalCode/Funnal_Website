@@ -129,6 +129,7 @@ function subscribe(){
   db.collection('forfeits').onSnapshot(s=>{const m={};s.docs.forEach(d=>{if(d.exists)m[d.id]={id:d.id,...d.data()};});S.forfeits=m;refresh();},err);
 }
 async function boot(){
+  try{themeBoot();}catch(e){console.warn(e);}
   try{S.sound=localStorage.getItem('hl_sound')!=='0';}catch(e){}$('#mute').classList.toggle('off',!S.sound);
   bindUI();S.screen=(location.hash||'#harbour').slice(1);if(S.screen==='islet')S.screen='ship';if(!SCREENS[S.screen])S.screen='harbour';
   let db=null,user=null;

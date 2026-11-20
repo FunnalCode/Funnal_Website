@@ -854,3 +854,9 @@ body.quake #app,body.quake #focus{animation:quake .12s linear infinite}
 .parrotStages span.on{background:#2FA35A;color:#fff}
 .spot{width:17px;height:17px;font-size:9px;opacity:.9}
 .spot.sel{opacity:1}
+
+/* ---------- v16: What's new, Game feel ---------- */
+.wnList{margin:0;padding-left:18px;display:grid;gap:8px}.wnList li{line-height:1.4}
+.gameFeel .li{display:flex;align-items:center;gap:10px;cursor:pointer}.gameFeel .li input[type=checkbox]{width:20px;height:20px;flex:none;accent-color:#E06034}
+.gameFeel .pill{cursor:pointer;border:0;font:inherit}.gameFeel .pill.on{background:#3F5160;color:#FFF}
+html.hl-noheckle .remind{display:none}
