@@ -5,7 +5,9 @@
 window.HL_CONTENT={
   version:16,
   whatsNew:{
-    16:{title:"Behind-the-scenes refit",lines:[
+    16:{title:"New faces and a refit",lines:[
+      "<b>The captains have been redrawn:</b> proper faces, real beards instead of triangles, broader shoulders, and every hat, coat and face remade to fit. They cheer when you log, and look gutted if the day's target gets missed.",
+      "<b>Gary</b> has also been redrawn. He is not happy about it.",
       "<b>Settings, Game feel:</b> turn Gary's heckles on or off, and pick reduced motion if the sea makes you queasy.",
       "<b>Smoother on phones:</b> the scenes now reuse what doesn't move, so less battery goes on redrawing stars.",
       "<b>Safer updates:</b> every new version is saved, tried on a preview copy first, and can be rolled back in a minute without touching your progress.",

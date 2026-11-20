@@ -1,5 +1,5 @@
 shell=open('shell.html').read();css=open('style.css').read();mark=open('mark.txt').read().strip()
-js='\n'.join(open(f).read() for f in ['data.js','data2.js','data3.js','engine.js','art_head.js','art_pets.js','decor_part.js','art_tail.js','art_v6.js','art_v6b.js','ui.js','ui_ship.js','ui_ledger.js','ui_v4.js','ui_v5.js','ui_v6.js','fish.js','fish2.js','cosmo.js','v9.js','v10.js','v11.js','coop.js','lockin.js','wardrobe.js','v15.js','theme.js','bosskit.js','whatsnew.js','supa.js','boot.js'])
+js='\n'.join(open(f).read() for f in ['data.js','data2.js','data3.js','engine.js','art_head.js','art_pets.js','decor_part.js','art_tail.js','art_v6.js','art_v6b.js','ui.js','ui_ship.js','ui_ledger.js','ui_v4.js','ui_v5.js','ui_v6.js','fish.js','fish2.js','cosmo.js','v9.js','v10.js','v11.js','coop.js','lockin.js','wardrobe.js','v15.js','captain.js','theme.js','bosskit.js','whatsnew.js','supa.js','boot.js'])
 content=open('content.js').read()
 js=js.replace("const fn=SCREENS[S.screen]||SCREENS.harbour;","const fn=S.me?(SCREENS[S.screen]||SCREENS.harbour):SCREENS.harbour;")
 open('index.html','w').write(shell.replace('__MARK__',mark).replace('/*__CSS__*/',css).replace('/*__JS__*/',content+'\n'+js))
