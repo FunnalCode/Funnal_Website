@@ -6424,7 +6424,7 @@ function artShip(c,x,y,s,pl,t,opts={}){
   if(pl.figure)drawFigure(c,36,-17.6,pl.figure);
   if(gild)for(let i=0;i<3;i++){const tw=Math.sin(t/260+i*2.1);if(tw>.5){const gx=-20+i*22,gy=-9;line(c,gx-1.6,gy,gx+1.6,gy,'#FFF6CF',.4);line(c,gx,gy-1.6,gx,gy+1.6,'#FFF6CF',.4);}}
   // water lapping at the hull and a little bow spray
-  if(!neutral){const hz=ART_HZ[THEME.scene]||108,f=Math.max(0,Math.min(1,(y-hz)/(H-hz)));const wc=f<.3?mixHex(P.sea[0],P.sea[1],f/.3):mixHex(P.sea[1],P.sea[2],(f-.3)/.7);c.fillStyle=rgbaOf(wc,.9);c.beginPath();c.moveTo(-36,0);for(let i=0;i<=8;i++)c.quadraticCurveTo(-36+i*9.6+4.8,-1.4+Math.sin(t/300+i)*.6,-36+(i+1)*9.6,0);c.lineTo(48,6);c.lineTo(-36,6);c.closePath();c.fill();
+  if(!neutral){const hz=ART_HZ[THEME.scene]||108,f=Math.max(0,Math.min(1,(y-hz)/(H-hz)));const wc=f<.3?mixHex(P.sea[0],P.sea[1],f/.3):mixHex(P.sea[1],P.sea[2],(f-.3)/.7);c.fillStyle=rgbaOf(wc,.55);c.beginPath();c.moveTo(-36,0);for(let i=0;i<=8;i++)c.quadraticCurveTo(-36+i*9.6+4.8,-1.4+Math.sin(t/300+i)*.6,-36+(i+1)*9.6,0);c.lineTo(48,6);c.lineTo(-36,6);c.closePath();c.fill();
   c.fillStyle=rgbaOf(P.rip,.35);c.fillRect(-30,.4,64,.4);}
   if(opts.moving)for(let i=0;i<7;i++){const q=((t/380)+i/7)%1;disc(c,37+q*5-i%3,-1-Math.sin(q*Math.PI)*(4+i%3*1.5),1.3*(1-q)+.3,`rgba(255,255,255,${.85*(1-q)})`);}
   if(fire){const p=1-fire;if(p<.3){lamp(c,37,-13,5+10*(1-p/.3),.9,'255,200,90');disc(c,36.5,-13,2.4*(1-p/.3),'#FFF1B8');}for(let i=0;i<5;i++)disc(c,34+p*9+i*2.2,-14-p*8-i*1.2,2+p*3.4,`rgba(250,250,250,${.7*(1-p)})`);}
@@ -6504,7 +6504,7 @@ function artTown(c,t){const dm=(typeof TEAMDM==='function'?TEAMDM():0)||0;const 
   {const nx=plan.houses.find(h=>h.rank===nH);const at=townNextAt(dm);if(nx&&at){const {x,w,h,base}=nx;c.strokeStyle=mixHex('#C89A5A',P.bld,.35);c.lineWidth=.5;c.strokeRect(x,base-h,w,h);c.beginPath();c.moveTo(x,base);c.lineTo(x+w,base-h);c.moveTo(x-1,base-h);c.lineTo(x+w/2,base-h-w*.55);c.lineTo(x+w+1,base-h);c.stroke();}}
   // lit windows (twinkle a little), lamp posts and a string of lights along the quay
   const winC=lit?'#FFC46A':rgbaOf(P.win,.55);plan.houses.forEach((hs,i)=>{if(hs.rank>=nH)return;townWindows(hs).forEach(([wx,wy],j)=>{const on=lit?(hs.lit||j===0)&&Math.sin(t/(2400+i*37)+i*3+j)>-.85:true;R(c,wx,wy,1.4,2,on?winC:shadeHex(mixHex(hs.wall,P.bld,dk),.6));});});
-  if(lit){c.save();c.globalCompositeOperation='lighter';plan.houses.forEach((hs,i)=>{if(!hs.lit||hs.rank>=nH)return;const g=c.createRadialGradient(hs.x+hs.w/2,hs.base-hs.h/2,0,hs.x+hs.w/2,hs.base-hs.h/2,hs.w);g.addColorStop(0,'rgba(255,180,90,.16)');g.addColorStop(1,'rgba(255,180,90,0)');c.fillStyle=g;c.fillRect(hs.x-hs.w,hs.base-hs.h*1.5,hs.w*3,hs.h*2);});c.restore();
+  if(lit){c.save();c.globalCompositeOperation='lighter';layerCache(c,'towglow_'+nH,-40,30,300,80,q=>plan.houses.forEach((hs,i)=>{if(!hs.lit||hs.rank>=nH)return;const g=q.createRadialGradient(hs.x+hs.w/2,hs.base-hs.h/2,0,hs.x+hs.w/2,hs.base-hs.h/2,hs.w);g.addColorStop(0,'rgba(255,180,90,.16)');g.addColorStop(1,'rgba(255,180,90,0)');q.fillStyle=g;q.fillRect(hs.x-hs.w,hs.base-hs.h*1.5,hs.w*3,hs.h*2);}));c.restore();
     if(townHas('church',dm))R(c,151.2,townHillY(152)-15,1.6,2.2,'#FFC46A');}
   if(townHas('lamps',dm))for(let x=-24;x<238;x+=36){R(c,x,96,.8,8,shadeHex(stone,.45));rr(c,x-1,94.2,2.8,2.4,.6,lit?'#FFD98A':shadeHex(stone,.7));if(lit)lamp(c,x+.4,95.4,7,.55);}
   if(lit&&townHas('lights',dm)){for(let i=0;i<40;i++){const x=-24+i*6.5,y=98+Math.sin((i%6)/5*Math.PI)*1.6;const on=Math.sin(t/300+i*1.3)>-.4;disc(c,x,y,.55,on?['#FFD45A','#FF7A5A','#7AE0FF','#B88AFF'][i%4]:'rgba(255,255,255,.25)');}}
@@ -6642,21 +6642,24 @@ addLayer('fx','artVoyStorm',(c,t)=>{const k=Math.floor(t/2600),u=(t%2600);if(h32
    (they are who they are) but now take the scene's light: cool blue at night, rose at sunset, grey in a storm.
    Shop and wardrobe pictures show the new ship. Everything works through transforms, so ships rocking, monsters
    rising out of the water and the Harbour's zoomed views all line up. */
-const ART_OFF=[];function artOffCanvas(i,w,h){let cv=ART_OFF[i];if(!cv){cv=ART_OFF[i]=document.createElement('canvas');}if(cv.width<w)cv.width=w;if(cv.height<h)cv.height=h;const q=cv.getContext('2d');q.setTransform(1,0,0,1,0,0);q.clearRect(0,0,cv.width,cv.height);return [cv,q];}
+// one offscreen canvas per job, sized to what that job usually needs, and only the used corner is cleared
+const ART_OFF=new Map();function artOffCanvas(k,w,h){let e=ART_OFF.get(k);if(!e){const cv=document.createElement('canvas');e={cv,q:cv.getContext('2d')};ART_OFF.set(k,e);}const cv=e.cv;
+  if(cv.width<w||cv.height<h||cv.width>w*2.5+64||cv.height>h*2.5+64){cv.width=Math.ceil(w*1.15)+8;cv.height=Math.ceil(h*1.15)+8;}const q=e.q;q.setTransform(1,0,0,1,0,0);q.globalCompositeOperation='source-over';q.globalAlpha=1;q.clearRect(0,0,w+2,h+2);return [cv,q];}
 // draw into an offscreen canvas in device pixels, keeping the caller's full transform (scale, rotation, translation)
+const ART_MAXPX=150000;
 function artDevBox(c,lx,ly,lw,lh){const m=c.getTransform();const pts=[[lx,ly],[lx+lw,ly],[lx,ly+lh],[lx+lw,ly+lh]].map(([x,y])=>[m.a*x+m.c*y+m.e,m.b*x+m.d*y+m.f]);
-  const x0=Math.floor(Math.min(...pts.map(p=>p[0]))),y0=Math.floor(Math.min(...pts.map(p=>p[1]))),x1=Math.ceil(Math.max(...pts.map(p=>p[0]))),y1=Math.ceil(Math.max(...pts.map(p=>p[1])));return {m,x0,y0,w:x1-x0,h:y1-y0,sc:Math.hypot(m.a,m.b)};}
+  const x0=Math.floor(Math.min(...pts.map(p=>p[0]))),y0=Math.floor(Math.min(...pts.map(p=>p[1]))),x1=Math.ceil(Math.max(...pts.map(p=>p[0]))),y1=Math.ceil(Math.max(...pts.map(p=>p[1])));const w=x1-x0,h=y1-y0;const f=Math.min(1,Math.sqrt(ART_MAXPX/Math.max(1,w*h)));return {m,x0,y0,w,h,sc:Math.hypot(m.a,m.b),f,ow:Math.max(1,Math.ceil(w*f)),oh:Math.max(1,Math.ceil(h*f))};}
 let ART_EYES=null;
 {const _bf=bossFace;bossFace=function(c,cx,cy,r,ratio,t,look){if(ART_EYES){const m=c.getTransform(),er=Math.max(1.2,r/7.5);[-r*.32,r*.32].forEach(dx=>{const x=cx+dx,y=cy;ART_EYES.push({x:m.a*x+m.c*y+m.e,y:m.b*x+m.d*y+m.f,r:er*Math.hypot(m.a,m.b),blink:(t%3700)<130,dizzy:ratio<.25});});}return _bf.apply(this,arguments);};}
 {const _kf=bkFace;bkFace=function(c,K,fx,fy,fr,ratio,t,mood){if(ART_EYES){const m=c.getTransform(),n=K.eyes||2,er=Math.max(1,fr/6.8);const xs=n===1?[0]:n===3?[-fr*.42,0,fr*.42]:[-fr*.32,fr*.32];
     xs.forEach((dx,k)=>{const x=fx+dx,y=fy-(n===3&&k===1?fr*.12:0);ART_EYES.push({x:m.a*x+m.c*y+m.e,y:m.b*x+m.d*y+m.f,r:er*(n===1?1.7:1)*Math.hypot(m.a,m.b),blink:(t%(3300+(K.seed||0)%900))<120,dizzy:ratio<.25});});}return _kf.apply(this,arguments);};}
 function artSilhouette(c,box,draw,o={}){const b=artDevBox(c,...box);if(b.w<2||b.h<2||b.w>3000||b.h>3000){draw(c);return;}const P=artPal();
-  const [A,qa]=artOffCanvas(0,b.w,b.h);qa.setTransform(b.m.a,b.m.b,b.m.c,b.m.d,b.m.e-b.x0,b.m.f-b.y0);ART_EYES=[];try{draw(qa);}catch(e){}const eyes=ART_EYES||[];ART_EYES=null;
-  const [B,qb]=artOffCanvas(1,b.w,b.h);qb.drawImage(A,0,0);qb.globalCompositeOperation='source-atop';qb.fillStyle=o.col||shadeHex(P.near,.6);qb.globalAlpha=o.a==null?.84:o.a;qb.fillRect(0,0,b.w,b.h);qb.globalAlpha=1;qb.globalCompositeOperation='source-over';
-  const [Cr,qc]=artOffCanvas(2,b.w,b.h);qc.drawImage(A,0,0);qc.globalCompositeOperation='source-in';const rim=SUN&&SUN.night?'200,215,255':SUN?SUN.col:'255,240,210';qc.fillStyle=`rgb(${rim})`;qc.fillRect(0,0,b.w,b.h);qc.globalCompositeOperation='source-over';
-  c.save();c.setTransform(1,0,0,1,0,0);const k=Math.max(1,b.sc*.7);c.globalAlpha=.55;c.drawImage(Cr,0,0,b.w,b.h,b.x0-k,b.y0-k,b.w,b.h);c.globalAlpha=1;c.drawImage(B,0,0,b.w,b.h,b.x0,b.y0,b.w,b.h);
-  if(o.flash){c.globalAlpha=.75;c.drawImage(Cr,0,0,b.w,b.h,b.x0,b.y0,b.w,b.h);c.globalAlpha=1;}
-  const tm=performance.now();eyes.forEach((e,i)=>{if(e.blink)return;const fl=e.dizzy?(.4+.6*Math.abs(Math.sin(tm/120+i))):1;const ex=b.x0+e.x,ey=b.y0+e.y;const er=Math.max(1,e.r*.8);
+  const f=b.f,ow=b.ow,oh=b.oh;const [A,qa]=artOffCanvas('sA',ow,oh);qa.setTransform(b.m.a*f,b.m.b*f,b.m.c*f,b.m.d*f,(b.m.e-b.x0)*f,(b.m.f-b.y0)*f);ART_EYES=[];try{draw(qa);}catch(e){}const eyes=ART_EYES||[];ART_EYES=null;
+  const [B,qb]=artOffCanvas('sB',ow,oh);qb.drawImage(A,0,0,ow,oh,0,0,ow,oh);qb.globalCompositeOperation='source-atop';qb.fillStyle=o.col||shadeHex(P.near,.6);qb.globalAlpha=o.a==null?.84:o.a;qb.fillRect(0,0,ow,oh);qb.globalAlpha=1;qb.globalCompositeOperation='source-over';
+  const [Cr,qc]=artOffCanvas('sC',ow,oh);qc.drawImage(A,0,0,ow,oh,0,0,ow,oh);qc.globalCompositeOperation='source-in';const rim=SUN&&SUN.night?'200,215,255':SUN?SUN.col:'255,240,210';qc.fillStyle=`rgb(${rim})`;qc.fillRect(0,0,ow,oh);qc.globalCompositeOperation='source-over';
+  c.save();c.setTransform(1,0,0,1,0,0);const k=Math.max(1,b.sc*.7);c.globalAlpha=.55;c.drawImage(Cr,0,0,ow,oh,b.x0-k,b.y0-k,b.w,b.h);c.globalAlpha=1;c.drawImage(B,0,0,ow,oh,b.x0,b.y0,b.w,b.h);
+  if(o.flash){c.globalAlpha=.75;c.drawImage(Cr,0,0,ow,oh,b.x0,b.y0,b.w,b.h);c.globalAlpha=1;}
+  const tm=performance.now();eyes.forEach((e,i)=>{if(e.blink)return;const fl=e.dizzy?(.4+.6*Math.abs(Math.sin(tm/120+i))):1;const ex=b.x0+e.x/f,ey=b.y0+e.y/f;const er=Math.max(1,e.r/f*.8);
     const g=c.createRadialGradient(ex,ey,0,ex,ey,er*5);g.addColorStop(0,`rgba(255,200,110,${.55*fl})`);g.addColorStop(1,'rgba(255,200,110,0)');c.fillStyle=g;c.fillRect(ex-er*5,ey-er*5,er*10,er*10);
     c.fillStyle=`rgba(255,226,150,${fl})`;c.beginPath();c.arc(ex,ey,er,0,TAU);c.fill();c.fillStyle=`rgba(255,250,230,${fl})`;c.beginPath();c.arc(ex-er*.25,ey-er*.25,er*.4,0,TAU);c.fill();});
   c.restore();}
@@ -6666,14 +6669,70 @@ const artFoeScene=()=>ART_EYES===null&&isArtLook()&&!!THEME.scene&&['harbour','v
 if(typeof drawMonster==='function'){const _dm=drawMonster;drawMonster=function(c,mon,x,y,r,ratio,t,flash,elite){if(!artFoeScene())return _dm.apply(this,arguments);const self=this;const pad=r*2.8;
   artSilhouette(c,[x-pad,y-pad,pad*2,pad*2.2],q=>_dm.call(self,q,mon,x,y,r,ratio,t,false,elite),{flash,a:elite?.78:.84});};}
 // characters keep their colours but take the scene's light
-function artLightCol(){if(!isArtLook()||!THEME.scene)return null;if(THEME.weather==='storm')return ['#2A2840',.28];const m=artMode();return {night:['#1A2560',.34],sunset:['#7A2A5A',.14],dawn:['#6A4A8A',.12],gold:['#A0502A',.1]}[m]||null;}
-function artLit(c,box,draw){const L_=artLightCol();if(!L_){draw(c);return;}const b=artDevBox(c,...box);if(b.w<2||b.h<2||b.w>2000||b.h>2000){draw(c);return;}
-  const [A,qa]=artOffCanvas(3,b.w,b.h);qa.setTransform(b.m.a,b.m.b,b.m.c,b.m.d,b.m.e-b.x0,b.m.f-b.y0);try{draw(qa);}catch(e){}qa.setTransform(1,0,0,1,0,0);qa.globalCompositeOperation='source-atop';qa.fillStyle=L_[0];qa.globalAlpha=L_[1];qa.fillRect(0,0,b.w,b.h);qa.globalAlpha=1;qa.globalCompositeOperation='source-over';
-  c.save();c.setTransform(1,0,0,1,0,0);c.drawImage(A,0,0,b.w,b.h,b.x0,b.y0,b.w,b.h);c.restore();}
-{const _dk=drawKeeper;drawKeeper=function(c,x,y,pid,pl,t,opts){const self=this,a=arguments;if(!artLightCol())return _dk.apply(self,a);artLit(c,[x-8,y-10,26,26],q=>_dk.call(self,q,x,y,pid,pl,t,opts));};}
-{const _dp=drawPet;drawPet=function(c,pet,x,y,t,s=1,opts={}){const self=this,a=arguments;if(!artLightCol())return _dp.apply(self,a);artLit(c,[x-16*s,y-22*s,32*s,26*s],q=>_dp.call(self,q,pet,x,y,t,s,opts));};}
-{const _dg=drawGull;drawGull=function(c,x,y,t){const self=this,a=arguments;if(!artLightCol())return _dg.apply(self,a);artLit(c,[x-2,y-3,15,12],q=>_dg.call(self,q,x,y,t));};}
-{const _dn=drawNest;drawNest=function(c,x,y,t,coins,gary){const self=this,a=arguments;if(!artLightCol())return _dn.apply(self,a);artLit(c,[x-10,y-14,20,19],q=>_dn.call(self,q,x,y,t,coins,gary));};}
+function artLightCol(){if(!isArtLook()||!THEME.scene)return null;if(THEME.scene==='tavern')return ['#B0602A',.1];if(THEME.weather==='storm')return ['#2A2840',.28];const m=artMode();return {night:['#1A2560',.34],sunset:['#7A2A5A',.14],dawn:['#6A4A8A',.12],gold:['#A0502A',.1]}[m]||null;}
+// the painted finish: soft light from the top left, shade towards the bottom right, the scene's light, and a faint rim of light in scenes
+function artLit(c,box,draw,o={}){if(!isArtLook()){draw(c);return;}const L_=artLightCol();const b=artDevBox(c,...box);if(b.w<2||b.h<2||b.w>2200||b.h>2200){draw(c);return;}
+  const f=b.f,ow=b.ow,oh=b.oh;const slot=o.slot||'lit';const [A,qa]=artOffCanvas(slot,ow,oh);qa.setTransform(b.m.a*f,b.m.b*f,b.m.c*f,b.m.d*f,(b.m.e-b.x0)*f,(b.m.f-b.y0)*f);try{draw(qa);}catch(e){}qa.setTransform(1,0,0,1,0,0);
+  const inScene=!!THEME.scene;let rimCv=null;
+  if(inScene&&!o.noRim){const [Cr,qc]=artOffCanvas(slot+'r',ow,oh);qc.drawImage(A,0,0,ow,oh,0,0,ow,oh);qc.globalCompositeOperation='source-in';const rim=THEME.scene==='tavern'?'255,190,120':SUN&&SUN.night?'190,205,255':SUN?SUN.col:'255,240,210';qc.fillStyle=`rgb(${rim})`;qc.fillRect(0,0,ow,oh);qc.globalCompositeOperation='source-over';rimCv=Cr;}
+  qa.globalCompositeOperation='source-atop';const g=qa.createLinearGradient(0,0,ow*.35,oh);g.addColorStop(0,'rgba(255,246,228,.16)');g.addColorStop(.5,'rgba(255,246,228,0)');g.addColorStop(1,'rgba(30,22,60,.2)');qa.fillStyle=g;qa.fillRect(0,0,ow,oh);
+  if(L_){qa.fillStyle=L_[0];qa.globalAlpha=L_[1];qa.fillRect(0,0,ow,oh);qa.globalAlpha=1;}qa.globalCompositeOperation='source-over';
+  c.save();c.setTransform(1,0,0,1,0,0);if(rimCv){const k=Math.max(.8,b.sc*.45);c.globalAlpha=.3;c.drawImage(rimCv,0,0,ow,oh,b.x0-k,b.y0-k,b.w,b.h);c.globalAlpha=1;}c.drawImage(A,0,0,ow,oh,b.x0,b.y0,b.w,b.h);c.restore();}
+{const _dk=drawKeeper;drawKeeper=function(c,x,y,pid,pl,t,opts){const self=this,a=arguments;if(!isArtLook()||ART_EYES!==null)return _dk.apply(self,a);artLit(c,[x-8,y-10,26,26],q=>_dk.call(self,q,x,y,pid,pl,t,opts),{slot:'keeper'});};}
+{const _dp=drawPet;drawPet=function(c,pet,x,y,t,s=1,opts={}){const self=this,a=arguments;if(!isArtLook()||ART_EYES!==null)return _dp.apply(self,a);
+  // a little life: breathing, and now and then a hop (in scenes only)
+  let sy=1,hop=0;if(THEME.scene&&!opts.still&&!THEME.reduced&&pet){const seed=h32(pet.id||'p')%5000;sy=1+Math.sin(t/650+seed)*.035;const u=((t+seed)%7400)/7400;if(u<.06)hop=Math.sin(u/.06*Math.PI)*3.2*s;}
+  artLit(c,[x-16*s,y-24*s,32*s,28*s],q=>{if(sy!==1||hop){q.save();q.translate(x,y-hop);q.scale(1+(1-sy)*.6,sy);q.translate(-x,-y);_dp.call(self,q,pet,x,y,t,s,opts);q.restore();}else _dp.call(self,q,pet,x,y,t,s,opts);},{slot:'pet'});};}
+{const _dg=drawGull;drawGull=function(c,x,y,t){const self=this,a=arguments;if(!isArtLook()||ART_EYES!==null)return _dg.apply(self,a);artLit(c,[x-2,y-3,15,12],q=>_dg.call(self,q,x,y,t),{slot:'gull'});};}
+{const _dn=drawNest;drawNest=function(c,x,y,t,coins,gary){const self=this,a=arguments;if(!isArtLook()||ART_EYES!==null)return _dn.apply(self,a);artLit(c,[x-10,y-14,20,19],q=>_dn.call(self,q,x,y,t,coins,gary),{slot:'nest'});};}
+
+/* ---------- the painted finish on everything else with a face or fins ---------- */
+const artPass=()=>isArtLook()&&ART_EYES===null;
+{const _df=drawFish;drawFish=function(c,f,x,y,s,t=0,sil=false,v=''){const self=this,a=arguments;if(!artPass()||sil)return _df.apply(self,a);
+  const wig=THEME.scene&&!THEME.reduced?Math.sin(t/180+(x||0))*.07:0;artLit(c,[x-18*s,y-14*s,36*s,28*s],q=>{if(wig){q.save();q.translate(x,y);q.rotate(wig);q.translate(-x,-y);_df.call(self,q,f,x,y,s,t,sil,v);q.restore();}else _df.call(self,q,f,x,y,s,t,sil,v);},{noRim:!THEME.scene,slot:'fish'});};}
+{const _dm2=drawMoth;drawMoth=function(c,x,y,stage,t,acc,fl){const self=this,a=arguments;if(!artPass())return _dm2.apply(self,a);artLit(c,[x-9,y-11,18,18],q=>_dm2.apply(self,[q,...[].slice.call(a,1)]),{slot:'moth'});};}
+{const _dt=drawTrader;drawTrader=function(c,x,y,t,s=1){const self=this,a=arguments;if(!artPass())return _dt.apply(self,a);artLit(c,[x-12*s,y-24*s,24*s,27*s],q=>_dt.call(self,q,x,y,t,s),{slot:'trader'});};}
+{const _dd=drawDecor;drawDecor=function(c,id,x,y,t){const self=this,a=arguments;if(!artPass()||!THEME.scene)return _dd.apply(self,a);artLit(c,[x-30,y-50,60,54],q=>_dd.call(self,q,id,x,y,t),{slot:'decor'});};}
+{const _bl=drawBill;drawBill=function(c,x,y,t){const self=this,a=arguments;if(!artPass())return _bl.apply(self,a);artLit(c,[x-15,y-12,36,54],q=>_bl.call(self,q,x,y,t),{slot:'bill'});};}
+{const _ct=drawCat;drawCat=function(c,x,y,t){const self=this,a=arguments;if(!artPass())return _ct.apply(self,a);artLit(c,[x-15,y-15,32,18],q=>_ct.call(self,q,x,y,t),{slot:'cat'});};}
+
+/* ---------- the Rusty Anchor, painted: a misty view through the window, firelight that flickers across the room,
+   glowing candles and lanterns, a cool shaft of window light with dust drifting in it, deep shadows in the corners ---------- */
+{const _dtv=drawTavern;drawTavern=function(cv,t){if(!isArtLook())return _dtv.apply(this,arguments);const prev=THEME.scene;THEME.scene='tavern';try{_dtv.apply(this,arguments);}finally{THEME.scene=prev;}
+  const c=cv.getContext('2d');const s=cv.width/TVW;c.setTransform(s,0,0,s,0,0);const ph=tvPhase();const mode=ph==='dusk'?'sunset':ph;const P=artPal(mode==='night'?'night':mode);const lv=(typeof fireLevel==='function'?fireLevel():.6);const sp=THEME.reduced?.35:1;
+  const winter=THEME.season==='winter',storm=THEME.weather==='storm';
+  // the view through the window
+  const wx=108,wy=28,ww=42,wh=56;c.save();c.beginPath();c.rect(wx,wy,ww,wh);c.clip();const g=c.createLinearGradient(0,wy,0,wy+wh);g.addColorStop(0,P.sky[0]);g.addColorStop(.6,P.sky[1]);g.addColorStop(1,P.sky[2]);c.fillStyle=g;c.fillRect(wx,wy,ww,wh);
+  if(mode==='night'){for(let i=0;i<14;i++)disc(c,wx+(i*13.7)%ww,wy+(i*7.3)%(wh*.5),.35,'rgba(255,255,255,.8)');c.fillStyle='#F4F0DA';c.beginPath();c.arc(wx+30,wy+12,3,-Math.PI/2,Math.PI/2,true);c.ellipse(wx+30,wy+12,2.3,3,0,Math.PI/2,-Math.PI/2,false);c.fill();}
+  else glowAt(c,wx+30,wy+wh*.62,16,SUN?SUN.col:'255,230,190',.5);
+  layerCache(c,'tvview_'+mode+(winter?'w':''),wx,wy+16,ww,wh-16,q=>{artFacets(q,wy+wh*.72,[[wx+6,14,10,.3],[wx+22,20,12,.7],[wx+38,13,9,.5]],P.far,winter);artFog(q,wy+wh*.72,8,P.fog,.5);
+    q.fillStyle=P.sea[1];q.fillRect(wx,wy+wh*.72,ww,wh*.28);q.fillStyle=shadeHex(P.isl,.8);q.beginPath();q.moveTo(wx,wy+wh*.74);q.quadraticCurveTo(wx+10,wy+wh*.62,wx+18,wy+wh*.74);q.closePath();q.fill();});
+  const n=storm?44:winter?24:18;for(let i=0;i<n;i++){const p=((t*sp/(winter&&!storm?2600:650))+i*.137)%1;const x=wx+((i*29.3)%ww)+(winter&&!storm?Math.sin(t/500+i)*2:0),y=wy+p*wh;if(winter&&!storm)disc(c,x,y,.7,'rgba(255,255,255,.9)');else line(c,x,y,x-1.4,y+4.4,'rgba(210,225,255,.6)',.35);}
+  const st=c.createLinearGradient(0,wy+wh*.55,0,wy+wh);st.addColorStop(0,'rgba(255,255,255,0)');st.addColorStop(1,'rgba(255,255,255,.22)');c.fillStyle=st;c.fillRect(wx,wy,ww,wh);c.restore();
+  R(c,wx+ww/2-1,wy,2,wh,'#2E1C12');R(c,wx,wy+wh/2-1,ww,2,'#2E1C12');
+  // shadows: corners and ceiling fall away into darkness, the fire side stays warm
+  c.save();c.globalCompositeOperation='multiply';const fx=50,fy=128;const sh=c.createRadialGradient(fx,fy,20,fx+80,fy-10,300);sh.addColorStop(0,'#FFFFFF');sh.addColorStop(.4,'#E2CCC4');sh.addColorStop(1,mode==='night'?'#463A62':'#5E4E6E');c.fillStyle=sh;c.fillRect(0,0,TVW,TVH);
+  const top=c.createLinearGradient(0,0,0,40);top.addColorStop(0,'#8A7A90');top.addColorStop(1,'#FFFFFF');c.fillStyle=top;c.fillRect(0,0,TVW,40);c.restore();
+  // firelight, flickering
+  const fl=.75+.15*Math.sin(t*sp/90)+.1*Math.sin(t*sp/37+1.3)+.06*Math.sin(t*sp/13);c.save();c.globalCompositeOperation='lighter';
+  const fg=c.createRadialGradient(fx,fy,6,fx,fy,150+30*lv);fg.addColorStop(0,`rgba(255,150,70,${(.26+.12*lv)*fl})`);fg.addColorStop(.5,`rgba(255,120,60,${.08*fl})`);fg.addColorStop(1,'rgba(255,120,60,0)');c.fillStyle=fg;c.fillRect(0,0,TVW,TVH);
+  // candles, the lanterns over the bar
+  [[14,70],[86,70],[192,110],[300,110]].forEach(([x,y],i)=>{const a=.4+.1*Math.sin(t*sp/(150+i*23)+i);glowAt(c,x,y,16,'255,200,110',a);});
+  [[210,8],[250,8],[290,8]].forEach(([x,y],i)=>{const sw=Math.sin(t*sp/1300+i)*1.2;line(c,x,0,x+sw,y,'rgba(60,40,30,.9)',.5);c.globalCompositeOperation='source-over';rr(c,x+sw-2.2,y,4.4,6,1,'#FFC46A');c.globalCompositeOperation='lighter';glowAt(c,x+sw,y+3,22,'255,190,100',.35+.05*Math.sin(t/200+i));});
+  // a shaft of cool light from the window, with dust drifting in it
+  const cool=mode==='night'?'150,170,255':'210,225,255';c.fillStyle=`rgba(${cool},${mode==='night'?.06:.09})`;c.beginPath();c.moveTo(wx,wy);c.lineTo(wx+ww,wy);c.lineTo(wx+ww+40,150);c.lineTo(wx+20,150);c.closePath();c.fill();
+  for(let i=0;i<16;i++){const u=((t*sp/9000)+i*.0625)%1;const x=wx+10+((i*23)%40)+u*28+Math.sin(t/1700+i)*3,y=wy+20+((i*37)%90)*(.4+.6*u);const a=.35+.35*Math.sin(t/600+i*2);if(a<.1)continue;c.fillStyle=`rgba(255,240,220,${a*.6})`;c.fillRect(x,y,.6,.6);}
+  c.restore();
+  // a curl of smoke from the fire and steam over the mugs
+  for(let k=0;k<4;k++){const q=((t*sp/3000)+k/4)%1;disc(c,fx+Math.sin(q*6+k)*4,fy-34-q*40,1.6+q*3,`rgba(200,190,190,${.16*(1-q)})`);}
+  // soft vignette
+  const v=c.createRadialGradient(TVW/2,TVH*.55,TVH*.45,TVW/2,TVH*.55,TVH*1.05);v.addColorStop(0,'rgba(20,10,20,0)');v.addColorStop(1,'rgba(20,10,20,.35)');c.fillStyle=v;c.fillRect(0,0,TVW,TVH);};}
+
+/* ---------- the hideout: the island keeps its pieces, graded into the painted light of the hour ---------- */
+{const _di=drawIslet;drawIslet=function(c,t,pid){const r=_di.apply(this,arguments);if(!isArtLook()||!G)return r;const m=artMode();const storm=THEME.weather==='storm';
+  const tint=storm?'#8A8AA0':{night:'#4A5A9A',sunset:'#E8A8B8',dawn:'#E0C4DA',gold:'#F2C8A0'}[m]||'#E8EEF6';c.save();c.globalCompositeOperation='multiply';
+  const g=c.createLinearGradient(0,96,0,H);g.addColorStop(0,'#FFFFFF');g.addColorStop(.25,tint);g.addColorStop(1,shadeHex(tint,.86));c.fillStyle=g;c.fillRect(-90,96,W+180,H-96+VIEW_EXT.bot+40);c.restore();
+  const v=c.createRadialGradient(W/2,H*.6,H*.4,W/2,H*.6,H*1.05);v.addColorStop(0,'rgba(20,16,40,0)');v.addColorStop(1,`rgba(20,16,40,${m==='night'?.3:.16})`);c.fillStyle=v;c.fillRect(-90,-300,W+180,H+600);return r;};}
 
 /* ============================== SUPABASE STORE (used when hosted on funnal.co.uk) ============================== */
 // Mirrors the small slice of the artifact db API the game uses: doc().get/set/update/delete/acquire/onSnapshot, collection().doc/onSnapshot.
