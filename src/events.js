@@ -72,8 +72,8 @@ addLayer('fx','stormRain',(c,t)=>{const top=-VIEW_EXT.top-6,span=H+VIEW_EXT.top+
   // 21 Nov: three depths of rain, each drop with its own speed and length, gusts that lean it, and splashes on the water
   c.fillStyle='rgba(30,40,60,.12)';c.fillRect(left,top,wid,span);const gust=Math.sin(t/2300)*.25+Math.sin(t/700)*.08;
   [[n*.9,.32,4,.4,.28],[n*.6,.5,7,.6,.42],[n*.25,.8,11,.9,.6]].forEach(([cnt,spd,len,w,a],L)=>{c.strokeStyle=`rgba(205,218,238,${a})`;c.lineWidth=w;c.beginPath();
-    for(let i=0;i<cnt;i++){const r=h32('sr'+L+'_'+i);const v=spd*(.8+((r%100)/100)*.5);const p=((t*sp*v/span)+(r%1000)/1000)%1;const y=top+p*span,x=left+(((r>>10)%1000)/1000*wid+p*span*(.3+gust))%wid;const l=len*(.7+((r>>4)%10)/20);c.moveTo(x,y);c.lineTo(x-l*(.3+gust),y+l);}c.stroke();});
-  const sy=(typeof ART_HZ!=='undefined'&&THEME.scene&&ART_HZ[THEME.scene])||108;c.strokeStyle='rgba(225,235,250,.45)';c.lineWidth=.35;for(let i=0;i<26;i++){const r=h32('sp'+i);const q=((t*sp/(300+r%400))+(r%1000)/1000)%1;const x=left+((r>>8)%1000)/1000*wid,y=sy+8+((r>>18)%1000)/1000*(H-sy-6);if(q<.35){c.beginPath();c.ellipse(x,y,.6+q*5,.2+q*1.2,0,0,TAU);c.stroke();}}},{z:12,when:()=>THEME.weather==='storm'});
+    for(let i=0;i<cnt;i++){const r=h32('sr'+L+'_'+i)>>>0;const v=spd*(.8+((r%100)/100)*.5);const p=((t*sp*v/span)+(r%1000)/1000)%1;const y=top+p*span,x=left+(((r>>>10)%1000)/1000*wid+p*span*(.3+gust))%wid;const l=len*(.7+((r>>>4)%10)/20);c.moveTo(x,y);c.lineTo(x-l*(.3+gust),y+l);}c.stroke();});
+  const sy=(typeof ART_HZ!=='undefined'&&THEME.scene&&ART_HZ[THEME.scene])||108;c.strokeStyle='rgba(225,235,250,.45)';c.lineWidth=.35;for(let i=0;i<26;i++){const r=h32('sp'+i)>>>0;const q=((t*sp/(300+r%400))+(r%1000)/1000)%1;const x=left+((r>>>8)%1000)/1000*wid,y=sy+8+((r>>>18)%1000)/1000*(H-sy-6);if(q<.35){c.beginPath();c.ellipse(x,y,.6+q*5,.2+q*1.2,0,0,TAU);c.stroke();}}},{z:12,when:()=>THEME.weather==='storm'});
 
 /* ---------- Gary and Bill notice ---------- */
 {const _gsE=garySituation;garySituation=function(){try{const e=G&&eventOn(G.today);if(e&&e.type==='storm'&&evPhase(e)==='live')return 'storm';}catch(err){}return _gsE.apply(this,arguments);};}

@@ -6318,8 +6318,8 @@ addLayer('fx','stormRain',(c,t)=>{const top=-VIEW_EXT.top-6,span=H+VIEW_EXT.top+
   // 21 Nov: three depths of rain, each drop with its own speed and length, gusts that lean it, and splashes on the water
   c.fillStyle='rgba(30,40,60,.12)';c.fillRect(left,top,wid,span);const gust=Math.sin(t/2300)*.25+Math.sin(t/700)*.08;
   [[n*.9,.32,4,.4,.28],[n*.6,.5,7,.6,.42],[n*.25,.8,11,.9,.6]].forEach(([cnt,spd,len,w,a],L)=>{c.strokeStyle=`rgba(205,218,238,${a})`;c.lineWidth=w;c.beginPath();
-    for(let i=0;i<cnt;i++){const r=h32('sr'+L+'_'+i);const v=spd*(.8+((r%100)/100)*.5);const p=((t*sp*v/span)+(r%1000)/1000)%1;const y=top+p*span,x=left+(((r>>10)%1000)/1000*wid+p*span*(.3+gust))%wid;const l=len*(.7+((r>>4)%10)/20);c.moveTo(x,y);c.lineTo(x-l*(.3+gust),y+l);}c.stroke();});
-  const sy=(typeof ART_HZ!=='undefined'&&THEME.scene&&ART_HZ[THEME.scene])||108;c.strokeStyle='rgba(225,235,250,.45)';c.lineWidth=.35;for(let i=0;i<26;i++){const r=h32('sp'+i);const q=((t*sp/(300+r%400))+(r%1000)/1000)%1;const x=left+((r>>8)%1000)/1000*wid,y=sy+8+((r>>18)%1000)/1000*(H-sy-6);if(q<.35){c.beginPath();c.ellipse(x,y,.6+q*5,.2+q*1.2,0,0,TAU);c.stroke();}}},{z:12,when:()=>THEME.weather==='storm'});
+    for(let i=0;i<cnt;i++){const r=h32('sr'+L+'_'+i)>>>0;const v=spd*(.8+((r%100)/100)*.5);const p=((t*sp*v/span)+(r%1000)/1000)%1;const y=top+p*span,x=left+(((r>>>10)%1000)/1000*wid+p*span*(.3+gust))%wid;const l=len*(.7+((r>>>4)%10)/20);c.moveTo(x,y);c.lineTo(x-l*(.3+gust),y+l);}c.stroke();});
+  const sy=(typeof ART_HZ!=='undefined'&&THEME.scene&&ART_HZ[THEME.scene])||108;c.strokeStyle='rgba(225,235,250,.45)';c.lineWidth=.35;for(let i=0;i<26;i++){const r=h32('sp'+i)>>>0;const q=((t*sp/(300+r%400))+(r%1000)/1000)%1;const x=left+((r>>>8)%1000)/1000*wid,y=sy+8+((r>>>18)%1000)/1000*(H-sy-6);if(q<.35){c.beginPath();c.ellipse(x,y,.6+q*5,.2+q*1.2,0,0,TAU);c.stroke();}}},{z:12,when:()=>THEME.weather==='storm'});
 
 /* ---------- Gary and Bill notice ---------- */
 {const _gsE=garySituation;garySituation=function(){try{const e=G&&eventOn(G.today);if(e&&e.type==='storm'&&evPhase(e)==='live')return 'storm';}catch(err){}return _gsE.apply(this,arguments);};}
@@ -7175,9 +7175,9 @@ const artPass=()=>isArtLook()&&ART_EYES===null;
 /* ---------- the Rusty Anchor, painted: a misty view through the window, firelight that flickers across the room,
    glowing candles and lanterns, a cool shaft of window light with dust drifting in it, deep shadows in the corners ---------- */
 // 21 Nov: rain you can believe in: slanted streaks at two depths outside, and beads on the glass that sit, swell and run
-function tvRain(c,wx,wy,ww,wh,t,storm){const lay=(n,spd,len,a,w,seed)=>{c.strokeStyle=`rgba(205,220,250,${a})`;c.lineWidth=w;c.beginPath();for(let i=0;i<n;i++){const r=h32(seed+i);const p=((t/spd)+(r%1000)/1000)%1;const x=wx-4+((r>>10)%1000)/1000*(ww+8)+p*3,y=wy-len+p*(wh+len);c.moveTo(x,y);c.lineTo(x-len*.22,y+len);}c.stroke();};
+function tvRain(c,wx,wy,ww,wh,t,storm){const lay=(n,spd,len,a,w,seed)=>{c.strokeStyle=`rgba(205,220,250,${a})`;c.lineWidth=w;c.beginPath();for(let i=0;i<n;i++){const r=h32(seed+i)>>>0;const p=((t/spd)+(r%1000)/1000)%1;const x=wx-4+((r>>>10)%1000)/1000*(ww+8)+p*3,y=wy-len+p*(wh+len);c.moveTo(x,y);c.lineTo(x-len*.22,y+len);}c.stroke();};
   lay(storm?60:38,storm?300:420,5,.22,.25,'rf');lay(storm?34:20,storm?220:300,8,.4,.35,'rn');
-  for(let i=0;i<(storm?22:16);i++){const r=h32('drop'+i);const per=6000+(r%7000),ph=((t+(r%9000))/per)%1;const x=wx+2+((r>>8)%1000)/1000*(ww-4),y0=wy+3+((r>>18)%1000)/1000*wh*.65;const sz=.45+((r>>4)%10)/16;
+  for(let i=0;i<(storm?22:16);i++){const r=h32('drop'+i)>>>0;const per=6000+(r%7000),ph=((t+(r%9000))/per)%1;const x=wx+2+((r>>>8)%1000)/1000*(ww-4),y0=wy+3+((r>>>18)%1000)/1000*wh*.65;const sz=.45+((r>>>4)%10)/16;
     let y=y0,run=0;if(ph>.72){run=(ph-.72)/.28;y=y0+run*run*(wy+wh-y0+4);c.strokeStyle='rgba(220,232,255,.16)';c.lineWidth=sz*.9;c.beginPath();c.moveTo(x,y0);c.lineTo(x+Math.sin(run*6+i)*.4,y);c.stroke();}
     const g=sz*(1+(ph<.72?ph*.4:.3));c.fillStyle='rgba(190,210,240,.22)';c.beginPath();c.ellipse(x,y,g*.85,g,0,0,TAU);c.fill();c.strokeStyle='rgba(255,255,255,.32)';c.lineWidth=.18;c.stroke();disc(c,x-g*.3,y-g*.35,g*.28,'rgba(255,255,255,.75)');}
   if(Math.sin(t/(storm?900:2600))>.985){c.fillStyle='rgba(230,235,255,.16)';c.fillRect(wx,wy,ww,wh);}}
