@@ -28,7 +28,7 @@ function bossLoot(p){if(!G)return{have:{},sets:{}};const ck=p+'|'+G.evs.length+'
   Object.values(G.days).forEach(D=>{if(!D.boss||D.date<ROSTER_FROM||!D.target||!(D.p[p]?.d>0))return;const L_=LEGEND_BY_DATE[D.date];const set=setOf(D.boss);
     if(L_){const st=legendState(D.date);if(st&&st.won)add(set[3].id);return;}if(D.team<D.target)return;
     const rolls=D.boss.weak==='stub'?2:1;for(let r=0;r<rolls;r++){const u=h32(D.date+p+'loot'+r)%100;add(set[u<55?0:u<85?1:u<97?2:3].id);}});
-  (G.players[p]?.bonus||[]).forEach(b=>{if(b.key.startsWith('lt_')&&b.take&&b.give){add(b.take,-(b.n||5));add(b.give,1);}});
+  (G.players[p]?.bonus||[]).forEach(b=>{if(b.key.startsWith('lt_')&&b.take&&b.give){add(b.take,-(b.n||5));add(b.give,1);}else if(b.key.startsWith('fn_')&&b.take){add(b.take,-(b.n||1));}});
   const v={have};bossLoot._c={k:ck,v};return v;}
 function setDone(p,b){const {have}=bossLoot(p);return setOf(b).every(x=>(have[x.id]||0)>0||G.players[p]?.bonus?.some(y=>y.give===x.id));}
 // set banners: one per boss, earned by completing its set, hidden from the shop until owned
