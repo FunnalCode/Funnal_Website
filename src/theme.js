@@ -5,6 +5,7 @@
    Layer slots, back to front: sky (after the base sky), sea (after the base sea),
    world (after the scene's own art, before speech), fx (particles, weather), overlay (tints). */
 const HL_VERSION=17;
+const isArtLook=()=>THEME.look==='art';
 const THEME={season:'autumn',festive:null,weather:'clear',phase:'day',reduced:false,scene:null,snow:false,preview:null,date:''};
 const PAL_BASE={
   sky:{day:['#3FA4E4','#86CEF2','#D9F2FB'],dawn:['#6F86CC','#F3B1A6','#FFE7BE'],sunset:['#454A98','#E57690','#FFC680'],gold:['#F0935A','#F8C079','#FFEBBB'],night:['#121838','#2B3672','#6E639E']},

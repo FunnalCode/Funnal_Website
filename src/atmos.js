@@ -8,7 +8,7 @@ PAL_LOOKS.atmos={
   sea:{day:['#62D0DC','#1F86BE'],dawn:['#A9C4D8','#3F80B8'],sunset:['#EC9E8A','#2C4A88'],gold:['#EFC69A','#3392BC'],night:['#2E4886','#0A1A3C']},
   cloud:{day:['#FFFFFF','rgba(150,190,225,.5)'],dawn:['#FFE6E0','rgba(225,150,165,.5)'],sunset:['#FFC8B0','rgba(180,85,125,.55)'],gold:['#FFEFD2','rgba(235,165,110,.55)'],night:['rgba(140,150,210,.24)','rgba(60,70,140,.2)']}};
 {const _tp=themePal;themePal=function(kind,mode){if(THEME.look!=='atmos'||THEME.weather==='storm')return _tp.apply(this,arguments);const base=_tp.apply(this,arguments);const o=PAL_LOOKS.atmos[kind]&&PAL_LOOKS.atmos[kind][mode];return o||base;};}
-{const _tn=themeNow;themeNow=function(){const r=_tn.apply(this,arguments);const Q=(typeof THEME_Q!=='undefined')?THEME_Q:[];THEME.look=Q.includes('classic')?'classic':Q.includes('atmos')?'atmos':(PREFS.look==='classic'?'classic':'atmos');return r;};}
+{const _tn=themeNow;themeNow=function(){const r=_tn.apply(this,arguments);const Q=(typeof THEME_Q!=='undefined')?THEME_Q:[];THEME.look=Q.includes('classic')?'classic':Q.includes('atmos')?'atmos':Q.includes('painted')||Q.includes('art')?'art':(PREFS.look==='classic'?'classic':PREFS.look==='atmos'?'atmos':'art');return r;};}
 const HORIZON={harbour:108,ship:110,islet:104,voyage:96};
 const isAtmos=()=>THEME.look==='atmos';
 const AQ=()=>THEME.reduced?.4:1;
@@ -51,7 +51,7 @@ addLayer('overlay','atmosGrade',(c,t)=>{const mode=SUN?SUN.mode:'day';const nigh
 // a soft bloom around the lighthouse lamp on the Harbour at night
 addLayer('world','atmosLamp',(c,t)=>{if(!SUN||!SUN.night)return;const top=typeof lighthouseTop==='function'?lighthouseTop():72;c.save();c.globalCompositeOperation='lighter';const g=c.createRadialGradient(104,top-4,2,104,top-4,46);g.addColorStop(0,'rgba(255,230,160,.35)');g.addColorStop(1,'rgba(255,230,160,0)');c.fillStyle=g;c.fillRect(50,top-56,108,108);c.restore();},{scenes:['harbour'],z:1,when:isAtmos});
 // Settings, Game feel: Scenery
-{const _gf=gameFeelHtml;gameFeelHtml=function(){const h=_gf.apply(this,arguments);const cur=PREFS.look==='classic'?'classic':'atmos';const seg=(v,l)=>`<button type="button" class="chip ${cur===v?'on':''}" data-act="prefLook" data-v="${v}">${l}</button>`;
-  const row=`<div class="li"><span class="grow">Scenery<br><small class="muted">Atmospheric adds glowing skies, sun rays, sparkling water, drifting islands and starry nights. Classic is the original look.</small></span><span class="row" style="gap:4px">${seg('atmos','Atmospheric')}${seg('classic','Classic')}</span></div>`;const k='<div class="li"><span class="grow">Motion';return h.includes(k)?h.replace(k,row+k):h;};}
+{const _gf=gameFeelHtml;gameFeelHtml=function(){const h=_gf.apply(this,arguments);const cur=PREFS.look==='classic'?'classic':PREFS.look==='atmos'?'atmos':'art';const seg=(v,l)=>`<button type="button" class="chip ${cur===v?'on':''}" data-act="prefLook" data-v="${v}">${l}</button>`;
+  const row=`<div class="li"><span class="grow">Scenery<br><small class="muted">Painted is the new look: misty mountains, still water and glowing lanterns. Atmospheric is the brighter version from before, and Classic is the original.</small></span><span class="row" style="gap:4px;flex-wrap:wrap;justify-content:flex-end">${seg('art','Painted')}${seg('atmos','Atmospheric')}${seg('classic','Classic')}</span></div>`;const k='<div class="li"><span class="grow">Motion';return h.includes(k)?h.replace(k,row+k):h;};}
 ACT.prefLook=d=>{setPref('look',d.v);render();};
 setTimeout(()=>{try{themeNow();}catch(e){}},0);
