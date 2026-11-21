@@ -15,6 +15,7 @@ window.HL_CONTENT={
       "<b>Better fits:</b> beards follow your jaw, mutton chops stay on your cheeks, and the straw hat, bicorne, captain's cap and chef's hat sit on your head.",
       "<b>The Salty Herald, a proper newspaper:</b> tap it for the full broadsheet: a front page drawn from yesterday's boss, hunting news with loot and final words, the fishing report, Gary's weekly column, a forecast that names the bosses coming up, classifieds with real hints, Dear Mrs B, a crossword, tide table and a weekly strip.",
       "<b>Gary moves in:</b> he lives in a nest on the lighthouse, comments on how the day is going (poke him on his card), pinches a doubloon on a missed-target day and hands them all back when you hit it, files a weekly formal complaint, and runs a Lost and Found.",
+      "<b>The Rusty Anchor:</b> a tavern by the jetty (or in More), open 8am to 11pm. Barnacle Bill gossips from your real numbers, slags off whoever isn't in, and asks to borrow money (he pays back, eventually). Drinks with small boosts, 21, Liar's Dice with Gary, Pirate Poker, a free daily dart, a jukebox of shanties, and a fire that grows with the day's DMs. If you're both in, you're both at the bar and can raise a glass.",
       "<b>The Black Market:</b> 9pm to 1am, a lantern-lit stall on the far side of the Harbour. Four shady items a night, exclusive cosmetics you can't get anywhere else, a nightly bargain (usually), and the trader buys duplicate loot. He is not Gary.",
       "<b>Settings, Game feel:</b> turn Gary's heckles on or off, and pick reduced motion if the sea makes you queasy."]},
     16:{title:"Behind-the-scenes refit",lines:[
@@ -37,6 +38,112 @@ window.HL_CONTENT={
     lanternjaw:{name:'Lanternjaw Angler',title:'Follow The Light',kit:{body:'blob',col:'#3E4A6E',col2:'#5C6A94',eyes:2,eyeStyle:'round',mouth:'fangs',acc:['lure','spikes'],mood:'smug'}}
   },
   lines:{
+    bill:{
+      alone:[
+        "{here}! The only captain worth the price of a pint. I never did like {absent}.",
+        "Oh thank God it's you. If {absent} had walked in I'd have pretended we were shut.",
+        "Sit, sit. Not that stool, {absent} sat on it. I'll burn it later.",
+        "{absent} was in earlier. Tipped me a button. A BUTTON, {here}.",
+        "You know what I like about you? You're not {absent}.",
+        "I said to the wife, I said, {here}'s the brains of that ship. {absent}'s more of a... decoration.",
+        "{absent} asked me to keep a tab for them. I've drawn a little skull next to it.",
+        "Between us, {absent} sends DMs like they're paying for each letter.",
+        "{dms} today? {absent} couldn't do {dms} if you spotted them the first {left}.",
+        "You're glowing, {here}. Is that success or the strip light? Either way, {absent} could never.",
+        "I've put your picture up behind the bar. I've put {absent}'s up in the toilets.",
+        "{absent} said you were their best mate. I laughed so hard I chipped a tooth. Anyway, that'll be 40 doubloons for the dentist.",
+        "I'd leave this pub to you in my will, {here}. I've also told {absent} that, but I meant it with you.",
+        "Come in, come in, warm yourself. {absent} never stays long. Says the fire's 'too smoky'. Philistine.",
+        "Your usual corner's free, {here}. I chased {absent} out of it with a mop.",
+        "Ah, the good captain. As opposed to the other one."
+      ],
+      both:[
+        "My two favourite captains! Together! Under my roof! I'm welling up. That'll be a tenner for the tissues.",
+        "Look at you both. Like a matching pair of very slightly different cutlasses.",
+        "Now I don't have favourites. I've never had favourites. I've got a favourite, but I don't have favourites.",
+        "Equal measures for both. Precisely equal. I measured {other}'s with my eyes shut, mind.",
+        "Two captains, one bar, zero tips. The dream.",
+        "The whole crew in at once! Quick, somebody guard the peanuts.",
+        "Both of you! I'll get the good glasses out. The ones with fewer chips."
+      ],
+      whisper:[
+        "(whispering) Between you and me, you're the real captain. Don't tell {other}.",
+        "(whispering) I only smile at {other} because I've got bills.",
+        "(whispering) Nod if you want me to water down {other}'s grog.",
+        "(whispering) Same as always? The good stuff? The stuff {other} doesn't get?",
+        "(whispering) I've just told {other} they're my favourite. It's you, obviously. Probably. Today.",
+        "(whispering) {other}'s been looking at your hat. Jealous, if you ask me. Which you didn't.",
+        "(whispering) If you ever sell the ship, sell it to me. Don't tell {other}. Don't tell my bank."
+      ],
+      switchIn:[
+        "...and that's why {absent} is a disgrace to the seven seas – {absent}! My favourite! We were just saying how marvellous you are!",
+        "...so I said to {here}, I said, never trust a captain who – there they are! Light of my life!",
+        "...honestly couldn't sink a rubber duck – oh hello! We were talking about ducks. Lovely things. Like you."
+      ],
+      asks:[
+        "Could you lend us 20 doubloons? The parrot's got a court date.",
+        "I'm collecting for the Retired Krakens' Fund. It's me. I'm the fund.",
+        "I need 50 for a new barrel. Not for beer. I live in it.",
+        "Spot me 30? My cousin's selling a mermaid. Slightly used. No questions.",
+        "The rats have unionised. They want dental.",
+        "Got 20 for the jukebox? It only plays one song now and it's about my ex-wife.",
+        "I've been fined for 'excessive moustache' by the harbour council. It's a stitch-up.",
+        "40 doubloons and I'll tell you what {other} REALLY said about you.",
+        "Lend us 25 for a lottery ticket? If I win I'll share it. With {other}. No, with you. Definitely you.",
+        "The ghost in the cellar wants rent. I don't make the rules.",
+        "Need 60 for my gran's hip. Not a new one, she wants to sell hers.",
+        "I've bet the pub on a crab race. Small top-up?",
+        "Chip in for the chips? Gary's demanding a seafood platter and he's got friends.",
+        "I need 15 for a birthday card for {other}. I'm going to write 'from {here}' on it, so you're welcome.",
+        "Can I borrow 100? I've lost the pub in a game of Liar's Dice. To Gary. He's upstairs measuring for curtains."
+      ],
+      asksXmas:[
+        "Lend us 40 for a reindeer licence? It's for the sleigh. Don't ask about the sleigh.",
+        "Spare a few for the Christmas lights? The bill came in. It had its own bill.",
+        "I need to buy Gary a present or he'll do something to my roof again."
+      ],
+      askYes:["You're a saint. A beautiful saint. {other} said no, by the way.","Bless you. I'll pay you back. In a sense. Spiritually.","That's going straight in the ledger. The nice ledger. Not the other one."],
+      askNo:["Fine. I'll just ask {other}. They always say yes. Shame you don't.","Fair enough. I'll remember this. I remember everything. Except birthdays.","No? Brave. Very brave. The rats will hear about this."],
+      payback:["Here, I found this down the back of the sofa. Don't ask whose sofa.","I always pay my debts. Eventually. Sideways. Take this.","For my most loyal investor. Tell nobody, especially {other}."],
+      gossip:[
+        "Word is {other} did {pace} DMs in the last hour. I reckon they're copying and pasting. Disgraceful. Teach me.",
+        "{boss} came in here earlier. Bitter about the day it's having. Paid in loose barnacles.",
+        "Heard you're on {dms}. Heard {other}'s on less. I hear everything. That'll be 5 doubloons for the hearing.",
+        "Your best day's {best}, isn't it? Shame to waste a day not beating it.",
+        "{other}'s on {odms} today. I'm not saying anything. I'm just polishing this glass very pointedly.",
+        "Saw Gary out the window with a doubloon in his beak. One of yours, I'd guess. He's got a type."
+      ],
+      gossipFish:["Somebody caught a {fish} this morning. Brought it in to show me. Smelt like ambition."],
+      gossipMiss:["The Herald says you missed yesterday. I don't read it. I use it to wrap pies. But I did read that bit."],
+      gossipHit:["{boss} sunk already? I'll put the bell on. Nobody rings it. I just like knowing it's there."],
+      gossipLegend:["There's a legend out there today. I've barricaded the cellar. Not because of the legend. Because of the cellar."],
+      fireBig:["Look at that blaze. You've been busy. Or you've been setting fire to my furniture again."],
+      fireLow:["Fire's a bit sad tonight. Like your numbers. Want me to throw a chair on?"],
+      fire:["Logs are two doubloons each. Warmth isn't free, darling.","Don't sit too close. Last bloke who did still owes me for his eyebrows."],
+      storm:["Hear that wind? Shutters are older than me and I'm held together with tar and spite."],
+      xmas:["I've hung your stocking. Don't look in it yet. Don't look in mine either. Ever.","Mince pie? Made 'em myself. Well, I watched a woman make them. From a distance. With a telescope.","Merry Christmas, darling. The tinsel's from 1987. So am I, in spirit."],
+      night:["Getting late. The candles are cheaper than the lamps. You're welcome."],
+      closing:["Time, gentlemen, please! Not you, {here}. You can stay. {absent} has to go."],
+      closed:["We're closed. I'm only here because I sleep under the bar. Don't tell the health inspector. He's also under the bar.","Closed, darling. Drinks are off, games are off, I'm off. Mostly. I'm still here though."],
+      leaving:["Off already? Take an umbrella. It's 30 doubloons. It's got a hole in.","Mind the step. And the cat. And the bloke under the bar.","Come back soon. Bring money. Bring {absent}'s money."],
+      drinks:{
+        grog:"One grog, coming up. Glass rinsed. Recently. Ish.",
+        stout:"Kraken Ink Stout. Black as a squid's soul. Next monster you sink pays double.",
+        mojito:"A Mermaid's Mojito. The fish will be drawn to you. So will Gary.",
+        chip:"Gary's Chip Shot. He'll leave you alone today. He promised. On a chip.",
+        bilge:"Bold choice. That's been in the bucket since Easter.",
+        special:"For both of you? For {other} too? You absolute angel. I'll tell them it was my idea.",
+        sherry:"Bryn's Mum's Sherry. Don't look her in the eye while you drink it."
+      },
+      win21:"You've been counting cards. Gary's been counting crumbs. Neither of you is welcome back. Same time tomorrow?",
+      lose21:"Unlucky. Lovely to see the money staying in the family. My family.",
+      push21:"A draw. Nobody wins. Least of all me.",
+      bj21:"Twenty-one, first go? I'm checking your sleeves.",
+      cat:["That's Admiral. He outranks you. Show some respect.","Don't wake the cat. Last person who woke the cat now lives in Wales.","He's not asleep. He's judging you with his eyes closed."],
+      darts:{bull:"BULLSEYE! Fifty doubloons! I'm checking the board for magnets.",ring:"Outer ring. Ten doubloons. Respectable. Barely.",miss:["Missed the board. Hit the cat's ambitions.","That went in the fire. Lovely throw. Wrong target.","Wall. Again. The wall is winning."]},
+      dice:{win:"Gary's lost. He's sulking on the beam. Don't look at him.",lose:"Gary wins. He's doing a little dance. It's horrible.",caught:"CAUGHT HIM! Sixth die under his wing. Hand's yours. Gary claims he was 'keeping it warm'."},
+      poker:{win:"Old Pete's folding his arms. That means he's lost. Or he's cold.",lose:"She only needs the one eye for poker.",split:"A split pot. Nobody's happy. Perfect pub poker."}
+    },
     gary:{
       morning:[
         "Morning. The DMs won't send themselves. I checked.",

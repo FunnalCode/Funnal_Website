@@ -40,7 +40,8 @@ ACT.garyPoke=()=>{const now=Date.now();while(POKES.length&&now-POKES[0]>60000)PO
 
 /* ---------- the nest: a doubloon pinched per missed day, all returned on the next target day ---------- */
 function garyNestCalc(g,p){let held=0,stolen=0,returned=0,chips=0;const log=[];
-  Object.keys(g.days).filter(d=>d>=GARY_FROM&&d<g.today).sort().forEach(d=>{const D=g.days[d];if(!D||!D.target)return;if(typeof absent==='function'&&absent(p,d))return;
+  let chip=new Set();try{if(typeof chipDays==='function')chip=chipDays(p);}catch(e){}
+  Object.keys(g.days).filter(d=>d>=GARY_FROM&&d<g.today).sort().forEach(d=>{const D=g.days[d];if(!D||!D.target)return;if(typeof absent==='function'&&absent(p,d))return;if(chip.has(d)&&D.team<D.target)return;
     if(D.team>=D.target){if(held){returned+=held;chips++;log.push({date:d,k:'back',n:held});held=0;}}else{held++;stolen++;log.push({date:d,k:'took'});}});
   return{held,stolen,returned,chips,log};}
 const _deriveGary=derive;derive=function(){const g=_deriveGary.apply(this,arguments);try{g.P.forEach(p=>{const pl=g.players[p];if(!pl)return;const n=garyNestCalc(g,p);pl.nest=n;pl.balance-=n.held;});}catch(e){console.warn('gary derive',e);}return g;};

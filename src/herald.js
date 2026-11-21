@@ -53,6 +53,7 @@ function hClassifieds(yd){const ads=[];const P=G.P;
   try{const {have}=bossLoot(S.me);const near=Object.values(ALL_BOSSES).map(b=>({b,set:setOf(b)})).map(x=>({...x,n:x.set.filter(pc=>have[pc.id]>0).length})).filter(x=>x.n===3)[0];
     if(near){const miss=near.set.find(pc=>!(have[pc.id]>0));ads.push(`WANTED: one ${miss.name}. Completes a set. Will pay in chips. Ask for Captain ${pnameRaw(S.me)}.`);}}catch(e){}
   const n=myNest();if(n.held)ads.push(`LOST: ${n.held} doubloon${n.held>1?'s':''}. Last seen in a gull's beak. Return on the next target day, the gull says.`);
+  try{const sp=tvAll('tv_special').filter(x=>x.date===yd);if(sp.length)ads.push(`ON THE WALL: Captain ${pnameRaw(sp[0].p)} bought the whole crew the Captain's Special. Barnacle Bill claims it was his idea.`);else ads.push(hPick(["THE RUSTY ANCHOR: open 8am to 11pm. Logs two doubloons each. Warmth isn't free, darling.","DARTS: one free throw a day at the Rusty Anchor. Mind the cat.","LIAR'S DICE: Gary is taking all comers. Count his dice before you start."],yd+'tv'));}catch(e){}
   ads.push(hPick(HC().ads,yd+'ad'),hPick(HC().ads,yd+'ad2'));return [...new Set(ads.filter(Boolean))].slice(0,5).map(a=>esc(a)).join('<br>');}
 function hMrsB(yd){const l=HC().mrsB||[];const x=hPick(l,yd+'mrsb');return x?`<i>${esc(x.q)}</i><br>${esc(x.a)} Mrs B.`:'';}
 function hBottom(yd){const cw=HC().crossword||[];const i=Math.abs(dayNo(yd))%Math.max(1,cw.length);const prev=cw[(i+cw.length-1)%cw.length];
