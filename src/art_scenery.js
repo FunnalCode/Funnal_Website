@@ -65,7 +65,7 @@ const ART_STREAKS=[[30,24,46],[220,16,60],[150,44,34],[280,38,28]];
   if(opts.aurora||(night&&!storm&&!artSnowy())){c.save();c.globalCompositeOperation='lighter';for(let k=0;k<2;k++){c.beginPath();for(let x=-60;x<=W+60;x+=6){const y=26+k*12+Math.sin(x/40+t/2600+k)*8;x===-60?c.moveTo(x,y):c.lineTo(x,y);}
       const gg=c.createLinearGradient(0,8,0,70);const col=k?'150,110,255':'94,240,192';const a=opts.aurora?.2:.08;gg.addColorStop(0,`rgba(${col},0)`);gg.addColorStop(.5,`rgba(${col},${a})`);gg.addColorStop(1,`rgba(${col},0)`);c.strokeStyle=gg;c.lineWidth=18;c.stroke();}c.restore();}
   if(opts.shooting){const p=(t%4000)/4000;if(p<.3){const x=260-p*500,y=10+p*120;line(c,x,y,x+14,y-7,'rgba(255,255,255,.9)',1);}}
-  if(ART_HZ[THEME.scene])artBackdrop(c,THEME.scene);
+  if(THEME.scene==='voyage'&&VOY.lk&&isArtLook())artVoyBackdrop(c);else if(ART_HZ[THEME.scene])artBackdrop(c,THEME.scene);
   runLayers('sky',c,t,{mode,night,opts});
   if(opts.fireworks){const p=(t%2600)/2600;if(p<.6){const cx=80+(Math.floor(t/2600)*97)%180,cy=30+(Math.floor(t/2600)*31)%30;for(let i=0;i<14;i++){const a=i/14*TAU;disc(c,cx+Math.cos(a)*p*22,cy+Math.sin(a)*p*22,.9*(1-p)+.2,['#F2C462','#E0457B','#7CC7E6'][i%3]);}}}
 };}
@@ -359,3 +359,51 @@ function artHarbour(c,t){
 {let townSeenChk=0;const _rdT=render;render=function(){_rdT.apply(this,arguments);try{if(!G||!isArtLook()||S.screen!=='harbour'||Date.now()-townSeenChk<4000)return;townSeenChk=Date.now();const dm=TEAMDM()||0;const n=townCount(dm);const k='hl_town_seen';const was=+(localStorage.getItem(k)||0);
   if(was&&n>was){const d=n-was;const st=TOWN_STEPS.filter(x=>dm>=x.dm&&TOWN_STEPS.indexOf(x)>=0).pop();toast(`🏠 Funnal Cove grew: ${d===1?'a new house went up':d+' new houses went up'} on the hill. ${n} houses now.`);}
   if(n!==was)localStorage.setItem(k,String(n));}catch(e){}};}
+
+/* ============================== ART STAGE B: LOCK IN VOYAGES ==============================
+   Three layers of coastline slide past at different speeds while you sail: far peaks, nearer ranges and a near shore
+   that changes every few minutes (pine fjords, cliffs and arches, a ruined coast, palm isles). The near shore is
+   mirrored in the water. Sailing faster (the voyage boost) scrolls faster; fishing drifts slowly. */
+const VOY={off:0,last:0,lk:null,el:0};
+const VOY_BIOMES=['fjord','cliffs','ruins','isles'],VOY_SEG=7*60000,VOY_W=640,VOY_FADE=40000;
+const VOY_NAMES={fjord:'Pine Fjords',cliffs:'The Arches',ruins:'The Ruined Coast',isles:'Palm Isles'};
+{const _dv=drawVoyage;drawVoyage=function(c,t,lk,dms,progress){if(isArtLook()&&lk){const now=performance.now();const dt=VOY.last?Math.min(120,now-VOY.last):16;VOY.last=now;
+    const sp=(typeof isFish==='function'&&isFish(lk.mode))?.25:1+Math.min(2,(S.voyBoost||0));VOY.off+=dt*sp*.012*(THEME.reduced?.5:1);VOY.lk=lk;VOY.el=progress*lk.dur;}
+  return _dv.apply(this,arguments);};}
+const STRIPS={};
+function artStrip(c,key,w,h,draw){let sc=1;try{const m=c.getTransform();sc=Math.max(.5,Math.min(4,Math.hypot(m.a,m.b)));}catch(e){}const k=key+'@'+sc.toFixed(2);let cv=STRIPS[k];
+  if(!cv){cv=document.createElement('canvas');cv.width=Math.ceil(w*sc);cv.height=Math.ceil(h*sc);const q=cv.getContext('2d');q.setTransform(sc,0,0,sc,0,0);draw(q);STRIPS[k]=cv;const ks=Object.keys(STRIPS);if(ks.length>36)delete STRIPS[ks[0]];}return cv;}
+function stripLoop(c,cv,w,h,y,off,alpha,flip){const x0=-(((off%w)+w)%w)-90;c.save();c.globalAlpha=alpha;if(flip){c.translate(0,y);c.scale(1,-.55);for(let x=x0;x<W+90;x+=w)c.drawImage(cv,x,-h,w,h);}else for(let x=x0;x<W+90;x+=w)c.drawImage(cv,x,y-h,w,h);c.restore();}
+// periodic helpers: draw a shape at x, x-640 and x+640 so the strip joins up
+const wrapX=(fn,x)=>{fn(x);fn(x-VOY_W);fn(x+VOY_W);};
+function voyFar(q,h,col,snow,key){const pk=artPeaks(key,10,0,VOY_W,h*.35,h*.8,28,48);pk.forEach(p=>wrapX(x=>artFacets(q,h,[[x,p[1],p[2],p[3]]],col,snow),p[0]));}
+function voyNear(q,b,h,P,snow,lit){const col=P.near,dk=shadeHex(P.near,.78),lc=shadeHex(P.near,1.16);
+  if(b==='fjord'){q.fillStyle=col;q.beginPath();q.moveTo(0,h);for(let x=0;x<=VOY_W;x+=4){const y=h-(16+10*Math.sin(TAU*x/VOY_W*3)+6*Math.sin(TAU*x/VOY_W*7+1)+3*Math.sin(TAU*x/VOY_W*13));q.lineTo(x,y);}q.lineTo(VOY_W,h);q.closePath();q.fill();
+    for(let x=2;x<VOY_W;x+=5.5){const y=h-(16+10*Math.sin(TAU*x/VOY_W*3)+6*Math.sin(TAU*x/VOY_W*7+1)+3*Math.sin(TAU*x/VOY_W*13));const ph=7+(h32('fp'+x)%8);artPine(q,x,y+3,ph,dk,snow);}
+    if(lit)[90,330,520].forEach(x=>{const y=h-(16+10*Math.sin(TAU*x/VOY_W*3)+6*Math.sin(TAU*x/VOY_W*7+1))+6;q.fillStyle='#FFC46A';q.fillRect(x,y,2,1.6);});}
+  else if(b==='cliffs'){[[20,130,36],[250,100,30],[430,150,40]].forEach(([x0,w,hh],ci)=>{let x=x0;let i=0;while(x<x0+w){const bw=w*(.22+(h32('cb'+ci+i)%100)/100*.16),bh=hh*(.55+(h32('ch'+ci+i)%100)/100*.45);const top=h-bh;
+      const draw=xx=>{q.fillStyle=col;q.beginPath();q.moveTo(xx,h+1);q.lineTo(xx+bw*.08,top+bh*.25);q.lineTo(xx+bw*.3,top);q.lineTo(xx+bw*.62,top+bh*.07);q.lineTo(xx+bw,top+bh*.38);q.lineTo(xx+bw*1.06,h+1);q.closePath();q.fill();
+        q.fillStyle=lc;q.beginPath();q.moveTo(xx,h+1);q.lineTo(xx+bw*.08,top+bh*.25);q.lineTo(xx+bw*.3,top);q.lineTo(xx+bw*.36,h+1);q.closePath();q.fill();
+        q.fillStyle=dk;q.fillRect(xx+bw*.4,top+bh*.45,bw*.5,.6);q.fillRect(xx+bw*.2,top+bh*.7,bw*.6,.6);
+        if(i%2===0)artPine(q,xx+bw*.4,top+bh*.05+1,6+(h32('cp'+ci+i)%5),dk,snow);};wrapX(draw,x);x+=bw*.78;i++;}
+    const ax=x0+w*.42;wrapX(xx=>{q.fillStyle=P.fog;q.globalAlpha=.5;q.beginPath();q.moveTo(xx,h+1);q.lineTo(xx,h-hh*.3);q.quadraticCurveTo(xx+7,h-hh*.52,xx+14,h-hh*.3);q.lineTo(xx+14,h+1);q.closePath();q.fill();q.globalAlpha=1;},ax);});}
+  else if(b==='ruins'){[[40,150],[300,110],[470,130]].forEach(([x0,w],ri)=>{wrapX(xx=>{q.fillStyle=col;q.beginPath();q.moveTo(xx,h+1);q.lineTo(xx+8,h-10);q.lineTo(xx+w*.4,h-14);q.lineTo(xx+w-10,h-9);q.lineTo(xx+w,h+1);q.closePath();q.fill();
+      const base=h-12;q.fillStyle=dk;for(let k=0;k<4;k++){const cx=xx+16+k*(w-32)/3,ch=8+(h32('rc'+ri+k)%14);q.fillRect(cx,base-ch,3.2,ch+2);if(k%2===0){q.fillRect(cx-1,base-ch-1.6,5.2,1.6);}}
+      const ax=xx+w*.55;q.beginPath();q.moveTo(ax,base+2);q.lineTo(ax,base-18);q.lineTo(ax+18,base-18);q.lineTo(ax+18,base+2);q.lineTo(ax+14,base+2);q.lineTo(ax+14,base-8);q.quadraticCurveTo(ax+9,base-15,ax+4,base-8);q.lineTo(ax+4,base+2);q.closePath();q.fill();
+      q.fillRect(xx+w*.2,base-26,7,28);q.fillRect(xx+w*.2-1,base-28,2.4,3);q.fillRect(xx+w*.2+3.4,base-29.6,2.4,4.6);
+      if(lit){q.fillStyle='#FFC46A';q.fillRect(xx+w*.2+2.4,base-18,2,2.4);}},x0);});}
+  else{[[30,60,9],[180,44,7],[330,70,11],[500,50,8]].forEach(([x0,w,hh],ii)=>wrapX(xx=>{q.fillStyle=col;q.beginPath();q.moveTo(xx,h+1);q.quadraticCurveTo(xx+w*.2,h-hh,xx+w*.5,h-hh);q.quadraticCurveTo(xx+w*.8,h-hh,xx+w,h+1);q.closePath();q.fill();
+      q.fillStyle=P.beach;q.fillRect(xx+2,h-1.4,w-4,1.4);for(let k=0;k<3;k++){const px=xx+w*(.25+k*.25),ph=10+(h32('ip'+ii+k)%7);const sv=palm;try{q.save();q.translate(0,0);sv.call(null,q,px,h-hh*.7,ph,k*400);q.restore();}catch(e){}}},x0));}}
+function artVoyBackdrop(c){const y0=ART_HZ.voyage,mode=artMode(),P=artPal(mode),snow=artSnowy()||THEME.festive==='christmas',lit=artLitNow()||THEME.weather==='storm';const k=`${mode}_${THEME.weather}_${snow?1:0}`;
+  const far=artStrip(c,'vfar'+k,VOY_W,80,q=>voyFar(q,80,P.far,snow,'vfar'));stripLoop(c,far,VOY_W,80,y0,VOY.off*.12,1);artFog(c,y0,32,P.fog,.55);
+  const mid=artStrip(c,'vmid'+k,VOY_W,60,q=>voyFar(q,60,P.mid,snow,'vmid'));stripLoop(c,mid,VOY_W,60,y0,VOY.off*.3,1);artFog(c,y0+1,14,P.fog,.45);
+  const lk=VOY.lk;const i0=lk&&lk.id?h32(String(lk.id))%VOY_BIOMES.length:0;const seg=Math.floor(VOY.el/VOY_SEG),into=VOY.el%VOY_SEG;
+  const cur=VOY_BIOMES[(i0+seg)%VOY_BIOMES.length],nxt=VOY_BIOMES[(i0+seg+1)%VOY_BIOMES.length];const fade=Math.max(0,(into-(VOY_SEG-VOY_FADE))/VOY_FADE);
+  const nearOf=b=>artStrip(c,'vnear'+b+k,VOY_W,62,q=>voyNear(q,b,62,P,snow,lit));
+  stripLoop(c,nearOf(cur),VOY_W,62,y0+.5,VOY.off,1-fade);if(fade>0)stripLoop(c,nearOf(nxt),VOY_W,62,y0+.5,VOY.off,fade);
+  VOY.biome=fade>.5?nxt:cur;VOY.cvCur=nearOf(cur);VOY.cvNxt=fade>0?nearOf(nxt):null;VOY.fade=fade;VOY.k=k;}
+addLayer('sea','artVoyRefl',(c,t,ctx)=>{if(!VOY.lk||!VOY.cvCur)return;const y0=ART_HZ.voyage;
+  stripLoop(c,VOY.cvCur,VOY_W,62,y0+1,VOY.off,.22*(1-VOY.fade),true);if(VOY.cvNxt)stripLoop(c,VOY.cvNxt,VOY_W,62,y0+1,VOY.off,.22*VOY.fade,true);},{scenes:['voyage'],z:-8,when:()=>isArtLook()});
+// lightning over the far peaks on a stormy voyage
+addLayer('fx','artVoyStorm',(c,t)=>{const k=Math.floor(t/2600),u=(t%2600);if(h32('vl'+k)%3!==0||u>160)return;c.fillStyle=`rgba(230,225,255,${.28*(1-u/160)})`;c.fillRect(-90,-300,W+180,H+600);
+  let x=60+h32('vx'+k)%200,y=-10;c.strokeStyle='rgba(245,240,255,.9)';c.lineWidth=1;c.beginPath();c.moveTo(x,y);while(y<ART_HZ.voyage-10){x+=(h32('vj'+k+y)%11)-5;y+=8;c.lineTo(x,y);}c.stroke();},{scenes:['voyage'],z:11,when:()=>isArtLook()&&THEME.weather==='storm'});

@@ -30,8 +30,8 @@ ACT.digMap=async d=>{const n=+d.n;const m=mapState(S.me).maps.find(x=>x.n===n);c
     poly(c,[[60,104],[66,98],[72,104],[66,110]],'#C8102E');if(u<1)requestAnimationFrame(step);};step();
   try{await writeDay(S.me,G.today,{bonus:{[key]:{xp:150,g:300,ts:Date.now(),relic:rid,...(piece?{piece}:{})}}});setTimeout(()=>{const el=document.getElementById('digMsg');if(el)el.innerHTML=`<b>+300 ${CN}, +150 XP</b>, the relic <b>${esc(RELIC_BY()[rid]?.name||'')}</b>${piece?' and a rare loot piece':''}. <button class="btn sm" data-act="closeModal">Lovely</button>`;SFX.ach();},2700);}catch(e){writeFail(e);}};
 // the route on the sea while a map voyage is under way
-{const _dvM=drawVoyage;drawVoyage=function(c,t,lk,dms,progress){_dvM.apply(this,arguments);try{if(!lk||lk.dur<25*60000||!readyMap(S.me))return;c.save();c.setLineDash([3,3]);c.strokeStyle='rgba(200,16,46,.75)';c.lineWidth=1;c.beginPath();c.moveTo(100,150);c.quadraticCurveTo(200,118,300,128);c.stroke();c.setLineDash([]);
-  const xx=300-Math.max(0,(1-progress))*0;line(c,xx-4,124,xx+4,132,'#C8102E',1.6);line(c,xx+4,124,xx-4,132,'#C8102E',1.6);c.restore();plainTxt(c,`X marks the spot · ${Math.round(progress*100)}%`,262,120,'#FFFFFF',6);}catch(e){}};}
+{const _dvM=drawVoyage;drawVoyage=function(c,t,lk,dms,progress){_dvM.apply(this,arguments);try{if(!lk||lk.dur<25*60000||!readyMap(S.me))return;const art=typeof isArtLook==='function'&&isArtLook();c.save();c.setLineDash([3,3]);c.strokeStyle=art?`rgba(255,214,122,${.65+.2*Math.sin(t/500)})`:'rgba(200,16,46,.75)';c.lineWidth=art?1.1:1;if(art){c.shadowColor='rgba(255,200,110,.8)';c.shadowBlur=4;}c.beginPath();c.moveTo(100,150);c.quadraticCurveTo(200,118,300,128);c.stroke();c.setLineDash([]);
+  const xx=300-Math.max(0,(1-progress))*0;c.shadowBlur=0;if(art)glowAt(c,xx,128,16,'255,210,120',.45+.15*Math.sin(t/400));line(c,xx-4,124,xx+4,132,art?'#FF6A5A':'#C8102E',1.6);line(c,xx+4,124,xx-4,132,art?'#FF6A5A':'#C8102E',1.6);c.restore();plainTxt(c,`X marks the spot · ${Math.round(progress*100)}%`,262,120,'#FFFFFF',6);}catch(e){}};}
 
 /* ---------- the Vault ---------- */
 const RELIC_VALUE=40;
