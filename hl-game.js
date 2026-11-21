@@ -6499,6 +6499,8 @@ function artTown(c,t){const dm=(typeof TEAMDM==='function'?TEAMDM():0)||0;const 
   });
   // the fort's flag and a little smoke
   const fy=townHillY(44)+3;if(vn>=4){R(c,31.6,fy-30,.7,12,shadeHex(stone,.5));drawFlag(c,32.2,fy-30,vn>=6?'flag_crown2':'flag_skull',t,8,5.4);}
+  if(townHas('bells',dm)&&townHas('church',dm)){const td=G.days[G.today];const won=td&&td.target>0&&td.team>=td.target;const bx=152,by=townHillY(152)+4-17;const sw=won?Math.sin(t/260)*.5:0;c.save();c.translate(bx,by-1.5);c.rotate(sw);c.fillStyle='#E2AE45';c.beginPath();c.moveTo(-1.4,2.2);c.quadraticCurveTo(-1.4,0,0,0);c.quadraticCurveTo(1.4,0,1.4,2.2);c.closePath();c.fill();c.restore();
+    if(won)for(let k=0;k<3;k++){const q=((t/1800)+k/3)%1;txt(c,'\u266a',bx+6+q*10+k*2,by-6-q*14,`rgba(255,226,150,${1-q})`,5,'center');}}
   if(townHas('mill',dm)){const mx=118,my=townHillY(118)+3-12;c.strokeStyle=mixHex('#5A3A28',P.bld,.4);c.lineWidth=.8;const a=t/1400;c.beginPath();for(let k=0;k<4;k++){const b=a+k*Math.PI/2;c.moveTo(mx,my);c.lineTo(mx+Math.cos(b)*7,my+Math.sin(b)*7);}c.stroke();disc(c,mx,my,.8,mixHex('#5A3A28',P.bld,.4));}
   // the next house going up: a timber frame, and a note when tapped
   {const nx=plan.houses.find(h=>h.rank===nH);const at=townNextAt(dm);if(nx&&at){const {x,w,h,base}=nx;c.strokeStyle=mixHex('#C89A5A',P.bld,.35);c.lineWidth=.5;c.strokeRect(x,base-h,w,h);c.beginPath();c.moveTo(x,base);c.lineTo(x+w,base-h);c.moveTo(x-1,base-h);c.lineTo(x+w/2,base-h-w*.55);c.lineTo(x+w+1,base-h);c.stroke();}}
