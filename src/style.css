@@ -920,8 +920,9 @@ html.hl-reduced .advDoor.ready{animation:none}
 /* ---------- v17 Stage 4: Herald broadsheet, Gary, Black Market ---------- */
 .bsheet{gap:8px}.bsheet .mast small{color:#5a4a30}.hSpecial{color:#C8102E;letter-spacing:.06em}
 .bsheet .deck{margin:0;font:italic 15px/1.35 Georgia,serif;color:#4A4234;border-bottom:1px solid #3F3A30;padding-bottom:8px}
-.hIllo{margin:0}.hIllo canvas{width:100%;height:auto;border:1px solid #3F3A30;border-radius:4px;display:block;filter:grayscale(.85) sepia(.45) contrast(1.15)}
-.hIllo figcaption{font:italic 12px Georgia,serif;color:#6A5E48;margin-top:3px}
+.hIllo{margin:0}.hIllo canvas{width:100%;height:auto;border:1px solid #3F3A30;display:block;filter:sepia(.3)}
+.paper .cols .hStrip{grid-column:1/-1}
+.hIllo figcaption{font:italic 13px Georgia,serif;color:#5a4a30;margin-top:3px}
 .hGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px 16px;font-size:14px;line-height:1.45}
 .hGrid section{min-width:0}.hGrid p{margin:0 0 6px}.hGrid h4{font:700 14px Georgia,serif;margin:2px 0 3px}
 .hGary{background:#F6EED8;border:1px dashed #8A7A5A;border-radius:8px;padding:8px 10px}
