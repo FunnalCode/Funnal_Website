@@ -6448,7 +6448,15 @@ function townHillY(x){const K=TOWN_KEYS;if(x<=K[0][0])return K[0][1];for(let i=1
 const TOWN_WALLS=['#C98A5A','#B8584A','#E0CDA6','#5E8C88','#D8B070','#8E7A9E','#E6D8C0','#A86A48'],TOWN_ROOFS=['#7A3A2E','#5A4A58','#8A4A32','#3E4A5A'];
 let TOWN=null;function townPlan(){if(TOWN)return TOWN;const houses=[];for(let k=0;k<5;k++){let x=-26+(k%2)*5;let i=0;while(x<236){const r=h32('th'+k+'_'+i);const w=7+r%5,hh=8+((r>>4)%7)+(k===4?3:0);const base=townHillY(x+w/2)+7+k*8.5;
       if(base<=105&&!(k>=3&&x+w>98&&x<112)){houses.push({x,w,h:hh,base,k,wall:TOWN_WALLS[(r>>8)%TOWN_WALLS.length],roof:TOWN_ROOFS[(r>>11)%TOWN_ROOFS.length],gable:((r>>13)%3)!==0,win:(r>>15)%3+1,lit:((r>>17)%10)<6,chim:((r>>19)%4)===0});}
-      x+=w+((r>>21)%3===0?3:.6);i++;}}TOWN={houses};return TOWN;}
+      x+=w+((r>>21)%3===0?3:.6);i++;}}
+  houses.forEach((hs,i)=>{hs.id=i;hs.pri=(4-hs.k)*48+Math.abs(hs.x+hs.w/2-112)+(h32('tp'+i)%9);});const order=[...houses].sort((a,b)=>a.pri-b.pri);order.forEach((hs,i)=>hs.rank=i);
+  TOWN={houses,total:houses.length};return TOWN;}
+/* the town grows with the crew's lifetime DMs: a fishing village at the start, a busy port by 45,000 */
+const TOWN_START=8,TOWN_FULL=45000;
+function townCount(dm){const P_=townPlan();return Math.min(P_.total,Math.round(TOWN_START+(P_.total-TOWN_START)*Math.sqrt(Math.min(1,Math.max(0,dm)/TOWN_FULL))));}
+function townNextAt(dm){const n=townCount(dm),P_=townPlan();if(n>=P_.total)return null;let lo=dm,hi=TOWN_FULL;while(hi-lo>1){const m=Math.floor((lo+hi)/2);if(townCount(m)>n)hi=m;else lo=m;}return hi;}
+const TOWN_STEPS=[{dm:500,id:'lamps',name:'Lamp posts along the quay'},{dm:1000,id:'church',name:'The church tower'},{dm:2000,id:'lights',name:'A string of lights on the quay'},{dm:4000,id:'mill',name:'A windmill on the ridge'},{dm:8000,id:'bells',name:'Bells that ring when you hit the target'}];
+const townHas=(id,dm)=>{const s_=TOWN_STEPS.find(x=>x.id===id);return !s_||dm>=s_.dm;};
 function townHouse(q,hs,P,night,snow,shadeK){const {x,w,h,base}=hs;const top=base-h;const wall=mixHex(hs.wall,P.bld,shadeK),roof=mixHex(hs.roof,P.bld,shadeK*.9);
   q.fillStyle=wall;q.fillRect(x,top,w,h+1);q.fillStyle=shadeHex(wall,.82);q.fillRect(x+w*.7,top,w*.3,h+1);
   q.fillStyle=shadeHex(wall,.7);for(let j=1;j<h/4;j++)q.fillRect(x,top+j*4,w,.35);
@@ -6457,26 +6465,30 @@ function townHouse(q,hs,P,night,snow,shadeK){const {x,w,h,base}=hs;const top=bas
   if(hs.chim){q.fillStyle=roof;q.fillRect(x+w*.7,top-w*.5,1.6,3.4);}
   q.fillStyle=shadeHex(wall,.6);q.fillRect(x+w/2-1,base-3.2,2,3.2);}
 function townWindows(hs){const out=[];const {x,w,h,base,win}=hs;const rows=h>11?2:1;for(let r=0;r<rows;r++)for(let i=0;i<win;i++){const wx=x+(w/(win+1))*(i+1)-.7,wy=base-h+2+r*4.6;if(wy+2.2>base-3.6&&r>0)continue;out.push([wx,wy]);}return out;}
-function artTown(c,t){const P=artPal();const mode=artMode();const night=!!(SUN&&SUN.night);const snow=artSnowy()||THEME.festive==='christmas';const lit=artLitNow()||THEME.weather==='storm';const plan=townPlan();
+function artTown(c,t){const dm=(typeof TEAMDM==='function'?TEAMDM():0)||0;const nH=townCount(dm);const vn=VENTURES.filter(v=>dm>=v.dm).length;const P=artPal();const mode=artMode();const night=!!(SUN&&SUN.night);const snow=artSnowy()||THEME.festive==='christmas';const lit=artLitNow()||THEME.weather==='storm';const plan=townPlan();
   const stone=mixHex('#B8AC94',P.bld,.5),dk=night?.72:.5;
-  layerCache(c,`arttown_${mode}_${THEME.weather}_${snow?1:0}`,-40,30,300,92,q=>{
+  layerCache(c,`arttown_${mode}_${THEME.weather}_${snow?1:0}_${nH}_${townHas('church',dm)?1:0}_${townHas('mill',dm)?1:0}_${vn}`,-40,30,300,92,q=>{
     // the hill behind the town
     q.fillStyle=mixHex(P.isl,P.mid,.3);q.beginPath();q.moveTo(-40,112);for(let x=-40;x<=244;x+=4)q.lineTo(x,townHillY(x)+2);q.lineTo(244,112);q.closePath();q.fill();
     q.fillStyle=shadeHex(mixHex(P.isl,P.mid,.3),1.15);q.beginPath();q.moveTo(-40,112);for(let x=-40;x<=40;x+=4)q.lineTo(x,townHillY(x)+2);q.lineTo(10,112);q.closePath();q.fill();
     if(snow){q.fillStyle='rgba(255,255,255,.85)';q.beginPath();for(let x=-40;x<=244;x+=4)q.lineTo(x,townHillY(x)+2);for(let x=244;x>=-40;x-=4)q.lineTo(x,townHillY(x)+4.6);q.closePath();q.fill();}
     // trees on the ridge
     for(let i=0;i<14;i++){const x=-30+i*19+(h32('tr'+i)%9);if(x>20&&x<70)continue;const y=townHillY(x)+3;if(snow)artPine(q,x,y,7+h32('tt'+i)%5,shadeHex(P.isl,.8),true);else{q.fillStyle=shadeHex(mixHex(P.isl,P.mid,.3),.8);q.beginPath();q.arc(x,y-3,3.4,0,TAU);q.arc(x+3,y-2,2.6,0,TAU);q.fill();}}
-    // the fort: stone walls, a round tower, crenellations
-    const fy=townHillY(44)+3;q.fillStyle=stone;q.fillRect(14,fy-11,58,12);for(let x=14;x<72;x+=4)q.fillRect(x,fy-13.5,2.4,2.6);
+    // the fort (Fort Funnal, venture 4), or a ruined watchtower until then
+    const fy=townHillY(44)+3;if(vn<4){q.fillStyle=shadeHex(stone,.85);q.fillRect(27,fy-9,9,10);q.fillRect(27,fy-11,2.4,2.4);q.fillRect(32,fy-12.4,2.4,3.6);q.fillStyle=shadeHex(stone,.6);q.fillRect(30,fy-6,2.4,3);}else{q.fillStyle=stone;q.fillRect(14,fy-11,58,12);for(let x=14;x<72;x+=4)q.fillRect(x,fy-13.5,2.4,2.6);
     q.fillStyle=shadeHex(stone,1.12);q.fillRect(14,fy-11,8,12);q.fillStyle=shadeHex(stone,.78);q.fillRect(26,fy-16,12,17);for(let x=26;x<38;x+=3.2)q.fillRect(x,fy-18.4,2,2.6);
     q.fillStyle=shadeHex(stone,.55);[46,54,62].forEach(x=>q.fillRect(x,fy-7,3,3));q.fillRect(30.4,fy-12,3,4);
     q.fillStyle=shadeHex(stone,.4);[[47.5,-5.5],[55.5,-5.5],[63.5,-5.5]].forEach(([x,dy])=>{q.save();q.translate(x,fy+dy);q.rotate(.25);q.fillRect(0,-.8,6,1.6);q.restore();});
-    // the church tower
-    const cx=152,cy=townHillY(152)+4;q.fillStyle=mixHex('#E0D4BC',P.bld,.5);q.fillRect(cx-4,cy-24,8,25);q.fillStyle=shadeHex(mixHex('#E0D4BC',P.bld,.5),.82);q.fillRect(cx+1.6,cy-24,2.4,25);
+    }
+    // the church tower (1,000 crew DMs)
+    if(townHas('church',dm)){    const cx=152,cy=townHillY(152)+4;q.fillStyle=mixHex('#E0D4BC',P.bld,.5);q.fillRect(cx-4,cy-24,8,25);q.fillStyle=shadeHex(mixHex('#E0D4BC',P.bld,.5),.82);q.fillRect(cx+1.6,cy-24,2.4,25);
     q.fillStyle=mixHex('#7A3A2E',P.bld,.45);q.beginPath();q.moveTo(cx-5,cy-24);q.lineTo(cx,cy-34);q.lineTo(cx+5,cy-24);q.closePath();q.fill();q.fillRect(cx-.4,cy-38,.8,4);q.fillRect(cx-1.6,cy-36.6,3.2,.8);
     q.fillStyle=shadeHex(stone,.4);q.beginPath();q.arc(cx,cy-18,1.8,Math.PI,0);q.rect(cx-1.8,cy-18,3.6,3);q.fill();
-    // houses, back rows first
-    plan.houses.forEach(hs=>townHouse(q,hs,P,night,snow,hs.k<2?dk+.12:dk));
+    }
+    // a windmill on the ridge (4,000 crew DMs)
+    if(townHas('mill',dm)){const mx=118,my=townHillY(118)+3;q.fillStyle=mixHex('#E0D4BC',P.bld,.5);q.beginPath();q.moveTo(mx-3,my);q.lineTo(mx-2,my-11);q.lineTo(mx+2,my-11);q.lineTo(mx+3,my);q.closePath();q.fill();q.fillStyle=mixHex('#7A3A2E',P.bld,.45);q.beginPath();q.moveTo(mx-2.6,my-11);q.lineTo(mx,my-14);q.lineTo(mx+2.6,my-11);q.closePath();q.fill();}
+    // houses, back rows first; only as many as the crew has earned
+    plan.houses.forEach(hs=>{if(hs.rank<nH)townHouse(q,hs,P,night,snow,hs.k<2?dk+.12:dk);});
     // the quay: stone wall, a lighter cap, drains, mooring posts
     q.fillStyle=shadeHex(stone,.85);q.fillRect(-40,104.5,280,11);q.fillStyle=shadeHex(stone,1.1);q.fillRect(-40,103.6,280,1.6);
     q.fillStyle=shadeHex(stone,.6);for(let x=-36;x<240;x+=12)q.fillRect(x,107+(x%24?0:2),5,.5);for(let x=-30;x<240;x+=26){q.beginPath();q.arc(x,115.5,2.4,Math.PI,0);q.fill();}
@@ -6486,19 +6498,30 @@ function artTown(c,t){const P=artPal();const mode=artMode();const night=!!(SUN&&
     [[8,0],[12,1],[180,0],[186,1],[232,0]].forEach(([x,k])=>{q.fillStyle=mixHex(k?'#9A6A42':'#7A5232',P.bld,.45);k?q.fillRect(x,100.6,3.6,3.2):(q.beginPath(),q.ellipse(x+1.6,102.2,1.6,1.8,0,0,TAU),q.fill());});
   });
   // the fort's flag and a little smoke
-  const fy=townHillY(44)+3;R(c,31.6,fy-30,.7,12,shadeHex(stone,.5));drawFlag(c,32.2,fy-30,'flag_skull',t,8,5.4);
+  const fy=townHillY(44)+3;if(vn>=4){R(c,31.6,fy-30,.7,12,shadeHex(stone,.5));drawFlag(c,32.2,fy-30,vn>=6?'flag_crown2':'flag_skull',t,8,5.4);}
+  if(townHas('mill',dm)){const mx=118,my=townHillY(118)+3-12;c.strokeStyle=mixHex('#5A3A28',P.bld,.4);c.lineWidth=.8;const a=t/1400;c.beginPath();for(let k=0;k<4;k++){const b=a+k*Math.PI/2;c.moveTo(mx,my);c.lineTo(mx+Math.cos(b)*7,my+Math.sin(b)*7);}c.stroke();disc(c,mx,my,.8,mixHex('#5A3A28',P.bld,.4));}
+  // the next house going up: a timber frame, and a note when tapped
+  {const nx=plan.houses.find(h=>h.rank===nH);const at=townNextAt(dm);if(nx&&at){const {x,w,h,base}=nx;c.strokeStyle=mixHex('#C89A5A',P.bld,.35);c.lineWidth=.5;c.strokeRect(x,base-h,w,h);c.beginPath();c.moveTo(x,base);c.lineTo(x+w,base-h);c.moveTo(x-1,base-h);c.lineTo(x+w/2,base-h-w*.55);c.lineTo(x+w+1,base-h);c.stroke();}}
   // lit windows (twinkle a little), lamp posts and a string of lights along the quay
-  const winC=lit?'#FFC46A':rgbaOf(P.win,.55);plan.houses.forEach((hs,i)=>{townWindows(hs).forEach(([wx,wy],j)=>{const on=lit?(hs.lit||j===0)&&Math.sin(t/(2400+i*37)+i*3+j)>-.85:true;R(c,wx,wy,1.4,2,on?winC:shadeHex(mixHex(hs.wall,P.bld,dk),.6));});});
-  if(lit){c.save();c.globalCompositeOperation='lighter';plan.houses.forEach((hs,i)=>{if(!hs.lit)return;const g=c.createRadialGradient(hs.x+hs.w/2,hs.base-hs.h/2,0,hs.x+hs.w/2,hs.base-hs.h/2,hs.w);g.addColorStop(0,'rgba(255,180,90,.16)');g.addColorStop(1,'rgba(255,180,90,0)');c.fillStyle=g;c.fillRect(hs.x-hs.w,hs.base-hs.h*1.5,hs.w*3,hs.h*2);});c.restore();
-    R(c,151.2,townHillY(152)-15,1.6,2.2,'#FFC46A');}
-  for(let x=-24;x<238;x+=36){R(c,x,96,.8,8,shadeHex(stone,.45));rr(c,x-1,94.2,2.8,2.4,.6,lit?'#FFD98A':shadeHex(stone,.7));if(lit)lamp(c,x+.4,95.4,7,.55);}
-  if(lit){for(let i=0;i<40;i++){const x=-24+i*6.5,y=98+Math.sin((i%6)/5*Math.PI)*1.6;const on=Math.sin(t/300+i*1.3)>-.4;disc(c,x,y,.55,on?['#FFD45A','#FF7A5A','#7AE0FF','#B88AFF'][i%4]:'rgba(255,255,255,.25)');}}
+  const winC=lit?'#FFC46A':rgbaOf(P.win,.55);plan.houses.forEach((hs,i)=>{if(hs.rank>=nH)return;townWindows(hs).forEach(([wx,wy],j)=>{const on=lit?(hs.lit||j===0)&&Math.sin(t/(2400+i*37)+i*3+j)>-.85:true;R(c,wx,wy,1.4,2,on?winC:shadeHex(mixHex(hs.wall,P.bld,dk),.6));});});
+  if(lit){c.save();c.globalCompositeOperation='lighter';plan.houses.forEach((hs,i)=>{if(!hs.lit||hs.rank>=nH)return;const g=c.createRadialGradient(hs.x+hs.w/2,hs.base-hs.h/2,0,hs.x+hs.w/2,hs.base-hs.h/2,hs.w);g.addColorStop(0,'rgba(255,180,90,.16)');g.addColorStop(1,'rgba(255,180,90,0)');c.fillStyle=g;c.fillRect(hs.x-hs.w,hs.base-hs.h*1.5,hs.w*3,hs.h*2);});c.restore();
+    if(townHas('church',dm))R(c,151.2,townHillY(152)-15,1.6,2.2,'#FFC46A');}
+  if(townHas('lamps',dm))for(let x=-24;x<238;x+=36){R(c,x,96,.8,8,shadeHex(stone,.45));rr(c,x-1,94.2,2.8,2.4,.6,lit?'#FFD98A':shadeHex(stone,.7));if(lit)lamp(c,x+.4,95.4,7,.55);}
+  if(lit&&townHas('lights',dm)){for(let i=0;i<40;i++){const x=-24+i*6.5,y=98+Math.sin((i%6)/5*Math.PI)*1.6;const on=Math.sin(t/300+i*1.3)>-.4;disc(c,x,y,.55,on?['#FFD45A','#FF7A5A','#7AE0FF','#B88AFF'][i%4]:'rgba(255,255,255,.25)');}}
   // a timber dock on the left with a rowboat, and the town's lights shimmering in the water after dark
-  {const wood=mixHex('#6A4A30',P.bld,.45);R(c,-6,115.4,44,2.2,wood);for(let x=-4;x<38;x+=7)R(c,x,117,1.3,7,shadeHex(wood,.8));const b=Math.sin(t/600)*.6;
+  if(vn>=1){const wood=mixHex('#6A4A30',P.bld,.45);R(c,-6,115.4,44,2.2,wood);for(let x=-4;x<38;x+=7)R(c,x,117,1.3,7,shadeHex(wood,.8));const b=Math.sin(t/600)*.6;
     c.fillStyle=shadeHex(wood,.9);c.beginPath();c.moveTo(12,121+b);c.lineTo(26,121+b);c.lineTo(23.5,124+b);c.lineTo(14.5,124+b);c.closePath();c.fill();line(c,26,121+b,30,117.6,shadeHex(wood,.7),.4);}
-  if(lit){plan.houses.forEach((hs,i)=>{if(!hs.lit||hs.k<3)return;const x=hs.x+hs.w/2;for(let k=0;k<5;k++){const w=(1.6+k*.5)*(.6+.4*Math.sin(t/420+i+k));c.fillStyle=`rgba(255,196,106,${.32-k*.055})`;c.fillRect(x-w/2+Math.sin(t/600+k+i)*.8,118+k*2.6,w,.7);}});}
+  if(vn>=2){const lx=36,ly=115.6;R(c,lx-1.6,ly-14,3.2,14,mixHex('#E0D4BC',P.bld,.45));R(c,lx-1.6,ly-10,3.2,1.6,mixHex('#C91E36',P.bld,.4));R(c,lx-1.6,ly-5,3.2,1.6,mixHex('#C91E36',P.bld,.4));rr(c,lx-2.2,ly-17,4.4,3,1,'#FFE7A6');lamp(c,lx,ly-15.5,8,.5+.2*Math.sin(t/300),'255,236,170');}
+  if(vn>=3){const sx=138,sy=townHillY(138)+9;R(c,sx-2.6,sy-3,5.2,3,mixHex('#B8AC94',P.bld,.5));[-1.2,1.2].forEach(d=>{R(c,sx+d-.7,sy-8,1.4,5,mixHex('#C9B27A',P.bld,.3));disc(c,sx+d,sy-9,1,mixHex('#C9B27A',P.bld,.3));});}
+  if(vn>=5)for(let i=0;i<3;i++){const gx=192+i*15,gy=128+Math.sin(t/700+i)*.6;c.save();c.translate(gx,gy);c.scale(.16,.16);drawShip(c,0,0,1,{hull:'hull_royal',sail:'sail_royal',flag:'flag_crown2'},t,{captain:false,phase:i});c.restore();}
+  if(vn>=6&&lit){const p=(t%3000)/3000;if(p<.6){const fx=40+(Math.floor(t/3000)*53)%40,fyy=24;for(let i=0;i<12;i++){const a=i/12*TAU;disc(c,fx+Math.cos(a)*p*14,fyy+Math.sin(a)*p*14,.7*(1-p)+.2,['#F2C462','#E0457B','#7CC7E6'][i%3]);}}}
+  // tap the town for what it has and what comes next
+  {const nxt=townNextAt(dm);const st=TOWN_STEPS.find(x=>dm<x.dm);const vnx=VENTURES.find(v=>dm<v.dm);
+    hit(0,40,96,62,'Funnal Cove',`${nH} houses so far, built from ${fmtN(dm)} crew DMs. ${nxt?`The next house goes up at ${fmtN(nxt)}.`:'Every house is built.'}${st?` Coming up: ${st.name.toLowerCase()} at ${fmtN(st.dm)}.`:''}${vnx?` Next grand venture: ${vnx.name} at ${fmtN(vnx.dm)}.`:''}${vn?` Built so far: ${VENTURES.slice(0,vn).map(x=>x.name).join(', ')}.`:''}`);
+    hit(118,52,64,48,'Funnal Cove',`${nH} houses so far, built from ${fmtN(dm)} crew DMs. ${nxt?`The next house goes up at ${fmtN(nxt)}.`:'Every house is built.'}${st?` Coming up: ${st.name.toLowerCase()} at ${fmtN(st.dm)}.`:''}`);}
+  if(lit){plan.houses.forEach((hs,i)=>{if(!hs.lit||hs.k<3||hs.rank>=nH)return;const x=hs.x+hs.w/2;for(let k=0;k<5;k++){const w=(1.6+k*.5)*(.6+.4*Math.sin(t/420+i+k));c.fillStyle=`rgba(255,196,106,${.32-k*.055})`;c.fillRect(x-w/2+Math.sin(t/600+k+i)*.8,118+k*2.6,w,.7);}});}
   // smoke from a few chimneys
-  plan.houses.filter(h=>h.chim).slice(0,5).forEach((hs,i)=>{for(let k=0;k<3;k++){const q=((t/2600)+k/3+i*.2)%1;disc(c,hs.x+hs.w*.75+q*4,hs.base-hs.h-hs.w*.5-q*10,.8+q*1.6,rgbaOf(P.fog,.4*(1-q)));}});
+  plan.houses.filter(h=>h.chim&&h.rank<nH).slice(0,5).forEach((hs,i)=>{for(let k=0;k<3;k++){const q=((t/2600)+k/3+i*.2)%1;disc(c,hs.x+hs.w*.75+q*4,hs.base-hs.h-hs.w*.5-q*10,.8+q*1.6,rgbaOf(P.fog,.4*(1-q)));}});
 }
 
 /* ---------- the Harbour: crew buildings as silhouettes with lit windows, everything else in the same places ---------- */
@@ -6540,15 +6563,6 @@ function artHarbour(c,t){
     else drawSunk(c,t,boss,today);}
   updateLanterns(c,t);harbourNight(c,t,B);
   if(teamFog){c.fillStyle=rgbaOf(P.fog,.5);c.fillRect(0,0,W,H);for(let i=0;i<6;i++){const x=(i*67+t/80)%380-30,y=60+(i%3)*30;for(let k=0;k<5;k++)disc(c,x+k*7,y+Math.sin(k)*3,10,rgbaOf(P.fog,.55));}txt(c,'Team forfeit: the fog moved in for the day',160,6,'#3F5160',8,'center');}
-  // grand ventures, as silhouettes on the left headland
-  const n=VENTURES.filter(v=>TEAMDM()>=v.dm).length;if(n){const vx=28,vy=96;island(c,vx,vy+2,22,4,t);
-    if(n>=1){R(c,vx+8,vy-1,12,1.6,S2);for(let i=0;i<3;i++)R(c,vx+9+i*4.4,vy,.8,3.4,S2);}
-    if(n>=2){R(c,vx-14,vy-16,3,15,S1);rr(c,vx-15,vy-19,5,3,1,WIN);lamp(c,vx-12.5,vy-17.6,7,.5+.2*Math.sin(t/300),'255,236,170');}
-    if(n>=3){rr(c,vx-5,vy-3,6,3,.6,S2);ell(c,vx-2,vy-7,1.8,3,S1);disc(c,vx-2,vy-11,1.4,S1);}
-    if(n>=4){R(c,vx+3,vy-9,10,8,S1);poly(c,[[vx+2,vy-9],[vx+8,vy-13],[vx+14,vy-9]],S2);R(c,vx+6,vy-5,3,4,WIN);}
-    if(n>=5)for(let i=0;i<3;i++){const sx=vx-10+i*12,sy=vy+12+Math.sin(t/700+i)*.6;c.save();c.translate(sx,sy);c.scale(.12,.12);drawShip(c,0,0,1,{hull:'hull_royal',sail:'sail_royal',flag:'flag_crown2'},t,{captain:false,phase:i});c.restore();}
-    if(n>=6){const cy=vy-22+Math.sin(t/500);poly(c,[[vx-4,cy+3],[vx-4,cy-1],[vx-2,cy+1],[vx,cy-3],[vx+2,cy+1],[vx+4,cy-1],[vx+4,cy+3]],'#F2C462');}
-    hit(vx-24,vy-26,48,34,'Grand ventures',`Built so far: ${VENTURES.slice(0,n).map(x=>x.name).join(', ')}. ${VENTURES[n]?`Next: ${VENTURES[n].name} at ${fmtN(VENTURES[n].dm)} crew DMs (${fmtN(TEAMDM())} so far).`:'Every venture complete.'}`);}
 }
 {const _dh=drawHarbour;drawHarbour=function(c,t){if(!isArtLook())return _dh.apply(this,arguments);return artHarbour(c,t);};}
 
@@ -6568,6 +6582,11 @@ function artHarbour(c,t){
   if(xmasNowSafe())for(let i=0;i<7;i++){const on=Math.sin(t/300+i*1.7)>-.3;disc(c,x-7+i*2.4,y-14,.55,on?['#FF5A5A','#FFD45A','#5AE08A'][i%3]:'rgba(255,255,255,.3)');}
   hit(x-11,y-22,30,24,'The Rusty Anchor',`Barnacle Bill's tavern. ${tvOpenNow()?'Open until 11pm.':'Closed, but Bill is in.'} Drinks, games and gossip. Tap to go in.`,{go:'tavern'});};}}
 {const L_=LAYERS.fx.find(e=>e.id==='atmosMotes');if(L_){const w=L_.when;L_.when=()=>(w&&w())||(isArtLook()&&!!(SUN&&SUN.mode!=='day'));}}
+
+/* a little note when the town has grown since you last looked */
+{let townSeenChk=0;const _rdT=render;render=function(){_rdT.apply(this,arguments);try{if(!G||!isArtLook()||S.screen!=='harbour'||Date.now()-townSeenChk<4000)return;townSeenChk=Date.now();const dm=TEAMDM()||0;const n=townCount(dm);const k='hl_town_seen';const was=+(localStorage.getItem(k)||0);
+  if(was&&n>was){const d=n-was;const st=TOWN_STEPS.filter(x=>dm>=x.dm&&TOWN_STEPS.indexOf(x)>=0).pop();toast(`\ud83c\udfe0 Funnal Cove grew: ${d===1?'a new house went up':d+' new houses went up'} on the hill. ${n} houses now.`);}
+  if(n!==was)localStorage.setItem(k,String(n));}catch(e){}};}
 
 /* ============================== SUPABASE STORE (used when hosted on funnal.co.uk) ============================== */
 // Mirrors the small slice of the artifact db API the game uses: doc().get/set/update/delete/acquire/onSnapshot, collection().doc/onSnapshot.
