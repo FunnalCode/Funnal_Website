@@ -1028,3 +1028,13 @@ body.tvFsOn{overflow:hidden}
 .jbLock{opacity:.7}
 .jbNow .btn{background:transparent;color:#F2C462;border:1.5px solid rgba(242,196,98,.6);box-shadow:none}
 .mItem .mGlass{width:34px;height:41px}
+/* 21 Nov: Funnal Cove page */
+.coveHero{padding:8px}.coveHero canvas{width:100%;height:auto;aspect-ratio:16/9;border-radius:14px;display:block}
+.coveCtl{padding:8px 4px 2px}.coveCtl input[type=range]{width:100%;accent-color:#5E8C88;margin:6px 0}.coveBtns{gap:6px;flex-wrap:wrap}
+.coveNext{margin-top:10px;padding:10px 12px;border-radius:14px;background:#EEF5F3;display:grid;gap:3px}.coveNext b{font:600 16px var(--display)}
+.coveList{display:grid;gap:2px;margin-top:6px}
+.coveRow{display:flex;gap:10px;padding:9px 4px;border-top:1px solid var(--line)}.coveRow:first-child{border-top:0}
+.coveRow .cvDot{width:12px;height:12px;border-radius:50%;margin-top:5px;flex:0 0 auto;border:2px solid #C9BFA8;background:#fff}
+.coveRow.done .cvDot{background:#5E8C88;border-color:#5E8C88}.coveRow.open .cvDot{border-color:#E0823A;background:#FFE7C8}
+.coveRow.locked{opacity:.62}.coveRow b{font:600 14.5px var(--display)}.coveRow small{display:block;color:var(--muted);font-size:12px}
+.coveRow .cvKind{color:#5E8C88;font-weight:600}.coveRow.k-landmark .cvKind{color:#C07E0C}.coveRow.k-build .cvKind{color:#E0603A}.coveRow .cvDm{font-weight:600}

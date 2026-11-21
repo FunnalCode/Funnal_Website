@@ -220,14 +220,14 @@ function artTinted(c,bx,by,bw,bh,col,a,draw){let sc=1;try{const m=c.getTransform
 /* ---------- the port town: a hillside of timber houses, a fort, a church tower and a stone quay ---------- */
 const TOWN_KEYS=[[-30,80],[0,70],[22,58],[64,57],[94,74],[124,70],[152,66],[178,76],[206,88],[240,106]];
 function townHillY(x){const K=TOWN_KEYS;if(x<=K[0][0])return K[0][1];for(let i=1;i<K.length;i++)if(x<=K[i][0]){const [x0,y0]=K[i-1],[x1,y1]=K[i];const u=(x-x0)/(x1-x0),e=(1-Math.cos(u*Math.PI))/2;return y0+(y1-y0)*e;}return 110;}
-const TOWN_WALLS=['#C98A5A','#B8584A','#E0CDA6','#5E8C88','#D8B070','#8E7A9E','#E6D8C0','#A86A48'],TOWN_ROOFS=['#7A3A2E','#5A4A58','#8A4A32','#3E4A5A'];
-let TOWN=null;function townPlan(){if(TOWN)return TOWN;const houses=[];for(let k=0;k<5;k++){let x=-26+(k%2)*5;let i=0;while(x<236){const r=h32('th'+k+'_'+i);const w=7+r%5,hh=8+((r>>4)%7)+(k===4?3:0);const base=townHillY(x+w/2)+7+k*8.5;
+const TOWN_WALLS=['#E0915E','#D2605A','#EEDDB4','#6FA8A2','#F0C46A','#A08CC0','#F4E6CC','#C07A50','#7FB8D4','#E88A8A','#B8D48A','#F2A0B4'],TOWN_ROOFS=['#7A3A2E','#5A4A58','#8A4A32','#3E4A5A'];
+let TOWN=null;function townPlan(){if(TOWN)return TOWN;const houses=[];for(let k=-1;k<5;k++){let x=-26+(((k%2)+2)%2)*5;let i=0;while(x<236){const r=h32('th'+k+'_'+i);const w=7+r%5,hh=8+((r>>4)%7)+(k===4?3:0);const base=townHillY(x+w/2)+7+k*8.5;
       if(base<=105&&!(k>=3&&x+w>98&&x<112)){houses.push({x,w,h:hh,base,k,wall:TOWN_WALLS[(r>>8)%TOWN_WALLS.length],roof:TOWN_ROOFS[(r>>11)%TOWN_ROOFS.length],gable:((r>>13)%3)!==0,win:(r>>15)%3+1,lit:((r>>17)%10)<6,chim:((r>>19)%4)===0});}
       x+=w+((r>>21)%3===0?3:.6);i++;}}
   houses.forEach((hs,i)=>{hs.id=i;hs.pri=(4-hs.k)*48+Math.abs(hs.x+hs.w/2-112)+(h32('tp'+i)%9);});const order=[...houses].sort((a,b)=>a.pri-b.pri);order.forEach((hs,i)=>hs.rank=i);
   TOWN={houses,total:houses.length};return TOWN;}
-/* the town grows with the crew's lifetime DMs: a fishing village at the start, a busy port by 45,000 */
-const TOWN_START=8,TOWN_FULL=45000;
+/* the town grows with the crew's lifetime DMs: a fishing village at the start, a packed, colourful port by 45,000 */
+const TOWN_START=22,TOWN_FULL=45000;
 function townCount(dm){const P_=townPlan();return Math.min(P_.total,Math.round(TOWN_START+(P_.total-TOWN_START)*Math.sqrt(Math.min(1,Math.max(0,dm)/TOWN_FULL))));}
 function townNextAt(dm){const n=townCount(dm),P_=townPlan();if(n>=P_.total)return null;let lo=dm,hi=TOWN_FULL;while(hi-lo>1){const m=Math.floor((lo+hi)/2);if(townCount(m)>n)hi=m;else lo=m;}return hi;}
 const TOWN_STEPS=[{dm:500,id:'lamps',name:'Lamp posts along the quay'},{dm:1000,id:'church',name:'The church tower'},{dm:2000,id:'lights',name:'A string of lights on the quay'},{dm:4000,id:'mill',name:'A windmill on the ridge'},{dm:8000,id:'bells',name:'Bells that ring when you hit the target'}];
@@ -241,7 +241,7 @@ function townHouse(q,hs,P,night,snow,shadeK){const {x,w,h,base}=hs;const top=bas
   q.fillStyle=shadeHex(wall,.6);q.fillRect(x+w/2-1,base-3.2,2,3.2);}
 function townWindows(hs){const out=[];const {x,w,h,base,win}=hs;const rows=h>11?2:1;for(let r=0;r<rows;r++)for(let i=0;i<win;i++){const wx=x+(w/(win+1))*(i+1)-.7,wy=base-h+2+r*4.6;if(wy+2.2>base-3.6&&r>0)continue;out.push([wx,wy]);}return out;}
 function artTown(c,t){const dm=(typeof TEAMDM==='function'?TEAMDM():0)||0;const nH=townCount(dm);const vn=VENTURES.filter(v=>dm>=v.dm).length;const P=artPal();const mode=artMode();const night=!!(SUN&&SUN.night);const snow=artSnowy()||THEME.festive==='christmas';const lit=artLitNow()||THEME.weather==='storm';const plan=townPlan();
-  const stone=mixHex('#B8AC94',P.bld,.5),dk=night?.72:.5;
+  const stone=mixHex('#B8AC94',P.bld,.5),dk=night?.66:.24;
   layerCache(c,`arttown_${mode}${artBlendKey()}_${THEME.weather}_${snow?1:0}_${nH}_${townHas('church',dm)?1:0}_${townHas('mill',dm)?1:0}_${vn}`,-40,30,300,92,q=>{
     // the hill behind the town
     q.fillStyle=mixHex(P.isl,P.mid,.3);q.beginPath();q.moveTo(-40,112);for(let x=-40;x<=244;x+=4)q.lineTo(x,townHillY(x)+2);q.lineTo(244,112);q.closePath();q.fill();
@@ -263,7 +263,7 @@ function artTown(c,t){const dm=(typeof TEAMDM==='function'?TEAMDM():0)||0;const 
     // a windmill on the ridge (4,000 crew DMs)
     if(townHas('mill',dm)){const mx=118,my=townHillY(118)+3;q.fillStyle=mixHex('#E0D4BC',P.bld,.5);q.beginPath();q.moveTo(mx-3,my);q.lineTo(mx-2,my-11);q.lineTo(mx+2,my-11);q.lineTo(mx+3,my);q.closePath();q.fill();q.fillStyle=mixHex('#7A3A2E',P.bld,.45);q.beginPath();q.moveTo(mx-2.6,my-11);q.lineTo(mx,my-14);q.lineTo(mx+2.6,my-11);q.closePath();q.fill();}
     // houses, back rows first; only as many as the crew has earned
-    plan.houses.forEach(hs=>{if(hs.rank<nH)townHouse(q,hs,P,night,snow,hs.k<2?dk+.12:dk);});
+    plan.houses.forEach(hs=>{if(hs.rank<nH)townHouse(q,hs,P,night,snow,hs.k<1?dk+.16:hs.k<2?dk+.08:dk);});
     // the quay: stone wall, a lighter cap, drains, mooring posts
     q.fillStyle=shadeHex(stone,.85);q.fillRect(-40,104.5,280,11);q.fillStyle=shadeHex(stone,1.1);q.fillRect(-40,103.6,280,1.6);
     q.fillStyle=shadeHex(stone,.6);for(let x=-36;x<240;x+=12)q.fillRect(x,107+(x%24?0:2),5,.5);for(let x=-30;x<240;x+=26){q.beginPath();q.arc(x,115.5,2.4,Math.PI,0);q.fill();}
@@ -307,7 +307,11 @@ function artHarbour(c,t){
   const teamFog=Object.values(S.forfeits).some(f=>f&&f.type==='team'&&f.status==='spun'&&Date.now()-f.ts<86400000);
   sky(c,t,{fireworks:won&&skyPhase()==='night'});
   const B=Object.fromEntries(G.proj.map(p=>[p.id,p]));
-  if(B.sky.built){const x=(t/60)%380-40;ell(c,x,34,12,5,mixHex('#E06034',P.near,.35));rr(c,x-6,39,12,4,1.5,shadeHex(P.near,.7));}
+  // The Smugglers' Caves: a lantern-lit cave mouth in the headland at the water's edge, with a rowboat tied up (it was a floating balloon)
+  if(B.sky.built){const cx=2,cy=105;c.fillStyle=shadeHex(P.isl,.7);c.beginPath();c.moveTo(cx-16,cy+1);c.quadraticCurveTo(cx-14,cy-16,cx,cy-17);c.quadraticCurveTo(cx+14,cy-16,cx+16,cy+1);c.closePath();c.fill();
+    c.fillStyle='#120C10';c.beginPath();c.moveTo(cx-8,cy+1);c.quadraticCurveTo(cx-8,cy-11,cx,cy-11);c.quadraticCurveTo(cx+8,cy-11,cx+8,cy+1);c.closePath();c.fill();
+    const lg=artLitNow()||(SUN&&SUN.night);glowAt(c,cx+3,cy-5,lg?14:7,'255,180,90',lg?.6:.35);rr(c,cx+2,cy-7,2,3,.6,'#FFC46A');for(let i=0;i<3;i++)rr(c,cx-6+i*3.2,cy-2.4,2.6,2.4,.5,shadeHex('#7A4E30',.9));
+    const b=Math.sin(t/700)*.4;c.fillStyle=shadeHex('#6A4428',lg?.6:.9);c.beginPath();c.moveTo(cx+9,cy+2.4+b);c.lineTo(cx+21,cy+2.4+b);c.lineTo(cx+19,cy+5+b);c.lineTo(cx+11,cy+5+b);c.closePath();c.fill();line(c,cx+9,cy+2.6+b,cx+6,cy+.6,'#3A2A20',.35);}
   sea(c,108,t);
   // a far headland on each side for depth
   island(c,302,110,40,6,t);
@@ -315,7 +319,7 @@ function artHarbour(c,t){
   palm(c,226,104,12,t+400);
   const lit=artLitNow();const S1=P.bld,S2=shadeHex(P.bld,.74),WIN=lit?'#FFC46A':rgbaOf(P.win,.6),awn=k=>mixHex(['#E06034','#F4E2C6','#4A7EC2'][k%3],S1,.55);
   const open=G.proj.find(p=>p.open);
-  const drawIf=(id,fn,sx,sy,w,h)=>{const pr=B[id];if(pr.built){fn();hit(sx,sy,w,h,pr.name,pr.blurb+' Built by the crew.');}else if(open&&open.id===id){hit(sx,sy-8,w,h+8,'Next build: '+pr.name,`${pr.blurb} Needs ${fmtN(pr.dm)} crew DMs (you have ${fmtN(G.teamDm)}) and ${fmtN(pr.g)} doubloons of funding (${fmtN(pr.funded)} so far). Fund it from the Quests tab.`);c.strokeStyle=rgbaOf(P.fog,.7);c.lineWidth=.8;c.setLineDash([2,2]);c.beginPath();c.roundRect?c.roundRect(sx,sy,w,h,3):c.rect(sx,sy,w,h);c.stroke();c.setLineDash([]);txt(c,'next build',sx+w/2,sy-8,'#3F5160',6,'center');}};
+  const drawIf=(id,fn,sx,sy,w,h)=>{const pr=B[id];if(pr.built){fn();hit(sx,sy,w,h,pr.name,pr.blurb+' Built by the crew.');}else if(open&&open.id===id){hit(sx,sy-8,w,h+8,'Next build: '+pr.name,`${pr.blurb} Needs ${fmtN(pr.dm)} crew DMs (you have ${fmtN(G.teamDm)}) and ${fmtN(pr.g)} doubloons of funding (${fmtN(pr.funded)} so far). Tap to open Funnal Cove and chip in.`,{go:'cove'});c.strokeStyle=rgbaOf(P.fog,.7);c.lineWidth=.8;c.setLineDash([2,2]);c.beginPath();c.roundRect?c.roundRect(sx,sy,w,h,3):c.rect(sx,sy,w,h);c.stroke();c.setLineDash([]);txt(c,'next build',sx+w/2,sy-8,'#3F5160',6,'center');}};
   drawIf('jetty',()=>{rr(c,196,116,36,2.4,1,S2);for(let i=199;i<232;i+=7)R(c,i,118,1.4,7,S2);},196,113,36,12);
   drawIf('boats',()=>{[[250,122],[272,130]].forEach(([x,y],i)=>{const b=Math.sin(t/500+i);rr(c,x-6,y+b,12,3.4,1.7,S2);R(c,x-.3,y-7+b,.7,7,S2);poly(c,[[x+.5,y-6+b],[x+5,y-1+b],[x+.5,y-1+b]],mixHex('#FFFFFF',P.fog,.3));});},240,112,40,24);
   drawIf('stall',()=>{rr(c,40,96,16,11,1,S1);for(let i=0;i<4;i++)rr(c,39+i*4.5,92,4.5,5,1.5,i%2?awn(0):awn(1));disc(c,44,101,1.4,WIN);disc(c,51,101,1.4,WIN);},38,88,20,19);

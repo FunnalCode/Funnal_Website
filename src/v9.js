@@ -1,7 +1,8 @@
 /* ============================== v9: hunts, sharks, celebrations, crew goals, ventures, reviews ============================== */
 const JOINT_NEED=30,CREW_WEEK_NEED=5;
 const pickR=a=>a[Math.floor(Math.random()*a.length)];
-const TEAMDM=()=>G.players[G.P[0]]?.m.teamDm||0;
+// S.coveDm is only set while the Funnal Cove page draws its preview of the town at another size
+const TEAMDM=()=>S.coveDm!=null?S.coveDm:(G.players[G.P[0]]?.m.teamDm||0);
 const VENTURES=[
  {id:'v1',dm:2500,name:'The Funnal Jetty',g:600,xp:600,desc:'A proper jetty for the cove. Gary insists on a gull-only lane.'},
  {id:'v2',dm:6000,name:'The Grand Lighthouse',g:1200,xp:1000,desc:'A lighthouse so bright it shows up on other people\'s Instagram.'},
