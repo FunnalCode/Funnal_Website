@@ -5,8 +5,8 @@ const SUITS=['♠','♥','♦','♣'],RANKS={11:'J',12:'Q',13:'K',14:'A'};
 const rk=r=>RANKS[r]||String(r);
 function newDeck(){const d=[];for(let s=0;s<4;s++)for(let r=2;r<=14;r++)d.push({r,s});for(let i=d.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[d[i],d[j]]=[d[j],d[i]];}return d;}
 const cardHtml=(c,hid,sel,i)=>hid?'<span class="pc back"></span>':`<span class="pc ${c.s===1||c.s===2?'red':''} ${sel?'sel':''}" ${i!=null?`data-act="pkHold" data-i="${i}"`:''}><b>${rk(c.r)}</b><i>${SUITS[c.s]}</i></span>`;
-async function tvStakePay(game){const st=S.tvStake||25;const me=G.players[S.me];if(!tvOpenNow()){toast('<b>Closed.</b> The cards are locked in the till.','joke');return 0;}
-  if(tvStakedToday()+st>500){toast(`<b>Stake cap reached.</b> 500 a day across all games. Bill says "go and do some DMs, darling".`,'joke');return 0;}
+async function tvStakePay(game,amt){const st=amt||tvStakeNow();const me=G.players[S.me];
+  if(tvStakedToday()+st>TV_DAY_CAP){toast(`<b>That's your lot for today.</b> ${fmtN(TV_DAY_CAP)} a day across all games. Bill says "go and do some DMs, darling".`,'joke');return 0;}
   if(me.balance<st){toast('<b>Not enough doubloons.</b>','joke');return 0;}try{await writeDay(S.me,G.today,{spend:{[uid()]:{item:'tv_bet',cost:st,game,ts:Date.now()}}});return st;}catch(e){writeFail(e);return 0;}}
 async function tvPayout(game,g,note){if(g<=0)return;try{await writeDay(S.me,G.today,{bonus:{['tv_w_'+uid()]:{xp:0,g,ts:Date.now(),game,note:note||''}}});SND.coin();}catch(e){writeFail(e);}}
 
@@ -18,7 +18,7 @@ function bjShow(){const T=TV();openModal(`<div class="tvGame"><h2>21 with Bill</
   <div class="hand"><small>Bill${BJ.done?` · ${bjVal(BJ.d)}`:''}</small><div>${BJ.d.map((c,i)=>cardHtml(c,!BJ.done&&i===1)).join('')}</div></div>
   <div class="hand"><small>You · ${bjVal(BJ.p)}</small><div>${BJ.p.map(c=>cardHtml(c)).join('')}</div></div>
   ${BJ.msg?`<p class="gameMsg">${BJ.msg}</p>`:''}
-  <div class="row">${BJ.done?`<button class="btn primary" data-act="bjStart">Deal again (${S.tvStake||25})</button><button class="btn ghost" data-act="closeModal">Leave the table</button>`:`<button class="btn primary" data-act="bjHit">Hit</button><button class="btn" data-act="bjStand">Stand</button>`}</div></div>`);}
+  <div class="row">${BJ.done?`<button class="btn primary" data-act="bjStart">Deal again (${tvStakeNow()})</button><button class="btn ghost" data-act="closeModal">Leave the table</button>`:`<button class="btn primary" data-act="bjHit">Hit</button><button class="btn" data-act="bjStand">Stand</button>`}</div></div>`);}
 ACT.bjHit=async()=>{if(BJ.done)return;BJ.p.push(BJ.deck.pop());if(bjVal(BJ.p)>21){BJ.done=true;BJ.msg=`Bust. ${esc(TV().lose21||'')}`;SND.err();bjShow();}else if(bjVal(BJ.p)===21)await ACT.bjStand();else bjShow();};
 ACT.bjStand=async()=>{if(BJ.done)return;while(bjVal(BJ.d)<17)BJ.d.push(BJ.deck.pop());await bjEnd();};
 async function bjEnd(){BJ.done=true;const T=TV();const pv=bjVal(BJ.p),dv=bjVal(BJ.d),nat=pv===21&&BJ.p.length===2;
@@ -39,7 +39,7 @@ function ldShow(){const minQ=LD.bid?LD.bid.q:1;openModal(`<div class="tvGame"><h
   <div class="hand"><small>Your dice</small><div class="dice">${LD.me.map(d=>dieHtml(d,'mine')).join('')}</div></div>
   ${LD.bid?`<p class="ldBid">Current bid: <b>${LD.bid.q} × ${pips[LD.bid.f]}</b> (${LD.by==='gary'?'Gary':'you'})</p>`:''}
   <p class="gameMsg">${LD.msg}</p>
-  ${LD.done?`<div class="row"><button class="btn primary" data-act="ldStart">Play again (${S.tvStake||25})</button><button class="btn ghost" data-act="closeModal">Leave</button></div>`:
+  ${LD.done?`<div class="row"><button class="btn primary" data-act="ldStart">Play again (${tvStakeNow()})</button><button class="btn ghost" data-act="closeModal">Leave</button></div>`:
    `<div class="row ldPick"><span class="tiny">Bid</span><button class="chip" data-act="ldQ" data-v="-1">−</button><b>${LD.q}</b><button class="chip" data-act="ldQ" data-v="1">+</button><span class="tiny">of</span>${[1,2,3,4,5,6].map(f=>`<button class="chip ${LD.f===f?'on':''}" data-act="ldF" data-v="${f}">${pips[f]}</button>`).join('')}</div>
    <div class="row"><button class="btn primary" data-act="ldBid" ${ldValid(LD.q,LD.f)?'':'disabled'}>Bid ${LD.q} × ${pips[LD.f]}</button>${LD.by==='gary'?'<button class="btn" data-act="ldCall">Liar!</button>':''}</div>`}</div>`);}
 const ldValid=(q,f)=>!LD.bid||q>LD.bid.q||(q===LD.bid.q&&f>LD.bid.f);
@@ -71,7 +71,7 @@ function pkShow(){const done=PK.phase==='done';const name=h=>HAND_NAMES[evalHand
   <div class="hand"><small>Old Pete${done?` · ${name(PK.pete)}`:''}</small><div>${PK.pete.map(c=>cardHtml(c,!done)).join('')}</div></div>
   <div class="hand"><small>One-Eyed Sal${done?` · ${name(PK.sal)}`:''}</small><div>${PK.sal.map(c=>cardHtml(c,!done)).join('')}</div></div>
   <div class="hand"><small>You · ${name(PK.me)}</small><div>${PK.me.map((c,i)=>cardHtml(c,false,PK.hold[i]&&!done,done?null:i)).join('')}</div></div>
-  <p class="gameMsg">${PK.msg}</p><div class="row">${done?`<button class="btn primary" data-act="pkStart">Deal again (${S.tvStake||25})</button><button class="btn ghost" data-act="closeModal">Leave</button>`:'<button class="btn primary" data-act="pkDraw">Draw</button>'}</div></div>`);}
+  <p class="gameMsg">${PK.msg}</p><div class="row">${done?`<button class="btn primary" data-act="pkStart">Deal again (${tvStakeNow()})</button><button class="btn ghost" data-act="closeModal">Leave</button>`:'<button class="btn primary" data-act="pkDraw">Draw</button>'}</div></div>`);}
 ACT.pkHold=d=>{if(PK.phase!=='draw')return;PK.hold[+d.i]=!PK.hold[+d.i];pkShow();};
 ACT.pkDraw=async()=>{if(PK.phase!=='draw')return;PK.me=PK.me.map((c,i)=>PK.hold[i]?c:PK.deck.pop());PK.pete=botDraw(PK.pete,PK.deck);PK.sal=botDraw(PK.sal,PK.deck);PK.phase='done';const T=TV().poker||{};
   const hs=[['me',evalHand(PK.me)],['pete',evalHand(PK.pete)],['sal',evalHand(PK.sal)]];const best=hs.reduce((a,x)=>cmpHand(x[1],a[1])>0?x:a,hs[0]);const winners=hs.filter(x=>cmpHand(x[1],best[1])===0).map(x=>x[0]);

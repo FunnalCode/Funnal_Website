@@ -174,7 +174,7 @@ function drawBoss(c,boss,bx,by,r,ratio,t,flash,wl){
   else if(type==='octopus'||type==='kraken'){const kr=type==='kraken';const n=kr?6:4;const base=wl!=null?wl+r*.1:by+r*1.05;
     for(let i=0;i<n;i++){const u=i/(n-1),side=u<.5?-1:1;const x0=bx+(u-.5)*r*(kr?3.4:2.6);const slam=Math.max(0,Math.sin(t/1300+i*1.7));tentacle(c,x0,base,r*(.9+.35*slam+(i%2)*.2),side,r*.15,col,t,i*1.9,1+slam*.4);}
     const wob=Math.sin(t/450)*r*.03;
-    if(kr){poly(c,[[bx-r*.62,by-r*.62],[bx-r*1.02,by-r*1.12],[bx-r*.3,by-r*.92]],col);poly(c,[[bx+r*.62,by-r*.62],[bx+r*1.02,by-r*1.12],[bx+r*.3,by-r*.92]],col);}
+    if(kr){const sw=Math.sin(t/1600)*r*.06;c.fillStyle=col;c.beginPath();c.moveTo(bx-r*.6,by-r*.55);c.quadraticCurveTo(bx-r*.55+sw,by-r*1.7,bx+sw*1.5,by-r*1.95);c.quadraticCurveTo(bx+r*.55+sw,by-r*1.7,bx+r*.6,by-r*.55);c.closePath();c.fill();for(let k=0;k<3;k++){const yy=by-r*(1+k*.28);c.strokeStyle='rgba(0,0,0,.12)';c.lineWidth=r*.05;c.beginPath();c.moveTo(bx-r*(.5-k*.12)+sw*k*.4,yy);c.quadraticCurveTo(bx+sw*k*.5,yy+r*.12,bx+r*(.5-k*.12)+sw*k*.4,yy);c.stroke();}}
     ell(c,bx,by-r*.15,r*.8+wob,r*.92-wob,col);ell(c,bx,by+r*.3,r*.74,r*.4,D1);ell(c,bx,by-r*.2,r*.72,r*.78,col);
     disc(c,bx-r*.3,by-r*.62,r*.18,'rgba(255,255,255,.45)');for(let i=0;i<5;i++)disc(c,bx-r*.44+i*r*.2+Math.sin(i*5)*r*.04,by-r*.82+Math.abs(i-2)*r*.1,r*.045,'rgba(0,0,0,.12)');
     for(let i=0;i<4;i++)disc(c,bx-r*.5+i*r*.33,by+r*.5,r*.07,'rgba(255,255,255,.4)');

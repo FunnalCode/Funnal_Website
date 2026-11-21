@@ -43,3 +43,7 @@ function paintMons(root=document){root.querySelectorAll('canvas.monIco').forEach
 function decorateView(){paintMons();paintFish();try{checkCatch();}catch(e){}try{checkMC();huntCheck();autoCards();}catch(e){console.error(e);}const cv=$('#scene');if(cv&&!cv.nextElementSibling?.classList.contains('fsBtn'))cv.insertAdjacentHTML('afterend',`<button class="fsBtn" data-act="focusOn" aria-label="Full screen" title="Full screen">${FS_ICON}</button>`);paintAch();}
 const _render6=render;render=function(){_render6();try{decorateView();}catch(e){console.error(e);}};
 const _openModal6=openModal;openModal=function(html){_openModal6(html);try{paintAch($('#modal'));paintFish($('#modal'));}catch(e){}};
+
+/* 21 Nov: every More tile gets its own icon and colour (Hall of Fame and Achievements both had a star; Vault matched the review) */
+APP_ICONS.hall=['#3E7C8A','M7 3h10v2h3v3a4 4 0 0 1-4 4h-.4A5 5 0 0 1 13 14.9V17h3v2.2H8V17h3v-2.1A5 5 0 0 1 8.4 12H8a4 4 0 0 1-4-4V5h3zM6 7v1a2 2 0 0 0 1 1.7V7zm12 0h-1v2.7A2 2 0 0 0 18 8zM7 20.4h10V22H7z'];
+APP_ICONS.book=['#DDA94D','M6 2h4l2 4 2-4h4l-3.4 5.9A6.5 6.5 0 1 1 9.4 7.9zM12 10.5a3.5 3.5 0 1 0 0 7a3.5 3.5 0 1 0 0-7z'];

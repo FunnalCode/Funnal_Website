@@ -56,6 +56,8 @@ function makeScape(ac,id){const out=ac.createGain();out.gain.value=0;out.connect
     case 'storm':waves(1.5);wind(560,1.3);bed('white','highpass',2400,.5,.06,.3,.3);every(9000,18000,thunder);break;
     case 'glacier':waves(.5);wind(440,1.2);pad([261.6,329.6,392],.7);every(7000,15000,iceCrack);every(10000,20000,()=>chime(988));break;
     case 'volcano':waves(.6);bed('brown','lowpass',110,.7,.6,.4,.05);every(1200,3500,crackle);every(1500,4000,bubble);every(14000,26000,thunder);break;
+    // the Rusty Anchor: a low fire rumble and hiss, little snaps and pops, a bigger crackle now and then, a log settling
+    case 'tavern':bed('brown','lowpass',220,.7,.35,.35,.12);bed('pink','bandpass',1300,.9,.022,.6,.35);every(160,650,()=>burst('white','highpass',2200+Math.random()*2400,.02+Math.random()*.04,.001,.015+Math.random()*.03));every(1400,3800,crackle);every(7000,15000,()=>burst('brown','lowpass',320,.12,.03,.6));break;
     case 'jungle':waves(.4);bed('pink','bandpass',1600,.6,.05,.15,.2);every(1800,4000,bird);every(1200,2600,insects);break;
     default:waves(1);}
   return {out,stop(fade=2.5){const t=now();try{out.gain.cancelScheduledValues(t);out.gain.setValueAtTime(out.gain.value,t);out.gain.linearRampToValueAtTime(0,t+fade);}catch(e){}
@@ -69,3 +71,8 @@ function scapeTick(){try{const play=!!(S&&S.sound&&isArtLook()&&VOY.lk&&VOY.last
     const want=(ENVST.fade>.5?ENVST.b:ENVST.a).id;if(SCAPE.id!==want){if(SCAPE.cur)SCAPE.cur.stop(3);SCAPE.cur=makeScape(ac,want);SCAPE.cur.start(3);SCAPE.id=want;}}catch(e){}}
 setInterval(scapeTick,500);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState!=='visible'&&SCAPE.cur){SCAPE.cur.stop(.3);SCAPE.cur=null;SCAPE.id=null;}});
+
+// the fire in the Tavern crackles while you're in there (follows the sound button)
+const TVSCAPE={cur:null};
+setInterval(()=>{try{const play=!!(S&&S.sound&&S.screen==='tavern'&&document.visibilityState==='visible');if(!play){if(TVSCAPE.cur){TVSCAPE.cur.stop(1.2);TVSCAPE.cur=null;}return;}
+  const ac=getAC();if(!ac)return;const m=scapeMaster(ac);if(m.gain.value<SCAPE_VOL*.99)m.gain.setTargetAtTime(SCAPE_VOL,ac.currentTime,.4);if(!TVSCAPE.cur){TVSCAPE.cur=makeScape(ac,'tavern');TVSCAPE.cur.start(2);}}catch(e){}},500);

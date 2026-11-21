@@ -24,7 +24,23 @@ const ENV_BY=Object.fromEntries(ENVS.map(e=>[e.id,e]));
 function envRoute(lk){const id=String(lk&&(lk.id||lk.s)||'x');if(envRoute._k===id)return envRoute._r;const pool=[];ENVS.forEach(e=>{for(let i=0;i<e.w;i++)pool.push(e.id);});const out=[];let last=null;
   for(let i=0;i<14;i++){let pick;for(let tries=0;tries<20;tries++){pick=pool[Math.floor(RNDK(id+'r'+i+'_'+tries)*pool.length)];if(pick!==last&&!out.slice(-3).includes(pick))break;}out.push(pick);last=pick;}envRoute._k=id;envRoute._r=out;return out;}
 const ENVST={a:null,b:null,fade:0,shownAt:0,shownId:null};
-function envNow(){const lk=VOY.lk;if(!lk)return null;const r=envRoute(lk);const seg=Math.floor(VOY.el/ENV_SEG),into=VOY.el%ENV_SEG;const a=ENV_BY[r[seg%r.length]],b=ENV_BY[r[(seg+1)%r.length]];
+/* 21 Nov: every monster fights in its own waters. While a hunt has a monster up, the scenery fades to the place that
+   suits it (the Eye of the Hurricane brings the storm, ghosts bring the haunted reef, the Golden Leviathan the sky isles). */
+const BOSS_ENV={grumbleflap:'fjord',pinch:'isles',inky:'crystal',drizzle:'storm',sidney:'isles',krabbington:'desert',squall:'storm',sloop:'cliffs',
+  moby:'glacier',octavia:'crystal',twinfin:'jungle',fundraiser:'haunted',kraken:'volcano',eye:'storm',locker:'haunted',goldleviathan:'sky',calm:'fjord',rough:'isles',legend:'volcano',
+  grumble:'storm',seenzone:'ruins',algo:'cliffs',ghostwell:'haunted',mondaymist:'haunted',outofoffice:'autumn',budgetbeast:'desert',aurora:'sky',ironclaw:'cliffs',frostfang:'glacier',
+  pufferdread:'isles',shadowwing:'haunted',inkmaw:'crystal',shellback:'ruins',gulper:'crystal',lanternjaw:'haunted',moray:'cliffs',thornback:'ruins',hydra:'isles',bonefin:'volcano',
+  brineback:'jungle',stormscale:'storm',mosswhisker:'jungle',duskfin:'desert',tidecaller:'crystal',rustgill:'ruins',urchin:'jungle',hollowshell:'isles',glimmer:'crystal',
+  drownedbell:'haunted',mondaykraken:'fjord',weekendsiren:'blossom',admiralgull:'cliffs',icekraken:'glacier',grinchfish:'winter',xmaspast:'winter',krampus:'winter',leviathan:'storm',krakenqueen:'volcano'};
+const TYPE_ENV={storm:'storm',ghost:'haunted',serpent:'ruins',crab:'isles',whale:'glacier',octopus:'crystal',kraken:'volcano',ship:'cliffs',seal:'fjord',squid:'crystal',jelly:'crystal',fish:'cliffs',puffer:'isles',ray:'autumn',shell:'ruins',eel:'crystal',blob:'jungle'};
+function bossEnvId(mon){const e=BOSS_ENV[mon]||(typeof VOYAGE_DIFF!=='undefined'&&VOYAGE_DIFF[mon]&&TYPE_ENV[VOYAGE_DIFF[mon].type]);return e&&ENV_BY[e]?e:null;}
+const ENVF={id:null,prev:null,at:0,lk:null};
+function envForced(lk){try{if(!lk||lk.hv!==2||typeof huntLive!=='function')return null;const h=huntLive(lk);return h&&h.cur?bossEnvId(h.cur.mon):null;}catch(e){return null;}}
+function envNow(){const lk=VOY.lk;if(!lk)return null;if(ENVF.lk!==lk.id){ENVF.lk=lk.id;ENVF.id=null;}const fz=envForced(lk)||(lk.hv===2?ENVF.id:null);
+  if(fz){if(ENVF.id!==fz){ENVF.prev=ENVF.id||ENVST.shownId||fz;ENVF.id=fz;ENVF.at=performance.now();}const q=Math.min(1,(performance.now()-ENVF.at)/4000);
+    const a=ENV_BY[ENVF.prev]||ENV_BY[fz],b=ENV_BY[fz];ENVST.a=q>=1?b:a;ENVST.b=b;ENVST.fade=q>=1?0:q;const cur=q>.5?b:a;if(ENVST.shownId!==cur.id){ENVST.shownId=cur.id;ENVST.shownAt=performance.now();ENVST.rareNote=false;}return ENVST;}
+  if(ENVF.id){ENVF.id=null;}
+  const r=envRoute(lk);const seg=Math.floor(VOY.el/ENV_SEG),into=VOY.el%ENV_SEG;const a=ENV_BY[r[seg%r.length]],b=ENV_BY[r[(seg+1)%r.length]];
   const fade=Math.max(0,(into-(ENV_SEG-ENV_FADE))/ENV_FADE);ENVST.a=a;ENVST.b=b;ENVST.fade=fade;const cur=fade>.5?b:a;if(ENVST.shownId!==cur.id){ENVST.shownId=cur.id;ENVST.shownAt=performance.now();ENVST.rareNote=!!cur.rare;}return ENVST;}
 const envOn=()=>isArtLook()&&THEME.scene==='voyage'&&!!VOY.lk;
 // palette: a place's own colours, or the time of day for the four coasts; blended during the fade

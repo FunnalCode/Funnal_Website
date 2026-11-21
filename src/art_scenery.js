@@ -122,7 +122,8 @@ function artPine(c,x,y,h,col,snow){R(c,x-h*.025,y-h,h*.05,h,col);const n=Math.ma
 /* ---------- the ship: chunky hull, raised stern with glowing windows, lanterns, crow's nest, one big sail per mast ----------
    Drawn in a design space and scaled to the classic footprint, so the captain, pet, deck items, figurehead, flags,
    snow, lights, damage and every tap area sit where they always did. Cosmetic colours and sail patterns carry over. */
-const ART_HULL='M-66,-34 L-30,-34 L-28,-14 L44,-14 L46,-22 L70,-22 L80,-26 L77,-8 Q67,18 40,23 L-40,23 Q-62,18 -64,-6 Z';
+// 21 Nov: a cleaner stern: a raked, curved transom and a smooth step down from the quarterdeck (it was a straight box)
+const ART_HULL='M-70,-37 Q-52,-38 -32,-34 Q-29,-20 -23,-14 L44,-14 L46,-22 L70,-22 L80,-26 L77,-8 Q67,18 40,23 L-38,23 Q-57,20 -62,6 Q-66,-12 -70,-37 Z';
 let ART_HULL_P=null;const artHullPath=()=>ART_HULL_P||(ART_HULL_P=new Path2D(ART_HULL));
 function artSail(c,cx,top,w,h,bel,sail,scol,sdk,t,mark,billow){const l=cx-w/2,r=cx+w/2,b=top+h;const wv=Math.sin(t/700+cx)*1.2;
   const path=()=>{c.beginPath();c.moveTo(l,top);c.lineTo(r,top);c.quadraticCurveTo(r+bel+wv,top+h*.5,r-2,b);c.quadraticCurveTo(cx,b+bel*.5,l+2,b);c.quadraticCurveTo(l-bel*.6+wv*.5,top+h*.5,l,top);c.closePath();};
@@ -174,15 +175,16 @@ function artShip(c,x,y,s,pl,t,opts={}){
   if(hull.col2){c.fillStyle=mixHex(hull.col2,shadow,night?.55:.4);c.fillRect(-70,-10,160,4);}
   if(hull.pat)try{c.save();c.translate(0,13.3);c.scale(2.22,2.22);hullPat(c,hull,t);c.restore();c.fillStyle=rgbaOf(shadow,night?.55:.4);c.fillRect(-70,-40,160,70);}catch(e){}
   c.fillStyle=hd;c.beginPath();c.moveTo(-70,0);c.lineTo(90,0);c.lineTo(90,30);c.lineTo(-70,30);c.closePath();c.fill();
-  c.fillStyle=shadeHex(hc,1.22);c.fillRect(-70,-34,30,40);
+  // the quarterdeck: a softly lit stern gallery panel with a gilded edge instead of a pale block
+  {const pan=new Path2D('M-66,-31 Q-50,-33 -36,-30 Q-34,-21 -31,-15 L-63,-15 Q-65,-22 -66,-31 Z');c.fillStyle=shadeHex(hc,.86);c.fill(pan);c.strokeStyle=mixHex('#C9A24A',shadow,neutral?.15:.45);c.lineWidth=.9;c.stroke(pan);}
   if(gild){c.fillStyle='#F2C462';c.fillRect(-70,-7,160,1.6);}c.restore();
   c.strokeStyle=hlc;c.globalAlpha=.55;c.lineWidth=1.1;c.beginPath();c.moveTo(-62,-10);c.lineTo(-26,-10);c.lineTo(-24,-6);c.lineTo(72,-6);c.stroke();c.globalAlpha=1;
-  c.fillStyle=hc;[[-66,-30,-34],[-28,44,-14],[46,72,-22]].forEach(([x0,x1,yy])=>{c.fillRect(x0,yy-6,x1-x0,1.4);for(let px=x0;px<=x1;px+=5)c.fillRect(px,yy-6,1,6);});
-  [-58,-50,-42].forEach(wx=>{c.fillStyle=lampOn?lights:shadeHex(hd,1.15);c.beginPath();c.moveTo(wx,-16);c.lineTo(wx,-24);c.quadraticCurveTo(wx+2.8,-29,wx+5.6,-24);c.lineTo(wx+5.6,-16);c.closePath();c.fill();});
+  c.fillStyle=hc;[[-69,-33,-36],[-24,44,-14],[46,72,-22]].forEach(([x0,x1,yy])=>{c.fillRect(x0,yy-6,x1-x0,1.4);for(let px=x0;px<=x1;px+=5)c.fillRect(px,yy-6,1,6);});
+  [-59,-51.5,-44].forEach(wx=>{c.fillStyle=lampOn?lights:shadeHex(hd,1.15);c.beginPath();c.moveTo(wx,-18);c.lineTo(wx,-24);c.quadraticCurveTo(wx+2.6,-28.4,wx+5.2,-24);c.lineTo(wx+5.2,-18);c.closePath();c.fill();c.fillStyle='rgba(0,0,0,.18)';c.fillRect(wx+2.3,-26,.6,8);});
   if(lampOn)glowAt(c,-48,-22,22,'255,196,106',.4);
   c.fillStyle=hd;for(let px=-20;px<40;px+=11)c.fillRect(px,-6,3.4,3);
   const lantern=(lx,ly)=>{if(lampOn)glowAt(c,lx,ly-3,18,'255,196,106',.55);rr(c,lx-2.4,ly-6,4.8,7,1,lampOn?lights:sdk);c.fillStyle=wood;c.beginPath();c.moveTo(lx-3.2,ly-6);c.lineTo(lx,ly-9);c.lineTo(lx+3.2,ly-6);c.closePath();c.fill();c.fillRect(lx-3,ly+1,6,1.4);};
-  c.fillStyle=wood;c.fillRect(-67,-46,1.6,14);lantern(-66,-46);c.strokeStyle=wood;c.lineWidth=.7;c.beginPath();c.moveTo(100,-37);c.lineTo(100,-30);c.stroke();lantern(100,-24);
+  c.fillStyle=wood;c.fillRect(-69.6,-49,1.6,13);lantern(-68.8,-49);c.strokeStyle=wood;c.lineWidth=.7;c.beginPath();c.moveTo(100,-37);c.lineTo(100,-30);c.stroke();lantern(100,-24);
   c.restore();
   // your flag at the top of the main mast, the emissary pennant above it
   drawFlag(c,3.4,-74.4,pl.flag||SHIP_DEFAULT.flag,t);
@@ -330,7 +332,7 @@ function artHarbour(c,t){
     if(lead===p){const cx=x+2,cy=y-60+Math.sin(t/400)*1.2;poly(c,[[cx-5,cy+3],[cx-5,cy-2],[cx-2.5,cy+.5],[cx,cy-3.5],[cx+2.5,cy+.5],[cx+5,cy-2],[cx+5,cy+3]],'#DDA94D');}
     txt(c,C().players[p]?.name||p,x,y+4,pcolHex(p),8,'center');});
   if(tgt>0){const boss=today.boss;const hp=Math.max(0,tgt-team);const ratio=hp/tgt;
-    if(!won){const r=12+20*ratio;const off={storm:null,ship:.7,serpent:.55,octopus:.45,kraken:.45,crab:.4,whale:.35}[boss.type||'storm'];const bx=266+Math.sin(t/1700)*4,by=off==null?66+Math.sin(t/1100)*3:113-r*off+Math.sin(t/1100)*1.4;drawBoss(c,boss,bx,by,r,ratio,t,S.bossFlash>t,off==null?null:113);S.target={x:bx,y:by};
+    if(!won){const r=11+14*ratio;const off={storm:null,ship:.7,serpent:.55,octopus:.45,kraken:.45,crab:.4,whale:.35}[boss.type||'storm'];const bx=276+Math.sin(t/2600)*3,by=off==null?66+Math.sin(t/1100)*3:113-r*off+Math.sin(t/1100)*1.4;drawBoss(c,boss,bx,by,r,ratio,t,S.bossFlash>t,off==null?null:113);S.target={x:bx,y:by};
       hit(bx-r*1.2,by-r*1.2,r*2.4,r*2.4,boss.name,`Today's sea foe${boss.rare?' (rare!)':''}. It has ${hp} of ${tgt} HP left: every DM either of you logs fires one cannonball. Sink it to earn +100 XP and 30 doubloons each.`);}
     else drawSunk(c,t,boss,today);}
   updateLanterns(c,t);harbourNight(c,t,B);
@@ -352,7 +354,7 @@ function artHarbour(c,t){
   R(c,x+10,y-16,.8,7,S2);rr(c,x+10.6,y-15.6,6,4,.6,S2);disc(c,x+13.6,y-13.6,1,lit?'#FFC46A':shadeHex(S2,1.4));
   if(xmasNowSafe()||artSnowy()){c.fillStyle='rgba(255,255,255,.9)';c.beginPath();c.moveTo(x-10,y-13.5);c.lineTo(x+.5,y-22);c.lineTo(x+11,y-13.5);c.lineTo(x+8,y-14.5);c.lineTo(x+.5,y-20.6);c.lineTo(x-7,y-14.5);c.closePath();c.fill();}
   if(xmasNowSafe())for(let i=0;i<7;i++){const on=Math.sin(t/300+i*1.7)>-.3;disc(c,x-7+i*2.4,y-14,.55,on?['#FF5A5A','#FFD45A','#5AE08A'][i%3]:'rgba(255,255,255,.3)');}
-  hit(x-11,y-22,30,24,'The Rusty Anchor',`Barnacle Bill's tavern. ${tvOpenNow()?'Open until 11pm.':'Closed, but Bill is in.'} Drinks, games and gossip. Tap to go in.`,{go:'tavern'});};}}
+  hit(x-11,y-22,30,24,'The Rusty Anchor',`Barnacle Bill's tavern. Always open. Drinks, games and gossip. Tap to go in.`,{go:'tavern'});};}}
 {const L_=LAYERS.fx.find(e=>e.id==='atmosMotes');if(L_){const w=L_.when;L_.when=()=>(w&&w())||(isArtLook()&&!!(SUN&&SUN.mode!=='day'));}}
 
 /* a little note when the town has grown since you last looked */
@@ -371,7 +373,7 @@ const VOY_NAMES={fjord:'Pine Fjords',cliffs:'The Arches',ruins:'The Ruined Coast
     const sp=(typeof isFish==='function'&&isFish(lk.mode))?.25:1+Math.min(2,(S.voyBoost||0));VOY.off+=dt*sp*.012*(THEME.reduced?.5:1);VOY.lk=lk;VOY.el=progress*lk.dur;}
   return _dv.apply(this,arguments);};}
 const STRIPS={};
-function artStrip(c,key,w,h,draw){let sc=1;try{const m=c.getTransform();sc=Math.max(.5,Math.min(4,Math.hypot(m.a,m.b)));}catch(e){}const k=key+'@'+sc.toFixed(2);let cv=STRIPS[k];
+function artStrip(c,key,w,h,draw){let sc=1;try{const m=c.getTransform();sc=Math.max(.5,Math.min(S.focus?12:4,Math.hypot(m.a,m.b)));}catch(e){}const k=key+'@'+sc.toFixed(2);let cv=STRIPS[k];
   if(!cv){cv=document.createElement('canvas');cv.width=Math.ceil(w*sc);cv.height=Math.ceil(h*sc);const q=cv.getContext('2d');q.setTransform(sc,0,0,sc,0,0);draw(q);STRIPS[k]=cv;const ks=Object.keys(STRIPS);if(ks.length>36)delete STRIPS[ks[0]];}return cv;}
 function stripLoop(c,cv,w,h,y,off,alpha,flip){const x0=-(((off%w)+w)%w)-90;c.save();c.globalAlpha=alpha;if(flip){c.translate(0,y);c.scale(1,-.55);for(let x=x0;x<W+90;x+=w)c.drawImage(cv,x,-h,w,h);}else for(let x=x0;x<W+90;x+=w)c.drawImage(cv,x,y-h,w,h);c.restore();}
 // periodic helpers: draw a shape at x, x-640 and x+640 so the strip joins up
@@ -420,12 +422,12 @@ const ART_OFF=new Map();function artOffCanvas(k,w,h){let e=ART_OFF.get(k);if(!e)
 // draw into an offscreen canvas in device pixels, keeping the caller's full transform (scale, rotation, translation)
 const ART_MAXPX=150000;
 function artDevBox(c,lx,ly,lw,lh,maxpx){const m=c.getTransform();const pts=[[lx,ly],[lx+lw,ly],[lx,ly+lh],[lx+lw,ly+lh]].map(([x,y])=>[m.a*x+m.c*y+m.e,m.b*x+m.d*y+m.f]);
-  const x0=Math.floor(Math.min(...pts.map(p=>p[0]))),y0=Math.floor(Math.min(...pts.map(p=>p[1]))),x1=Math.ceil(Math.max(...pts.map(p=>p[0]))),y1=Math.ceil(Math.max(...pts.map(p=>p[1])));const w=x1-x0,h=y1-y0;const f=Math.min(1,Math.sqrt((maxpx||ART_MAXPX)/Math.max(1,w*h)));return {m,x0,y0,w,h,sc:Math.hypot(m.a,m.b),f,ow:Math.max(1,Math.ceil(w*f)),oh:Math.max(1,Math.ceil(h*f))};}
+  const x0=Math.floor(Math.min(...pts.map(p=>p[0]))),y0=Math.floor(Math.min(...pts.map(p=>p[1]))),x1=Math.ceil(Math.max(...pts.map(p=>p[0]))),y1=Math.ceil(Math.max(...pts.map(p=>p[1])));const w=x1-x0,h=y1-y0;const f=Math.min(1,Math.sqrt((maxpx||ART_MAXPX*(S.focus?5:1))/Math.max(1,w*h)));return {m,x0,y0,w,h,sc:Math.hypot(m.a,m.b),f,ow:Math.max(1,Math.ceil(w*f)),oh:Math.max(1,Math.ceil(h*f))};}
 let ART_EYES=null;
 {const _bf=bossFace;bossFace=function(c,cx,cy,r,ratio,t,look){if(ART_EYES){const m=c.getTransform(),er=Math.max(1.2,r/7.5);[-r*.32,r*.32].forEach(dx=>{const x=cx+dx,y=cy;ART_EYES.push({x:m.a*x+m.c*y+m.e,y:m.b*x+m.d*y+m.f,r:er*Math.hypot(m.a,m.b),blink:(t%3700)<130,dizzy:ratio<.25});});}return _bf.apply(this,arguments);};}
 {const _kf=bkFace;bkFace=function(c,K,fx,fy,fr,ratio,t,mood){if(ART_EYES){const m=c.getTransform(),n=K.eyes||2,er=Math.max(1,fr/6.8);const xs=n===1?[0]:n===3?[-fr*.42,0,fr*.42]:[-fr*.32,fr*.32];
     xs.forEach((dx,k)=>{const x=fx+dx,y=fy-(n===3&&k===1?fr*.12:0);ART_EYES.push({x:m.a*x+m.c*y+m.e,y:m.b*x+m.d*y+m.f,r:er*(n===1?1.7:1)*Math.hypot(m.a,m.b),blink:(t%(3300+(K.seed||0)%900))<120,dizzy:ratio<.25});});}return _kf.apply(this,arguments);};}
-function artSilhouette(c,box,draw,o={}){const b=artDevBox(c,...box,o.maxpx||70000);if(b.w<2||b.h<2||b.w>3000||b.h>3000){draw(c);return;}const P=artPal();
+function artSilhouette(c,box,draw,o={}){const b=artDevBox(c,...box,(o.maxpx||70000)*(S.focus?5:1));if(b.w<2||b.h<2||b.w>3000||b.h>3000){draw(c);return;}const P=artPal();
   const f=b.f,ow=b.ow,oh=b.oh;const [A,qa]=artOffCanvas('sA',ow,oh);qa.setTransform(b.m.a*f,b.m.b*f,b.m.c*f,b.m.d*f,(b.m.e-b.x0)*f,(b.m.f-b.y0)*f);ART_EYES=[];try{draw(qa);}catch(e){}const eyes=ART_EYES||[];ART_EYES=null;
   const [B,qb]=artOffCanvas('sB',ow,oh);qb.drawImage(A,0,0,ow,oh,0,0,ow,oh);qb.globalCompositeOperation='source-atop';qb.fillStyle=o.col||shadeHex(P.near,.6);qb.globalAlpha=o.a==null?.84:o.a;qb.fillRect(0,0,ow,oh);qb.globalAlpha=1;qb.globalCompositeOperation='source-over';
   const [Cr,qc]=artOffCanvas('sC',ow,oh);qc.drawImage(A,0,0,ow,oh,0,0,ow,oh);qc.globalCompositeOperation='source-in';const rim=SUN&&SUN.night?'200,215,255':SUN?SUN.col:'255,240,210';qc.fillStyle=`rgb(${rim})`;qc.fillRect(0,0,ow,oh);qc.globalCompositeOperation='source-over';
@@ -436,10 +438,27 @@ function artSilhouette(c,box,draw,o={}){const b=artDevBox(c,...box,o.maxpx||7000
     c.fillStyle=`rgba(255,226,150,${fl})`;c.beginPath();c.arc(ex,ey,er,0,TAU);c.fill();c.fillStyle=`rgba(255,250,230,${fl})`;c.beginPath();c.arc(ex-er*.25,ey-er*.25,er*.4,0,TAU);c.fill();});
   c.restore();}
 const artFoeScene=()=>ART_EYES===null&&isArtLook()&&!!THEME.scene&&['harbour','voyage'].includes(THEME.scene);
-{const _db2=drawBoss;drawBoss=function(c,boss,bx,by,r,ratio,t,flash,...rest){if(!artFoeScene())return _db2.call(this,c,boss,bx,by,r,ratio,t,flash,...rest);const self=this;const pad=r*2.4;
-  artSilhouette(c,[bx-pad,by-pad,pad*2,pad*2.1],q=>_db2.call(self,q,boss,bx,by,r,ratio,t,false,...rest),{flash});};}
-if(typeof drawMonster==='function'){const _dm=drawMonster;drawMonster=function(c,mon,x,y,r,ratio,t,flash,elite){if(!artFoeScene())return _dm.apply(this,arguments);const self=this;const pad=r*2.4;
-  artSilhouette(c,[x-pad,y-pad,pad*2,pad*2.1],q=>_dm.call(self,q,mon,x,y,r,ratio,t,false,elite),{flash,a:elite?.78:.84});};}
+/* 21 Nov: sea foes in full colour with the painted finish (they were dark shapes with glowing eyes), a slow breathing
+   bob instead of a fixed pose, a white flash when hit, and a smoother serpent that swims in waves. */
+function artFoeDraw(c,x,y,r,t,flash,seed,draw){const pad=r*2.4;const bob=Math.sin(t/1250+seed)*r*.035,br=1+Math.sin(t/950+seed*1.7)*.02;
+  c.save();c.translate(x,y+bob);c.scale(br,2-br);c.translate(-x,-y);artLit(c,[x-pad,y-pad,pad*2,pad*2.1],draw,{slot:'foe'});
+  if(flash){artLit(c,[x-pad,y-pad,pad*2,pad*2.1],q=>{draw(q);q.globalCompositeOperation='source-atop';q.fillStyle='rgba(255,255,255,.75)';q.fillRect(x-pad,y-pad,pad*2,pad*2.1);q.globalCompositeOperation='source-over';},{slot:'foeF',noRim:true});}
+  c.restore();}
+{const _db2=drawBoss;drawBoss=function(c,boss,bx,by,r,ratio,t,flash,...rest){if(!artFoeScene())return _db2.call(this,c,boss,bx,by,r,ratio,t,flash,...rest);const self=this;
+  artFoeDraw(c,bx,by,r,t,flash,(h32(boss.id||boss.name||'b')%100)/10,q=>(boss.type==='serpent'&&!boss.kit?artSerpent(q,boss,bx,by,r,ratio,t):_db2.call(self,q,boss,bx,by,r,ratio,t,false,...rest)));};}
+if(typeof drawMonster==='function'){const _dm=drawMonster;drawMonster=function(c,mon,x,y,r,ratio,t,flash,elite){if(!artFoeScene())return _dm.apply(this,arguments);const self=this;
+  artFoeDraw(c,x,y,r,t,flash,(h32(String(mon))%100)/10,q=>_dm.call(self,q,mon,x,y,r,ratio,t,false,elite));};}
+// the serpent: three humps riding a travelling wave, a swaying neck and a head that looks about
+function artSerpent(c,boss,bx,by,r,ratio,t){let col=boss.col||'#7FB59A';if(boss.rare)col=`hsl(${(t/20)%360},62%,72%)`;const dark=shadeHex(col,.78),belly=mixHex(col,'#FFF3D0',.45);const wl=by+r*.6;
+  for(let i=0;i<3;i++){const ph=t/700-i*1.1;const hx=bx-r*1.25+i*r*.62+Math.sin(ph)*r*.05,hh=r*(.26+.08*Math.sin(ph));
+    c.fillStyle=dark;c.beginPath();c.ellipse(hx,wl,r*.3,hh+r*.03,0,Math.PI,0);c.fill();c.fillStyle=col;c.beginPath();c.ellipse(hx,wl,r*.27,hh,0,Math.PI,0);c.fill();
+    c.fillStyle='#F2C462';for(let k=-1;k<=1;k++){const sx=hx+k*r*.12;c.beginPath();c.moveTo(sx-r*.05,wl-hh*.86+Math.abs(k)*hh*.12);c.lineTo(sx,wl-hh-r*.14+Math.abs(k)*hh*.16);c.lineTo(sx+r*.05,wl-hh*.86+Math.abs(k)*hh*.12);c.fill();}}
+  const sw=Math.sin(t/1300)*r*.08,hx=bx+r*.55+sw,hy=by-r*.55+Math.sin(t/900)*r*.04;
+  c.fillStyle=col;c.beginPath();c.moveTo(bx+r*.05,wl);c.bezierCurveTo(bx+r*.05,by,hx-r*.45,hy+r*.35,hx-r*.3,hy);c.lineTo(hx+r*.1,hy+r*.1);c.bezierCurveTo(hx-r*.05,hy+r*.5,bx+r*.6,by+r*.1,bx+r*.62,wl);c.closePath();c.fill();
+  c.fillStyle=belly;c.beginPath();c.moveTo(bx+r*.42,wl);c.bezierCurveTo(bx+r*.42,by+r*.15,hx-r*.1,hy+r*.45,hx,hy+r*.18);c.lineTo(hx+r*.08,hy+r*.12);c.bezierCurveTo(hx-r*.02,hy+r*.5,bx+r*.6,by+r*.15,bx+r*.6,wl);c.closePath();c.fill();
+  c.save();c.translate(hx,hy);c.rotate(Math.sin(t/1700)*.08);ell(c,r*.06,-r*.02,r*.5,r*.4,col);ell(c,r*.34,r*.1,r*.26,r*.17,col);disc(c,-r*.16,-r*.2,r*.1,'rgba(255,255,255,.35)');
+  for(let i=0;i<3;i++)poly(c,[[-r*.3+i*r*.2,-r*.34],[-r*.2+i*r*.2,-r*.66+Math.abs(i-1)*r*.1],[-r*.1+i*r*.2,-r*.34]],'#F2C462');
+  try{bossFace(c,r*.06,-r*.05,r*.55,ratio,t);}catch(e){}c.restore();}
 // characters keep their colours but take the scene's light
 function artLightCol(){if(!isArtLook()||!THEME.scene)return null;if(THEME.scene==='tavern')return ['#B0602A',.1];if(THEME.weather==='storm')return ['#2A2840',.28];const m=artMode();return {night:['#1A2560',.34],sunset:['#7A2A5A',.14],dawn:['#6A4A8A',.12],gold:['#A0502A',.1]}[m]||null;}
 // the painted finish: soft light from the top left, shade towards the bottom right, the scene's light, and a faint rim of light in scenes
@@ -471,7 +490,7 @@ const artPass=()=>isArtLook()&&ART_EYES===null;
 /* ---------- the Rusty Anchor, painted: a misty view through the window, firelight that flickers across the room,
    glowing candles and lanterns, a cool shaft of window light with dust drifting in it, deep shadows in the corners ---------- */
 {const _dtv=drawTavern;drawTavern=function(cv,t){if(!isArtLook())return _dtv.apply(this,arguments);const prev=THEME.scene;THEME.scene='tavern';try{_dtv.apply(this,arguments);}finally{THEME.scene=prev;}
-  const c=cv.getContext('2d');const s=cv.width/TVW;c.setTransform(s,0,0,s,0,0);const ph=tvPhase();const mode=ph==='dusk'?'sunset':ph;const P=artPal(mode==='night'?'night':mode);const lv=(typeof fireLevel==='function'?fireLevel():.6);const sp=THEME.reduced?.35:1;
+  const c=cv.getContext('2d');const s=(typeof TVXF!=='undefined'&&TVXF.s)||cv.width/TVW;c.setTransform(s,0,0,s,(typeof TVXF!=='undefined'&&TVXF.ox)||0,(typeof TVXF!=='undefined'&&TVXF.oy)||0);const ph=tvPhase();const mode=ph==='dusk'?'sunset':ph;const P=artPal(mode==='night'?'night':mode);const lv=(typeof fireLevel==='function'?fireLevel():.6);const sp=THEME.reduced?.35:1;
   const winter=THEME.season==='winter',storm=THEME.weather==='storm';
   // the view through the window
   const wx=108,wy=28,ww=42,wh=56;c.save();c.beginPath();c.rect(wx,wy,ww,wh);c.clip();const g=c.createLinearGradient(0,wy,0,wy+wh);g.addColorStop(0,P.sky[0]);g.addColorStop(.6,P.sky[1]);g.addColorStop(1,P.sky[2]);c.fillStyle=g;c.fillRect(wx,wy,ww,wh);
@@ -501,10 +520,9 @@ const artPass=()=>isArtLook()&&ART_EYES===null;
   const v=c.createRadialGradient(TVW/2,TVH*.55,TVH*.45,TVW/2,TVH*.55,TVH*1.05);v.addColorStop(0,'rgba(20,10,20,0)');v.addColorStop(1,'rgba(20,10,20,.35)');c.fillStyle=v;c.fillRect(0,0,TVW,TVH);};}
 
 /* ---------- the hideout: the island keeps its pieces, graded into the painted light of the hour ---------- */
-{const _di=drawIslet;drawIslet=function(c,t,pid){const r=(isArtLook()&&typeof artIsletDraw==='function')?artIsletDraw.apply(this,arguments):_di.apply(this,arguments);if(!isArtLook()||!G){ART_ISLE_LATE=null;return r;}const m=artMode();const storm=THEME.weather==='storm';
-  const tint=storm?'#8A8AA0':{night:'#4A5A9A',sunset:'#E8A8B8',dawn:'#E0C4DA',gold:'#F2C8A0'}[m]||'#E8EEF6';c.save();c.globalCompositeOperation='multiply';
-  const g=c.createLinearGradient(0,96,0,H);g.addColorStop(0,'#FFFFFF');g.addColorStop(.25,tint);g.addColorStop(1,shadeHex(tint,.86));c.fillStyle=g;c.fillRect(-90,96,W+180,H-96+VIEW_EXT.bot+40);c.restore();
-  const v=c.createRadialGradient(W/2,H*.6,H*.4,W/2,H*.6,H*1.05);v.addColorStop(0,'rgba(20,16,40,0)');v.addColorStop(1,`rgba(20,16,40,${m==='night'?.3:.16})`);c.fillStyle=v;c.fillRect(-90,-300,W+180,H+600);if(ART_ISLE_LATE){const f=ART_ISLE_LATE;ART_ISLE_LATE=null;f();}return r;};}
+{const _di=drawIslet;drawIslet=function(c,t,pid){const r=(isArtLook()&&typeof artIsletDraw==='function')?artIsletDraw.apply(this,arguments):_di.apply(this,arguments);if(!isArtLook()||!G){ART_ISLE_LATE=null;return r;}const m=artMode();
+  // 21 Nov: no colour wash over the island any more, just a soft edge so the eye goes to the middle
+  const v=c.createRadialGradient(W/2,H*.6,H*.5,W/2,H*.6,H*1.1);v.addColorStop(0,'rgba(20,16,40,0)');v.addColorStop(1,`rgba(20,16,40,${m==='night'?.2:.08})`);c.fillStyle=v;c.fillRect(-90,-300,W+180,H+600);if(ART_ISLE_LATE){const f=ART_ISLE_LATE;ART_ISLE_LATE=null;f();}return r;};}
 
 /* ============================== ART STAGE F: PICTURES, POLISH AND SPEED ============================== */
 // a small painted scene for pictures: sky, sun or moon, faceted peaks, fog, sea with a light path

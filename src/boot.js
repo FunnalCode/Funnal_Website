@@ -70,8 +70,10 @@ function tick(){
   const cfg=C();if(isWork(T.date)&&T.min===hm(cfg.finalWarning)&&S.warned!==T.date){S.warned=T.date;const D=G.days[G.today];if(D.target&&!D.hit){toast(`<b>Final warning!</b> ${D.target-D.team} DMs to go. ${esc(pick(REMINDERS.deadline,T.date))}`.replace('{left}',D.target-D.team).replace('{mins}',hm(cfg.dayEnd)-T.min),'joke',9000);tone(220,.3,'sawtooth',.05);}}
 }
 let lastFrame=0;
+// 21 Nov: full screen draws at the phone's real sharpness (up to 3x), and sharper still when pinch-zoomed, within a pixel budget
+function focusDpr(){const z=(window.visualViewport&&visualViewport.scale)||1;let d=(devicePixelRatio||1)*Math.max(1,z);d=Math.min(d,4.5);const px=innerWidth*innerHeight*d*d;if(px>9e6)d*=Math.sqrt(9e6/px);return d;}
 function frame(t){requestAnimationFrame(frame);if(t-lastFrame<40)return;lastFrame=t;if(!G)return;S.hits=[];
-  if(S.focus){const fc=$('#focusCv');const lk=S.players[S.me]?.lock;if(fc){const dpr=Math.min(2,devicePixelRatio||1);const w=Math.round(innerWidth*dpr),h=Math.round(innerHeight*dpr);if(fc.width!==w||fc.height!==h){fc.width=w;fc.height=h;}
+  if(S.focus){const fc=$('#focusCv');const lk=S.players[S.me]?.lock;if(fc){const dpr=focusDpr();const w=Math.round(innerWidth*dpr),h=Math.round(innerHeight*dpr);if(fc.width!==w||fc.height!==h){fc.width=w;fc.height=h;}
     const c=fc.getContext('2d');const s=Math.min(Math.max(w/W,h/H),w/(W-4),h/(H-8));const ox=(w-W*s)/2;const port=h>w*1.05;const oy=port?Math.max(0,Math.min(h-H*s,h*.46-96*s)):(h-H*s)/2;VIEW_EXT.top=Math.max(0,oy/s);VIEW_EXT.bot=Math.max(0,(h-oy)/s-H);VIEW_EXT.side=Math.max(0,ox/s);const hz=Math.round(oy+104*s);c.setTransform(1,0,0,1,0,0);c.fillStyle=SKY_TOP;c.fillRect(0,0,w,hz);c.fillStyle=SEA_BOT;c.fillRect(0,hz,w,h-hz);
     c.setTransform(s,0,0,s,ox,oy);try{drawFocusScene(c,t,lk);}catch(e){console.error(e);}S.focusXf={s,ox,oy,dpr};}return;}
   VIEW_EXT.top=VIEW_EXT.bot=VIEW_EXT.side=0;const cv=$('#scene');if(!cv)return;const c=prep(cv);

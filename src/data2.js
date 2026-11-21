@@ -160,7 +160,7 @@ const HELP=[
   ['Honesty','All counts are self-reported. Caps, reload timers and crew confirmation stop accidental spam, but the game works because you both log honestly.'],
 ];
 
-[['pet1','New Best Friend','Claim your first pet','uncommon','Pets',['pets',1]],['pet5','Menagerie','Collect 5 different pets','rare','Pets',['pets',5]],['pet15','Noah\'s Galleon','Collect 15 different pets','legendary','Pets',['pets',15]],['pet30','Every Creature Under the Sea','Collect all 30 pets','transcendent','Pets',['pets',30]],
+[['pet1','New Best Friend','Claim your first pet','uncommon','Pets',['pets',1]],['pet5','Menagerie','Collect 5 different pets','rare','Pets',['pets',5]],['pet15','Noah\'s Galleon','Collect 15 different pets','legendary','Pets',['pets',15]],['pet30','Every Creature Under the Sea','Collect 30 different pets','transcendent','Pets',['pets',30]],
  ['petleg','Here Be Dragons','Claim a legendary or mythic pet','epic','Pets',['petLegend',1]],['petmyth','One in a Hundred','Claim a mythic pet','mythic','Pets',['petMythic',1]],
  ['em5','Grade Five Emissary','Fire a DM while flying your own Grade V emissary flag (50+ DMs in a day)','epic','Team',['em5',1]],
  ['gold1','Golden Hour Hero','Send 25 DMs during Golden Tides','uncommon','Daily',['goldenDms',25]],['gold2','Midas Touch','Send 500 DMs during Golden Tides','legendary','Daily',['goldenDms',500]],

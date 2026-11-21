@@ -119,7 +119,7 @@ function artIsletDraw(c,t,pid){
   if(fx==='fx_snow')for(let i=0;i<60;i++)disc(c,(i*53+t/40)%W,(i*29+t/25)%H,.8,'#FFFFFF');
   // night: fire, torches and fireflies do the lighting
   // the lights go on after the colour grade, so the fire and torches glow warm instead of being tinted blue
-  ART_ISLE_LATE=()=>{if(nightVeil(c,.22)){lamp(c,fx0,fy0-6,30,.75);if(lit){lamp(c,122,128,13,.7);lamp(c,178,128,13,.7);lamp(c,133,96,13,.6,'255,150,60');lamp(c,167,96,13,.6,'255,150,60');lamp(c,150,134,20,.5);}if(stg>=2)lamp(c,252,95,9,.7);if(tz)lamp(c,160,146,8+tz*2,.35,'255,220,120');}
-  if(night||fx==='fx_fireflies')for(let i=0;i<14;i++){const a=t/1500+i;const on=Math.sin(t/300+i*1.3)>0;const x=40+((i*37)%250)+Math.sin(a)*6,y=96+((i*23)%44)+Math.cos(a*1.3)*4;disc(c,x,y,on?.8:.4,on?'#F4FF9A':'#C8D27A');if(on)lamp(c,x,y,3.4,.5,'230,255,140');}};
+  ART_ISLE_LATE=()=>{if(nightVeil(c,.22)){lamp(c,fx0,fy0-6,20,.38,'255,150,70');if(lit){lamp(c,122,128,13,.7);lamp(c,178,128,13,.7);lamp(c,133,96,13,.6,'255,150,60');lamp(c,167,96,13,.6,'255,150,60');lamp(c,150,134,16,.3);}if(stg>=2)lamp(c,252,95,9,.7);if(tz)lamp(c,160,146,8+tz*2,.35,'255,220,120');}
+  if(fx==='fx_fireflies')for(let i=0;i<14;i++){const a=t/1500+i;const on=Math.sin(t/300+i*1.3)>0;const x=40+((i*37)%250)+Math.sin(a)*6,y=96+((i*23)%44)+Math.cos(a*1.3)*4;disc(c,x,y,on?.8:.4,on?'#F4FF9A':'#C8D27A');if(on)lamp(c,x,y,3.4,.5,'230,255,140');}};
   txt(c,HIDE_STAGES[stg][1]+(nx?`  ·  next upgrade at level ${nx[0]}`:''),160,5,'#3F5160',7,'center');
 }

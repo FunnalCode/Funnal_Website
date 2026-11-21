@@ -233,7 +233,7 @@ const CAT_NAMES={hat:'Hats',face:'Faces',coat:'Coats',hull:'Hulls',sail:'Sails',
 const PROJECTS = [
   {id:'jetty', name:'Mend the Old Jetty', dm:300, g:100, blurb:'Ships can dock again. Small steps.'},
   {id:'stall', name:'Rum & Lantern Stall', dm:800, g:300, blurb:'Someone has to sell all these lanterns.'},
-  {id:'bakery', name:'The Salty Biscuit Tavern', dm:1500, g:600, blurb:'Smells like cinnamon and replied messages.'},
+  {id:'bakery', name:'The Salty Biscuit Bakery', dm:1500, g:600, blurb:'Smells like cinnamon and replied messages.'},
   {id:'flags', name:'Signal Flag Line', dm:2500, g:900, blurb:'Bunting that spells F-U-N-N-A-L.'},
   {id:'carto', name:"Map-maker's Hut", dm:4000, g:1500, blurb:'Charts every prospect island ever found.'},
   {id:'boats', name:'Fishing Fleet', dm:5500, g:2000, blurb:'Three little boats. Very proud.'},

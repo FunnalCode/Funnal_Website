@@ -37,7 +37,8 @@ function ghostFor(lk){if(!lk||!G)return null;const b=bucketOf(lk.dur);const sess
     const gx=90+clamp(diff*6,-60,170);const artG=typeof isArtLook==='function'&&isArtLook();c.save();if(artG){GSHIP.drawAt={gx,at:performance.now()};}else{c.globalAlpha=.4;try{drawShip(c,gx,138,.85,{...(S.players[S.me]||{}),hull:'hull_ghost'},t,{captain:false,phase:2});}catch(e){}}c.restore();
     const T=((CT().lines||{}).ghostShip)||{};const now=performance.now();if(GSHIP.lk!==lk.s){GSHIP.lk=lk.s;GSHIP.passed=false;GSHIP.next=now+8000;}
     if(diff<0&&!GSHIP.passed&&dms>3){GSHIP.passed=true;GSHIP.say=pickLine(T.passed,lk.s);GSHIP.until=now+4500;}else if(now>GSHIP.next){GSHIP.next=now+22000;GSHIP.say=diff>=3?pickLine(T.behind,lk.s+Math.floor(now/22000)):Math.abs(diff)<3?pickLine(T.close,1):'';GSHIP.until=now+4500;}
-    if(GSHIP.say&&now<GSHIP.until){c.globalAlpha=.85;c.font='600 6.4px Fredoka, Nunito, sans-serif';const w=c.measureText(GSHIP.say).width+8;const bx=clamp(gx-w/2,4,W-w-4);rr(c,bx,96,w,11,4,'rgba(230,236,248,.9)');c.fillStyle='#3F5160';c.textAlign='left';c.fillText(GSHIP.say,bx+4,103.6);c.globalAlpha=1;}
-    plainTxt(c,`Past you: ${gd}`,gx,artG?114:154,'rgba(240,244,252,.9)',artG?5:5.6);}catch(e){}};}
+    // the ghost's speech bubble sits above the ghost ship, with the text centred in it
+    if(GSHIP.say&&now<GSHIP.until){const by=artG?48:96;c.save();c.globalAlpha=.9;c.font='600 6.4px Fredoka, Nunito, sans-serif';c.textAlign='center';c.textBaseline='middle';const w=c.measureText(GSHIP.say).width+10;const bx=clamp(gx-w/2,4,W-w-4);rr(c,bx,by,w,11,4,'rgba(230,236,248,.92)');c.fillStyle='#3F5160';c.fillText(GSHIP.say,bx+w/2,by+5.8);c.restore();}
+    }catch(e){}};}
 
 function plainTxt(c,s,x,y,col,size){c.save();c.font=`700 ${size}px Fredoka, Nunito, sans-serif`;c.textAlign='center';c.fillStyle='rgba(20,40,60,.35)';c.fillText(s,x+.4,y+.4);c.fillStyle=col;c.fillText(s,x,y);c.restore();}

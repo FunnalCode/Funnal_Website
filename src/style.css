@@ -971,3 +971,15 @@ html.hl-reduced .advDoor.ready{animation:none}
 .relics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0}.relic{text-align:center}.relic canvas{width:64px;height:64px;border-radius:10px;display:block;margin:0 auto 3px}.relic small{font-size:11px;line-height:1.2;display:block}.relic.none{opacity:.6}
 .mapPieces{display:grid;grid-template-columns:repeat(2,64px);gap:3px;margin:8px 0}.mp{height:44px;display:grid;place-items:center;background:#EDE4CC;border:2px dashed #C9B48A;border-radius:6px;color:#B8AE98;font-weight:700}.mp.on{background:#F2D9A0;border:2px solid #A8784A;color:#7A4E30}
 .digCard{background:#FFF3D6;border-left:4px solid #C8102E}#digCv{width:100%;max-width:360px;height:auto;border-radius:10px}
+/* 21 Nov: names in review rows never wrap under their dot */
+.rvRow>span:first-child{flex:0 0 auto;white-space:nowrap;display:flex;align-items:center;gap:6px}.rvRow>span:first-child+small{flex:1;text-align:right}
+.varTabs button.notYet:not(.on){opacity:.55}.varTabs button.notYet i{filter:grayscale(1)}
+/* 21 Nov: Tavern full screen, stake box, head to head */
+.tvScene{position:relative}.tvFsBtn{position:absolute;right:8px;bottom:8px;width:38px;height:38px;border-radius:12px;border:0;background:rgba(255,248,236,.88);color:#3A2416;display:grid;place-items:center;box-shadow:0 2px 0 rgba(0,0,0,.18);z-index:2}.tvFsBtn svg{width:20px;height:20px;fill:currentColor}
+.tvScene.tvFs{position:fixed;inset:0;z-index:9000;background:#1A100A;border-radius:0;margin:0}.tvScene.tvFs canvas{width:100vw;height:100vh;height:100dvh;border-radius:0;display:block}.tvScene.tvFs .tvFsBtn{top:max(12px,env(safe-area-inset-top));right:12px;bottom:auto}
+body.tvFsOn{overflow:hidden}
+.stakeBox{display:grid;gap:6px;margin:4px 0 10px}.stakeBox .stakeRow{flex-wrap:wrap;gap:6px;align-items:center}.stakeBox input{width:84px;padding:6px 8px;border-radius:10px;border:1.5px solid var(--line);font:600 15px var(--display);background:#FFFDF8}
+.tvSub{margin:12px 0 4px;font:600 15px var(--display)}.tvSub small{font:400 12px var(--body,inherit)}
+.tvGame.h2h.win .gameMsg{color:#2F8F62;font-weight:700}.tvGame.h2h.lose .gameMsg{color:#C2453A}
+.tvGo{display:flex;align-items:center;gap:10px;padding:10px 12px;margin:0 0 10px;border-radius:16px;background:#FFF8EC;border:1.5px solid var(--line);color:inherit;text-decoration:none;box-shadow:0 2px 0 rgba(0,0,0,.05)}.tvGo .appIco{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;flex:0 0 auto}.tvGo .appIco svg{width:20px;height:20px;fill:#fff}.tvGo b{display:block;font:600 15px var(--display)}.tvGo small{color:var(--muted);font-size:12px}.tvGoArrow{font-size:24px;color:var(--muted)}
+.vaultSub{margin:16px 4px 6px;font:600 17px var(--display)}.rwRow .btn{flex:0 0 auto}

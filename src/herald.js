@@ -1,7 +1,7 @@
 /* ============================== THE SALTY HERALD, A PROPER BROADSHEET (Stage 4) ==============================
    Dated each morning about the last working day. Front page with an illustration drawn from the actual boss,
    hunting news, fishing report, sport, Gary's Corner, weather and forecast (real upcoming bosses), classifieds
-   (real hints), Dear Mrs B, notices, and a crossword, tide table and cartoon strip at the bottom.
+   (real hints), notices, and a crossword, tide table and cartoon strip at the bottom.
    Loaded before xmas2.js and loot.js so their Christmas edition and legend notes still slot into the front page. */
 const HC=()=>((CT().lines||{}).herald)||{};
 const hPick=(l,seed)=>l&&l.length?l[h32(String(seed))%l.length]:null;
@@ -87,7 +87,6 @@ SCREENS.herald=function(){const raw=_heraldBase.apply(this,arguments);const rest
     ${sec("Gary's Corner",hGary(yd))}
     ${sec('Forecast',hWeather(yd))}
     ${sec('Classifieds',hClassifieds(yd))}
-    ${sec('Dear Mrs B',hMrsB(yd))}
     ${sec('Bottle post',heraldBottle(yd,D))}
     ${sec('Achievements',h.achs.length?h.achs.slice(0,6).map(x=>`${pname(x.p)}: <i>${esc(x.a.name)}</i>`).join('<br>'):'A quiet day in the trophy cabinet.')}
     ${sec('Outstanding forfeits',owed.length?owed.slice(0,5).map(f=>`${pname(f.pid)}: ${esc(f.text)}`).join('<br>'):'All debts settled. Suspicious.')}

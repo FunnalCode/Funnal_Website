@@ -6,7 +6,8 @@
    Every doubloon movement is an ordinary spend or claim entry, so balances stay derived like the rest of the game. */
 const TV=()=>((CT().lines||{}).bill)||{};
 const tvPick=(l,seed)=>l&&l.length?l[(seed==null?Math.floor(Math.random()*l.length):h32(String(seed))%l.length)]:'';
-function tvOpenNow(){return isWork(G.today)&&L().min>=480&&L().min<1380;}
+// 21 Nov: the Rusty Anchor never closes
+function tvOpenNow(){return true;}
 function tvSpends(p){if(!S.days)return [];const k=Object.keys(S.days).length+'|'+(G?G.evs.length:0)+'|'+(G&&G.players[p]?G.players[p].spent:0);tvSpends._c=tvSpends._c||{};const c=tvSpends._c[p];if(c&&c.k===k)return c.v;
   const out=[];for(const id0 in S.days){const d=S.days[id0];if(!d||d.pid!==p||!d.date)continue;for(const id in d.spend||{}){const x=d.spend[id];if(x&&String(x.item).startsWith('tv_'))out.push({id,date:d.date,p,...x});}}
   out.sort((a,b)=>(a.ts||0)-(b.ts||0));tvSpends._c[p]={k,v:out};return out;}
@@ -21,6 +22,7 @@ const tvSay=(l,seed)=>fill(tvPick(l,seed),tvVars());
 const TVP={ch:null,last:{},was:false,clinkT:0,clinkBy:null};
 function tvJoin(){if(TVP.ch||!S.sb||!S.me)return;try{const ch=S.sb.channel('hl-tavern',{config:{presence:{key:S.me},broadcast:{self:false}}});
   ch.on('presence',{event:'sync'},()=>{tvPeerCheck();}).on('broadcast',{event:'clink'},m=>{tvClinkFx(m&&m.payload&&m.payload.from);})
+    .on('broadcast',{event:'h2h'},m=>{try{h2hRecv(m&&m.payload);}catch(e){}})
     .subscribe(async st=>{if(st==='SUBSCRIBED'){try{await ch.track({at:Date.now()});}catch(e){}}});TVP.ch=ch;}catch(e){console.warn('tavern presence',e);}}
 function tvLeave(){if(!TVP.ch)return;try{TVP.ch.untrack();S.sb.removeChannel(TVP.ch);}catch(e){}TVP.ch=null;}
 function peerIn(){if(S.tvFakePeer)return true;const o=other(S.me);try{const st=TVP.ch?TVP.ch.presenceState():{};if(st[o]&&st[o].length){TVP.last[o]=Date.now();return true;}}catch(e){}return !!(TVP.last[o]&&Date.now()-TVP.last[o]<60000);}
@@ -31,7 +33,7 @@ const TVS={line:'',kind:'',next:0,whisperAt:0,entered:0,randUsed:false,closingSa
 function tvSetLine(t,kind){TVS.line=t;TVS.kind=kind||'';const el=document.querySelector('.billSay p');if(el){el.textContent=t;const b=el.closest('.billSay');b.classList.toggle('whisper',kind==='whisper');b.classList.remove('pop');void b.offsetWidth;b.classList.add('pop');}}
 function tvNextLine(){const T=TV();const D=G.days[G.today]||{};const lm=L().min;const both=peerIn();
   if(!tvOpenNow())return tvSay(T.closed);
-  if(lm>=1350&&!TVS.closingSaid){TVS.closingSaid=true;return tvSay(T.closing);}
+  // no closing time any more, so no last orders
   const pool=[];const add=(w,l)=>{if(l&&l.length)pool.push([w,l]);};
   add(.3,T.gossip);add(.12,both?T.both:T.alone);add(.1,T.fire);add(.08,fireLevel()>.7?T.fireBig:fireLevel()<.25?T.fireLow:null);add(.05,T.cat);
   if(!TVS.randUsed&&TVS.randOk)add(.18,(CT().lines||{}).landlordRandom);
@@ -50,14 +52,16 @@ function tvEnter(){TVS.entered=Date.now();TVS.randUsed=false;TVS.randOk=Math.ran
 function fireLevel(){const D=G&&G.days[G.today];if(!D)return .3;const tgt=D.target||100;return clamp(.12+.88*(D.team/tgt),.12,1.15)+(TVS.logBoost||0);}
 
 /* ---------- drinks ---------- */
+// 21 Nov: drinks are just for show now: whatever you order sits in your pirate's hand at the bar for the rest of the day.
+// (Old orders of Grog, Stout, Mojito and the Captain's Special keep their effects so nothing already bought is lost.)
 const DRINKS=[
-  {id:'grog',name:'Grog',price:60,desc:'+5% XP for the next hour (paid when the hour is up)',boost:true},
-  {id:'stout',name:'Kraken Ink Stout',price:120,desc:'The next boss you help sink pays double: +30 doubloons',boost:true},
-  {id:'mojito',name:"Mermaid's Mojito",price:150,desc:'Double variant chance on your next fishing trip',boost:true},
-  {id:'chip',name:"Gary's Chip Shot",price:40,desc:'Gary leaves you alone for the rest of today: no heckles, no theft'},
-  {id:'bilge',name:'Bilge Water',price:0,desc:'Nothing. Absolutely nothing.'},
-  {id:'special',name:"The Captain's Special",price:1000,desc:'+5% XP for an hour for both captains, and your name on the wall',boost:true},
-  {id:'sherry',name:"Bryn's Mum's Sherry",price:500,desc:'December only. The parrot sings a carol, and Mrs B sends a card',xmas:true}];
+  {id:'dk_grog',name:'Grog',price:20,glass:'mug',col:'#B8732E',desc:'A tankard of the house grog. Mostly rum, partly regret.'},
+  {id:'dk_stout',name:'Kraken Ink Stout',price:30,glass:'pint',col:'#2A1A14',desc:'Black as the trench, with a creamy head.'},
+  {id:'dk_mojito',name:"Mermaid's Mojito",price:40,glass:'tall',col:'#8FD9B0',desc:'Minty, fizzy, and suspiciously sparkly.'},
+  {id:'dk_rum',name:'Spiced Rum',price:35,glass:'tumbler',col:'#C9852E',desc:'A short glass of something warming.'},
+  {id:'dk_cocoa',name:'Hot Cocoa',price:25,glass:'cup',col:'#6A3A22',desc:'With a splash. Bill won\'t say of what.'},
+  {id:'bilge',name:'Bilge Water',price:0,glass:'tin',col:'#7A8A5A',desc:'Free. You get what you pay for.'},
+  {id:'sherry',name:"Bryn's Mum's Sherry",price:50,glass:'sherry',col:'#8A2A3A',desc:'December only. The parrot sings a carol.',xmas:true}];
 const DRINK_BY=Object.fromEntries(DRINKS.map(d=>[d.id,d]));
 const hourEnd=x=>Math.min((x.ts||0)+3600000,londonTs(x.date,1439)+60000);
 function stoutUsed(x,p){return stoutDay(x,p)!=null;}
@@ -82,13 +86,13 @@ async function tvSettle(){if(!G||!S.me||S.readOnly)return;const me=G.players[S.m
     toast(`<b>From the Rusty Anchor:</b> ${xp?`+${xp} XP from your drink boost`:''}${xp&&g?' and ':''}${g?`+${g} ${CN} from the Kraken Ink Stout`:''}.`);}catch(e){}}
 setInterval(()=>{try{tvSettle();}catch(e){}},45000);setTimeout(()=>{try{tvSettle();}catch(e){}},8000);
 
-ACT.tvDrink=async d=>{const dr=DRINK_BY[d.id];if(!dr)return;const me=G.players[S.me];if(!tvOpenNow())return toast('<b>Closed.</b> Bill says the drinks are "resting".','joke');
+ACT.tvDrink=async d=>{const dr=DRINK_BY[d.id];if(!dr)return;const me=G.players[S.me];
   if(dr.xmas&&!xmasNowSafe())return toast('<b>December only.</b> Bryn\'s Mum keeps the sherry locked up the rest of the year.','joke');
-  if(dr.boost&&activeBoost(S.me))return toast('<b>One drink at a time.</b> '+esc(boostText(activeBoost(S.me)))+'.','joke');
-  if(dr.id==='chip'&&chipDays(S.me).has(G.today))return toast('<b>Already done.</b> Gary is ignoring you as hard as he can.','joke');
   if(me.balance<dr.price)return toast('<b>Not enough doubloons.</b> Bill offers to start a tab. Don\'t.','joke');
-  try{await writeDay(S.me,G.today,{spend:{[uid()]:{item:'tv_'+dr.id,cost:dr.price,ts:Date.now()}}});SND.coin();tvSetLine(fill(TV().drinks?.[dr.id]||'Coming up.',tvVars()),'');TVS.next=Date.now()+20000;
-    if(dr.id==='sherry')sherryCard();if(dr.id==='special')banner('ON THE WALL',`${pnameRaw(S.me)} bought the Captain's Special`);if(dr.id==='grog'||dr.id==='special')TVS.cheerT=Date.now();}catch(e){writeFail(e);}};
+  try{await writeDay(S.me,G.today,{spend:{[uid()]:{item:'tv_'+dr.id,cost:dr.price,ts:Date.now()}}});SND.coin();tvSetLine(fill(TV().drinks?.[dr.id.replace('dk_','')]||'Coming right up.',tvVars()),'');TVS.next=Date.now()+20000;
+    if(dr.id==='sherry')sherryCard();TVS.cheerT=Date.now();}catch(e){writeFail(e);}};
+// the drink in each captain's hand: the last one they ordered today
+function drinkInHand(p){try{const l=tvSpends(p).filter(x=>x.date===G.today&&/^tv_(dk_|bilge|sherry|grog|stout|mojito)/.test(x.item));if(!l.length)return null;const id=l[l.length-1].item.slice(3);return DRINK_BY[id]||DRINK_BY['dk_'+id]||null;}catch(e){return null;}}
 function sherryCard(){jukeOnce('wewish');openModal(`<div class="mrsB"><h2>A card from Mrs B</h2><p><i>To my favourite captain (don't tell the other one),</i></p><p>Merry Christmas, pet. Send your DMs, eat your sprouts, and stay away from my fishing spot. I mean it.</p><p style="text-align:right">Love, Mrs B. x</p><p class="tiny muted">Your parrot is singing a carol. Badly. Lovingly.</p><button class="btn" data-act="closeModal">Lovely</button></div>`);}
 ACT.closeModal=()=>closeModal();
 

@@ -5,8 +5,8 @@
 window.HL_CONTENT={
   version:17,
   whatsNew:{
-    17:{title:"Season 1 and Christmas",lines:[
-      "<b>Seasons:</b> Season 1, The Frozen Fathoms, starts on 1 December. Each of you gets a free 40-tier pass in the new Season tab of Quests. Every DM moves you along, and responses, videos, meetings and clients give big jumps.",
+    17:{title:"The Christmas Event and a painted new look",lines:[
+      "<b>The Christmas Event:</b> 1 to 24 December. Each of you gets a free 40-tier pass in the Christmas Event tab of Quests, sized so you can finish it by Christmas Eve. Every DM moves you along, and responses, videos, meetings and clients give big jumps.",
       "<b>Christmas, 1 to 26 December:</b> an Advent Chest on the Harbour (hit the target to open a door), ten limited Christmas items in the shop, five Christmas fish, a Santa Penguin in December sightings, and two Christmas bosses: the Grinchfish and the Ghost of Christmas Past.",
       "<b>Bosses with character:</b> from 1 December the daily boss comes from a roster of 36, each with a title, a weak spot (hit it for a bonus once it's sunk) and a Bestiary page with your record against it. Bosses talk back depending on how the day is going, and get a short intro the first time you open the Harbour each day.",
       "<b>Loot, trophies and legends:</b> every boss you help sink from 1 December drops a piece of its loot set (complete it for the boss's banner; Pell swaps 5 duplicates for a missing piece). A Trophy Room in Achievements mounts a head for every boss you sink, from bronze to diamond. Legendary hunts arrive with a warning the day before: the Krampus Kraken on Friday 18 December. And your ships now show how the last few days went (looks only, never a cost).",
@@ -162,11 +162,11 @@ window.HL_CONTENT={
       leaving:["Off already? Take an umbrella. It's 30 doubloons. It's got a hole in.","Mind the step. And the cat. And the bloke under the bar.","Come back soon. Bring money. Bring {absent}'s money."],
       drinks:{
         grog:"One grog, coming up. Glass rinsed. Recently. Ish.",
-        stout:"Kraken Ink Stout. Black as a squid's soul. Next monster you sink pays double.",
-        mojito:"A Mermaid's Mojito. The fish will be drawn to you. So will Gary.",
-        chip:"Gary's Chip Shot. He'll leave you alone today. He promised. On a chip.",
+        stout:"Kraken Ink Stout. Black as a squid's soul. Mind the moustache.",
+        mojito:"A Mermaid's Mojito. It's meant to sparkle like that. I think.",
+        rum:"Spiced rum. Sip it. Sip it! Oh, you've finished it.",
+        cocoa:"Hot cocoa with a splash. A big splash. Don't tell Gary.",
         bilge:"Bold choice. That's been in the bucket since Easter.",
-        special:"For both of you? For {other} too? You absolute angel. I'll tell them it was my idea.",
         sherry:"Bryn's Mum's Sherry. Don't look her in the eye while you drink it."
       },
       win21:"You've been counting cards. Gary's been counting crumbs. Neither of you is welcome back. Same time tomorrow?",

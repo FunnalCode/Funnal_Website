@@ -32,7 +32,7 @@ const W_FACE={
 };
 const W_COAT={
  oil(c,x,y,o){rr(c,x+1.3,y+6,5.4,4.6,2,o.col);for(let i=0;i<3;i++)disc(c,x+4,y+7+i*1.1,.28,o.col2);poly(c,[[x+2.2,y+6.1],[x+4,y+7.2],[x+5.8,y+6.1]],shade(o.col));},
- hoodie(c,x,y,o){ell(c,x+4,y+6.5,2.8,.9,shade(o.col));rr(c,x+1.3,y+6,5.4,4.6,2,o.col);R(c,x+2.4,y+9.2,3.2,.9,shade(o.col));poly(c,[[x+3.3,y+7.2],[x+4.9,y+7.8],[x+3.5,y+8.6]],o.col2);line(c,x+3.5,y+6.4,x+3.4,y+7.4,o.col2,.15);line(c,x+4.5,y+6.4,x+4.6,y+7.4,o.col2,.15);},
+ hoodie(c,x,y,o){ell(c,x+4,y+6.5,2.8,.9,shade(o.col));rr(c,x+1.3,y+6,5.4,4.6,2,o.col);R(c,x+2.4,y+9.2,3.2,.9,shade(o.col));drawMark(c,x+4.05,y+7.95,2.1,o.col2);line(c,x+3.5,y+6.4,x+3.4,y+7.4,o.col2,.15);line(c,x+4.5,y+6.4,x+4.6,y+7.4,o.col2,.15);},
  admiral(c,x,y,o){rr(c,x+1.3,y+6,5.4,4.6,2,o.col);ell(c,x+1.6,y+6.6,1.3,.55,o.col2);ell(c,x+6.4,y+6.6,1.3,.55,o.col2);for(let i=0;i<3;i++){disc(c,x+3.2,y+7.3+i*1,.25,o.col2);disc(c,x+4.8,y+7.3+i*1,.25,o.col2);}R(c,x+3.8,y+6.1,.4,4.3,'#C8102E');},
  sash(c,x,y,o){rr(c,x+1.3,y+6,5.4,4.6,2,o.col);c.save();rr(c,x+1.3,y+6,5.4,4.6,2,'rgba(0,0,0,0)');c.clip();c.strokeStyle=o.col2;c.lineWidth=1.1;c.beginPath();c.moveTo(x+1.2,y+6.2);c.lineTo(x+6.8,y+10.6);c.stroke();c.restore();disc(c,x+6.2,y+10,.5,o.col2);},
  knit(c,x,y,o){rr(c,x+1.3,y+6,5.4,4.6,2,o.col);c.save();rr(c,x+1.3,y+6,5.4,4.6,2,'rgba(0,0,0,0)');c.clip();for(let k=0;k<3;k++){c.strokeStyle=o.col2;c.lineWidth=.25;c.beginPath();for(let i=0;i<6;i++){c.lineTo(x+2.4+k*1.6+(i%2?.4:-.4),y+6.2+i*.8);}c.stroke();}c.restore();R(c,x+1.6,y+6.1,4.8,.6,o.col2);},
