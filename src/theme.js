@@ -4,7 +4,7 @@
    layer that reads THEME, so Christmas, storms or night glow never need to patch a scene.
    Layer slots, back to front: sky (after the base sky), sea (after the base sea),
    world (after the scene's own art, before speech), fx (particles, weather), overlay (tints). */
-const HL_VERSION=16;
+const HL_VERSION=17;
 const THEME={season:'autumn',festive:null,weather:'clear',phase:'day',reduced:false,scene:null,snow:false,preview:null,date:''};
 const PAL_BASE={
   sky:{day:['#3FA4E4','#86CEF2','#D9F2FB'],dawn:['#6F86CC','#F3B1A6','#FFE7BE'],sunset:['#454A98','#E57690','#FFC680'],gold:['#F0935A','#F8C079','#FFEBBB'],night:['#121838','#2B3672','#6E639E']},
@@ -29,8 +29,7 @@ function setPref(k,v){PREFS[k]=v;try{localStorage.setItem('hl_prefs',JSON.string
 function reducedMotion(){if(PREFS.motion==='reduced')return true;if(PREFS.motion==='full')return false;try{return !!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);}catch(e){return false;}}
 
 /* ---------- the season calendar (Stage 1 fills in the full year; Christmas is fixed) ---------- */
-function seasonFor(date){const m=+date.slice(5,7),d=+date.slice(8,10);
-  if(m===12||m<=1)return 'winter';if(m<=4)return 'spring';if(m<=8)return 'summer';return 'autumn';}
+function seasonFor(date){try{return seasonOf(date);}catch(e){const m=+date.slice(5,7);return m===12||m<=2?'winter':m<=5?'spring':m<=8?'summer':'autumn';}}
 function festiveFor(date){const m=+date.slice(5,7),d=+date.slice(8,10);if(m===12&&d<=26)return 'christmas';return null;}
 // preview: ?theme=christmas (or storm, night) in the address bar shows that look without waiting for the date
 const THEME_Q=(()=>{try{const q=new URLSearchParams(location.search).get('theme');return q&&/^[a-z,]{2,40}$/.test(q)?q.split(','):[];}catch(e){return [];}})();

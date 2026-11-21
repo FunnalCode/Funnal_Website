@@ -3,8 +3,15 @@
    so new lines, bosses and release notes can be added without touching the game code.
    Lines are picked by a fixed seed, so both captains see the same line on the same day. */
 window.HL_CONTENT={
-  version:16,
+  version:17,
   whatsNew:{
+    17:{title:"Season 1 and Christmas",lines:[
+      "<b>Seasons:</b> Season 1, The Frozen Fathoms, starts on 1 December. Each of you gets a free 40-tier pass in the new Season tab of Quests. Every DM moves you along, and responses, videos, meetings and clients give big jumps.",
+      "<b>Christmas, 1 to 26 December:</b> an Advent Chest on the Harbour (hit the target to open a door), ten limited Christmas items in the shop, five Christmas fish, a Santa Penguin in December sightings, and two Christmas bosses: the Grinchfish and the Ghost of Christmas Past.",
+      "<b>Winter:</b> snow on the islands and the rigging, pines, ice floes, northern lights, a Christmas tree that grows a bauble for every target day, and seals singing carols. Gary has a Santa hat. He did not ask for one.",
+      "<b>Night-time glow:</b> after sunset the sea glows behind the ship, lanterns light up, stars reflect and the moon draws a silver path. Fireflies come out at the hideout.",
+      "<b>Better fits:</b> beards follow your jaw, mutton chops stay on your cheeks, and the straw hat, bicorne, captain's cap and chef's hat sit on your head.",
+      "<b>Settings, Game feel:</b> turn Gary's heckles on or off, and pick reduced motion if the sea makes you queasy."]},
     16:{title:"Behind-the-scenes refit",lines:[
       "<b>Better fits:</b> beards follow your jaw instead of sitting on it like a mask, mutton chops stay on your cheeks, the straw hat, bicorne, captain's cap and chef's hat sit on your head, and the kraken cape hangs behind you.",
       "<b>Settings, Game feel:</b> turn Gary's heckles on or off, and pick reduced motion if the sea makes you queasy.",
