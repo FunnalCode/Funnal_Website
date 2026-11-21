@@ -908,3 +908,12 @@ html.hl-reduced .advDoor.ready{animation:none}
 .bossTile canvas{width:100%;height:auto;border-radius:8px}.bossTile b{font-size:11.5px;text-align:center;line-height:1.2}.bossTile.unseen b{color:var(--muted)}
 .bossPage .bpArt{width:100%;height:auto;border-radius:12px;margin-bottom:8px}.bpQuote{margin:8px 0;padding:8px 12px;border-left:3px solid #F2C462;background:#FFF7E2;border-radius:6px;font-style:italic}
 .bpStats{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}.bpStats th,.bpStats td{padding:5px 6px;border-bottom:1px solid #EEE6D2;text-align:left}.bpStats td{font-weight:600}
+
+/* ---------- v17: loot, trophies, legends ---------- */
+.lootSet{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.lootPc{display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;background:#fff;border:1px solid #EEE6D2;border-radius:10px;padding:6px 3px}
+.lootPc canvas{width:46px;height:46px}.lootPc b{font-size:10.5px;line-height:1.2}.lootPc small{font-size:10px;color:var(--muted);text-transform:capitalize}.lootPc.none{opacity:.4}.lootPc.r-legendary{border-color:#F2C462}.lootPc .btn{margin-top:3px;font-size:10px;padding:3px 6px}
+.okTag{display:inline-block;background:#E9F5EA;color:#2F7A52;border-radius:8px;padding:1px 7px;font-size:11px;font-weight:700}
+.trGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px}.trPl{display:flex;flex-direction:column;align-items:center;text-align:center;background:#3A2A20;border-radius:10px;padding:8px 4px;color:#F4EFE4}
+.trPl canvas{width:64px;height:64px}.trPl b{font-size:11px;line-height:1.2;margin-top:3px}.trPl small{font-size:10px;opacity:.8;text-transform:capitalize}.trPl.legend{background:#4A1A2A;box-shadow:inset 0 0 0 2px #F2C462}
+.legendCard{background:linear-gradient(160deg,#2A1A3A,#4A2A5A);color:#fff;border:0}.legendCard small,.legendEve small{letter-spacing:.14em;text-transform:uppercase;font-size:10.5px;color:#F2C462}.legendCard h3,.legendEve h3{margin:2px 0 4px}.legendCard .muted{color:rgba(255,255,255,.75)}
+.legendEve{background:linear-gradient(160deg,#EDE6F6,#FFFFFF);border:1px solid #D8CCEA}
