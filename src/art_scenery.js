@@ -546,3 +546,7 @@ const artBlendKey=()=>{const bl=artPalBlend(artMode());return bl?`_b${bl.from}${
 /* ---------- drifting mist over the water ---------- */
 addLayer('sea','artMist',(c,t,ctx)=>{const y0=(ctx&&ctx.y0)||108;const P=artPal();const q=THEME.reduced?.3:1;for(let i=0;i<5;i++){const sp=40+i*12;const x=((((h32('mw'+i)%1000)/1000)*(W+200)+t*q/sp)%(W+200))-100;const y=y0+3+i*3.2+Math.sin(t/3000+i)*1.2;
   const g=c.createRadialGradient(x,y,0,x,y,60);g.addColorStop(0,rgbaOf(P.fog,.13));g.addColorStop(1,rgbaOf(P.fog,0));c.save();c.translate(x,y);c.scale(1,.12);c.translate(-x,-y);c.fillStyle=g;c.fillRect(x-60,y-60,120,120);c.restore();}},{z:-6,when:()=>isArtLook()&&THEME.weather!=='storm'});
+
+/* the ghost of your best run sails in the distance, on the horizon behind everything else, so it never covers the monster or your line */
+addLayer('sea','artGhost',(c,t)=>{const g=typeof GSHIP!=='undefined'&&GSHIP.drawAt;if(!g||performance.now()-g.at>400)return;const y=ART_HZ.voyage+10;
+  glowAt(c,g.gx,y-14,26,'159,242,224',.2+.05*Math.sin(t/700));c.save();c.globalAlpha=.55+.08*Math.sin(t/900);artTinted(c,g.gx-30,y-50,72,62,'#A8F5E6',.72,q=>drawShip(q,g.gx,y,.5,{...(S.players[S.me]||{}),hull:'hull_ghost'},t,{captain:false,phase:2}));c.restore();},{scenes:['voyage'],z:-4,when:()=>isArtLook()});

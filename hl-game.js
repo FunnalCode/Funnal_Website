@@ -6102,11 +6102,11 @@ const GSHIP={say:'',until:0,next:0,passed:false,lk:null};
 function ghostFor(lk){if(!lk||!G)return null;const b=bucketOf(lk.dur);const sess=((G.players[S.me]||{}).sessions||[]).filter(x=>x.s&&x.e&&x.s!==lk.s&&bucketOf(x.planned||x.dur)===b);let best=null;sess.forEach(x=>{const v=lockDms(S.me,x.s,x.e);if(!best||v>best.v)best={v,x};});return best&&best.v>0?best:null;}
 {const _dvG=drawVoyage;drawVoyage=function(c,t,lk,dms,progress){_dvG.apply(this,arguments);try{if(!lk||lk.mode==='coop'||lk.mode==='crewhunt')return;const g=ghostFor(lk);if(!g)return;const el=progress*lk.dur;const span=g.x.e-g.x.s,scale=span/Math.max(1,g.x.dur||span);
     const gd=G.evs.filter(x=>x.pid===S.me&&x.k==='d'&&x.t>=g.x.s&&x.t<=g.x.s+el*scale).length;const diff=gd-dms;if(diff<-20)return;
-    const gx=90+clamp(diff*6,-60,170);c.save();if(typeof isArtLook==='function'&&isArtLook()&&typeof artTinted==='function'){glowAt(c,gx,112,40,'159,242,224',.22+.06*Math.sin(t/700));c.globalAlpha=.55+.08*Math.sin(t/900);artTinted(c,gx-48,40,118,124,'#A8F5E6',.72,q=>drawShip(q,gx,138,.85,{...(S.players[S.me]||{}),hull:'hull_ghost'},t,{captain:false,phase:2}));}else{c.globalAlpha=.4;try{drawShip(c,gx,138,.85,{...(S.players[S.me]||{}),hull:'hull_ghost'},t,{captain:false,phase:2});}catch(e){}}c.restore();
+    const gx=90+clamp(diff*6,-60,170);const artG=typeof isArtLook==='function'&&isArtLook();c.save();if(artG){GSHIP.drawAt={gx,at:performance.now()};}else{c.globalAlpha=.4;try{drawShip(c,gx,138,.85,{...(S.players[S.me]||{}),hull:'hull_ghost'},t,{captain:false,phase:2});}catch(e){}}c.restore();
     const T=((CT().lines||{}).ghostShip)||{};const now=performance.now();if(GSHIP.lk!==lk.s){GSHIP.lk=lk.s;GSHIP.passed=false;GSHIP.next=now+8000;}
     if(diff<0&&!GSHIP.passed&&dms>3){GSHIP.passed=true;GSHIP.say=pickLine(T.passed,lk.s);GSHIP.until=now+4500;}else if(now>GSHIP.next){GSHIP.next=now+22000;GSHIP.say=diff>=3?pickLine(T.behind,lk.s+Math.floor(now/22000)):Math.abs(diff)<3?pickLine(T.close,1):'';GSHIP.until=now+4500;}
     if(GSHIP.say&&now<GSHIP.until){c.globalAlpha=.85;c.font='600 6.4px Fredoka, Nunito, sans-serif';const w=c.measureText(GSHIP.say).width+8;const bx=clamp(gx-w/2,4,W-w-4);rr(c,bx,96,w,11,4,'rgba(230,236,248,.9)');c.fillStyle='#3F5160';c.textAlign='left';c.fillText(GSHIP.say,bx+4,103.6);c.globalAlpha=1;}
-    plainTxt(c,`Past you: ${gd}`,gx,154,'rgba(240,244,252,.9)',5.6);}catch(e){}};}
+    plainTxt(c,`Past you: ${gd}`,gx,artG?114:154,'rgba(240,244,252,.9)',artG?5:5.6);}catch(e){}};}
 
 function plainTxt(c,s,x,y,col,size){c.save();c.font=`700 ${size}px Fredoka, Nunito, sans-serif`;c.textAlign='center';c.fillStyle='rgba(20,40,60,.35)';c.fillText(s,x+.4,y+.4);c.fillStyle=col;c.fillText(s,x,y);c.restore();}
 
@@ -6777,6 +6777,10 @@ const artBlendKey=()=>{const bl=artPalBlend(artMode());return bl?`_b${bl.from}${
 /* ---------- drifting mist over the water ---------- */
 addLayer('sea','artMist',(c,t,ctx)=>{const y0=(ctx&&ctx.y0)||108;const P=artPal();const q=THEME.reduced?.3:1;for(let i=0;i<5;i++){const sp=40+i*12;const x=((((h32('mw'+i)%1000)/1000)*(W+200)+t*q/sp)%(W+200))-100;const y=y0+3+i*3.2+Math.sin(t/3000+i)*1.2;
   const g=c.createRadialGradient(x,y,0,x,y,60);g.addColorStop(0,rgbaOf(P.fog,.13));g.addColorStop(1,rgbaOf(P.fog,0));c.save();c.translate(x,y);c.scale(1,.12);c.translate(-x,-y);c.fillStyle=g;c.fillRect(x-60,y-60,120,120);c.restore();}},{z:-6,when:()=>isArtLook()&&THEME.weather!=='storm'});
+
+/* the ghost of your best run sails in the distance, on the horizon behind everything else, so it never covers the monster or your line */
+addLayer('sea','artGhost',(c,t)=>{const g=typeof GSHIP!=='undefined'&&GSHIP.drawAt;if(!g||performance.now()-g.at>400)return;const y=ART_HZ.voyage+10;
+  glowAt(c,g.gx,y-14,26,'159,242,224',.2+.05*Math.sin(t/700));c.save();c.globalAlpha=.55+.08*Math.sin(t/900);artTinted(c,g.gx-30,y-50,72,62,'#A8F5E6',.72,q=>drawShip(q,g.gx,y,.5,{...(S.players[S.me]||{}),hull:'hull_ghost'},t,{captain:false,phase:2}));c.restore();},{scenes:['voyage'],z:-4,when:()=>isArtLook()});
 
 /* ============================== SUPABASE STORE (used when hosted on funnal.co.uk) ============================== */
 // Mirrors the small slice of the artifact db API the game uses: doc().get/set/update/delete/acquire/onSnapshot, collection().doc/onSnapshot.
