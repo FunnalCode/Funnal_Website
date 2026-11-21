@@ -4,7 +4,7 @@
    changes: every card, button, font, tap area and number stays exactly as it was. Settings, Game feel, Scenery switches
    to Atmospheric or Classic. Each piece (sky, sea, island, trees, lighthouse, ship, foes) checks isArtLook() and falls
    back to the classic drawing otherwise, so wrappers added by earlier stages keep working. */
-const ART_HZ={harbour:108,ship:110,islet:124,voyage:96};
+const ART_HZ={harbour:108,ship:110,islet:104,voyage:96};
 function hexRgb(h){if(typeof h!=='string')return [120,120,140];if(h[0]==='#'){if(h.length===4)h='#'+h[1]+h[1]+h[2]+h[2]+h[3]+h[3];return [parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];}
   const m=h.match(/[\d.]+/g);return m?[+m[0],+m[1],+m[2]]:[120,120,140];}
 function rgbHex(a){return '#'+a.map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0')).join('');}
@@ -501,10 +501,10 @@ const artPass=()=>isArtLook()&&ART_EYES===null;
   const v=c.createRadialGradient(TVW/2,TVH*.55,TVH*.45,TVW/2,TVH*.55,TVH*1.05);v.addColorStop(0,'rgba(20,10,20,0)');v.addColorStop(1,'rgba(20,10,20,.35)');c.fillStyle=v;c.fillRect(0,0,TVW,TVH);};}
 
 /* ---------- the hideout: the island keeps its pieces, graded into the painted light of the hour ---------- */
-{const _di=drawIslet;drawIslet=function(c,t,pid){const r=_di.apply(this,arguments);if(!isArtLook()||!G)return r;const m=artMode();const storm=THEME.weather==='storm';
+{const _di=drawIslet;drawIslet=function(c,t,pid){const r=(isArtLook()&&typeof artIsletDraw==='function')?artIsletDraw.apply(this,arguments):_di.apply(this,arguments);if(!isArtLook()||!G){ART_ISLE_LATE=null;return r;}const m=artMode();const storm=THEME.weather==='storm';
   const tint=storm?'#8A8AA0':{night:'#4A5A9A',sunset:'#E8A8B8',dawn:'#E0C4DA',gold:'#F2C8A0'}[m]||'#E8EEF6';c.save();c.globalCompositeOperation='multiply';
   const g=c.createLinearGradient(0,96,0,H);g.addColorStop(0,'#FFFFFF');g.addColorStop(.25,tint);g.addColorStop(1,shadeHex(tint,.86));c.fillStyle=g;c.fillRect(-90,96,W+180,H-96+VIEW_EXT.bot+40);c.restore();
-  const v=c.createRadialGradient(W/2,H*.6,H*.4,W/2,H*.6,H*1.05);v.addColorStop(0,'rgba(20,16,40,0)');v.addColorStop(1,`rgba(20,16,40,${m==='night'?.3:.16})`);c.fillStyle=v;c.fillRect(-90,-300,W+180,H+600);return r;};}
+  const v=c.createRadialGradient(W/2,H*.6,H*.4,W/2,H*.6,H*1.05);v.addColorStop(0,'rgba(20,16,40,0)');v.addColorStop(1,`rgba(20,16,40,${m==='night'?.3:.16})`);c.fillStyle=v;c.fillRect(-90,-300,W+180,H+600);if(ART_ISLE_LATE){const f=ART_ISLE_LATE;ART_ISLE_LATE=null;f();}return r;};}
 
 /* ============================== ART STAGE F: PICTURES, POLISH AND SPEED ============================== */
 // a small painted scene for pictures: sky, sun or moon, faceted peaks, fog, sea with a light path
