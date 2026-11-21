@@ -155,7 +155,7 @@ addLayer('world','tavernPub',(c,t)=>{const x=200,y=112;rr(c,x-8,y-14,17,14,1.5,'
   hit(x-11,y-22,30,22,'The Rusty Anchor',`Barnacle Bill's tavern. Always open. Drinks, games and gossip. Tap to go in.`,{go:'tavern'});},{scenes:['harbour'],z:3});
 HELP.push(['The Rusty Anchor','The Tavern (the Tavern button on the Harbour, More, or the pub by the jetty) never closes. Barnacle Bill gossips from the real numbers and may ask to borrow money once a day (every 5 loans he pays you back with something better). Drinks are just for show: your last order sits in your pirate\'s hand. Pick any stake from 5 to 500 (up to 1,000 a day). When you\'re both in, challenge each other to Liar\'s Dice, Poker or Darts; on your own, play the house. Darts is one free throw a day, and the jukebox unlocks shanties.']);
 
-/* 21 Nov: a Tavern button on the Harbour, right under the scene */
+/* 21 Nov: a Tavern button on the Harbour, just above the Herald */
 {const _hTV=SCREENS.harbour;SCREENS.harbour=function(){const h=_hTV.apply(this,arguments);const k='<div class="pad">';const i=h.indexOf(k);if(i<0)return h;const both=(()=>{try{return peerIn();}catch(e){return false;}})();
   const btn=`<a class="tvGo" href="#tavern"><span class="appIco" style="background:${APP_ICONS.tavern[0]}"><svg viewBox="0 0 24 24"><path d="${APP_ICONS.tavern[1]}"/></svg></span><span class="grow"><b>The Rusty Anchor</b><small>${both?`${esc(pnameRaw(other(S.me)))} is in. Go and challenge them.`:'Drinks, games and the jukebox'}</small></span><span class="tvGoArrow">›</span></a>`;
-  return h.slice(0,i+k.length)+btn+h.slice(i+k.length);};}
+  const L='<div class="links">';const j=h.indexOf(L);return j>=0?h.slice(0,j)+btn+h.slice(j):h.slice(0,i+k.length)+btn+h.slice(i+k.length);};}

@@ -9,7 +9,17 @@ const BM_REAL=[
   {id:'hull_bmkraken',name:'Pre-Owned Kraken Hull',cat:'hull',col:'#5A3A6E',col2:'#3A2448',suckers:true,price:5000},
   {id:'sail_bmshiny',name:'The Shiniest Sail',cat:'sail',col:'#F6E6A8',col2:'#D9E4F2',pat:'grad',shiny:true,price:3800},
   {id:'flag_bmgull',name:'The Jolly Gull',cat:'flag',col:'#22252E',sym:'gull',sc:'#FFFFFF',price:1500},
-  {id:'bm_chest',name:'Chest of Definitely Legal Goods',cat:'decor',price:1200}];
+  {id:'bm_chest',name:'Chest of Definitely Legal Goods',cat:'decor',price:1200},
+  // 21 Nov: more things you can only get here, after dark
+  {id:'sail_bmmoon',name:"Smuggler's Moonlight Sails",cat:'sail',col:'#0E1424',col2:'#9FE3F5',pat:'galaxy',price:4200},
+  {id:'sail_bmtiger',name:'Contraband Tiger Sails',cat:'sail',col:'#2A2024',col2:'#C9A24A',pat:'tiger',price:3600},
+  {id:'sail_bmcheck',name:"Pickpocket's Chequers",cat:'sail',col:'#2A2433',col2:'#F2C462',pat:'checker',price:2600},
+  {id:'hull_bmrum',name:"Rum-Runner's Hull",cat:'hull',col:'#1C2A30',col2:'#122026',lights:true,price:6200},
+  {id:'flag_bmspot',name:'The Black Spot',cat:'flag',col:'#0E0E12',sym:'skull',sc:'#C91E36',price:1400},
+  {id:'flag_bmblades',name:'Hot Cutlasses',cat:'flag',col:'#5A1E2A',sym:'swords',sc:'#F2C462',price:1800},
+  {id:'hat_bmmoon',name:'Moonshine Tricorn',cat:'hat',st:'tricorn',col:'#3A2A5C',price:2200},
+  {id:'hat_bmband',name:"Smuggler's Bandana",cat:'hat',st:'bandana',col:'#1E1A24',price:900},
+  {id:'coat_bmfence',name:"The Fence's Coat",cat:'coat',st:'trim',col:'#2A2433',col2:'#F2C462',price:3400}];
 const BM_JOKE=[
   {id:'bm_scale',name:'Genuine Mermaid Scale (laminated)',cat:'decor',price:120},
   {id:'bm_map',name:'Slightly Used Treasure Map (Tesco car park)',cat:'decor',price:150},
@@ -32,8 +42,15 @@ function marketOpen(){return !!marketNight();}
 function nextNight(){const l=L();return l.min<60?addDays(l.date,-1):l.date;}
 function dudNight(night){const ws=weekStart(night);return addDays(ws,h32(ws+'bmdud')%7)===night;}
 function marketStock(night){const pick=(arr,n,salt)=>arr.map(i=>({i,k:h32(night+i.id+salt)})).sort((a,b)=>a.k-b.k).slice(0,n).map(x=>x.i);
-  const real=pick(BM_REAL,2,'r'),joke=pick(BM_JOKE,2,'j');const bar=real[h32(night+'bar')%2];
-  const dud=dudNight(night);return [...real,...joke].map(i=>({it:i,bargain:i===bar,price:i===bar?Math.round(i.price*(dud?.12:.6)/10)*10:i.price}));}
+  const real=pick(BM_REAL,3,'r'),joke=pick(BM_JOKE,2,'j');const bar=joke[h32(night+'bar')%2];
+  const dud=dudNight(night);return [...real,...joke].map(i=>({it:i,bargain:i===bar,price:i===bar?Math.max(10,Math.round(i.price*(dud?.4:.6)/10)*10):i.price}));}
+
+/* ---------- fenced treasure: two relics you're missing, each night, at a proper price ---------- */
+function bmRelics(night){if(typeof relicList!=='function'||!G||!S.me)return [];const have=relicCounts(S.me);const miss=relicList().filter(r=>!(have[r.id]>0));
+  return miss.map(r=>({r,k:h32(night+r.id+'bmr')})).sort((a,b)=>a.k-b.k).slice(0,2).map(x=>({r:x.r,price:900+(x.r.si%5)*150}));}
+ACT.bmRelic=async d=>{const night=marketNight();if(!night)return toast('<b>Shut.</b> The stall packed up at 1am.','joke');const x=bmRelics(night).find(y=>y.r.id===d.id);if(!x)return;const me=G.players[S.me];
+  if(me.balance<x.price)return toast('<b>Not enough doubloons.</b> "Treasure costs treasure," says the trader.','joke');const id=uid();
+  try{await writeDay(S.me,G.today,{spend:{[id]:{item:'bm_relic',cost:x.price,ts:Date.now(),bm:night,relic:x.r.id}},bonus:{['bmr_'+id]:{xp:0,g:0,ts:Date.now(),relic:x.r.id}}});SFX.ach();toast(`<b>${esc(x.r.name)}</b> is in your Treasure. "Found it on a beach. Honest."`);}catch(e){writeFail(e);}};
 
 /* ---------- fencing duplicate loot pieces ---------- */
 const FENCE_PAY={common:15,uncommon:30,rare:70,legendary:180};
@@ -46,7 +63,8 @@ SCREENS.market=()=>{const night=marketNight();const me=G.players[S.me];
   const st=marketStock(night);const fl=fenceList();S.bmSalt=(S.bmSalt||0);
   return `<div class="pad"><div class="card bmCard"><canvas class="bmArt" width="480" height="260" data-bm="open"></canvas><small>The Black Market · open until 1am</small><h2>"${esc(bmSay(night+S.bmSalt))}"</h2><button class="btn sm ghost" data-act="bmTalk">Ask if he's Gary</button></div>
    <div class="card"><h3>Tonight's goods</h3><div class="list">${st.map(x=>{const own=me.owned[x.it.id];return `<div class="li bmItem ${x.bargain?'bargain':''}"><canvas class="lfIco" width="96" height="96" data-bmi="${x.it.id}"></canvas><span class="grow"><b>${esc(x.it.name)}</b>${x.bargain?' <span class="bmTag">Tonight\'s bargain</span>':''}<br><small>${x.it.cat==='decor'?'Hideout decoration':esc(CAT_NAMES[x.it.cat]||x.it.cat)}${BM_REAL.includes(x.it)?' · only sold here':''}${x.bargain?` · <s>${fmtN(x.it.price)}</s>`:''}</small></span>${own?'<span class="okTag">Owned</span>':`<button class="btn sm ${x.bargain?'primary':''}" data-act="bmBuy" data-id="${x.it.id}" ${me.balance<x.price?'disabled':''}>${fmtN(x.price)} ${CN}</button>`}</div>`;}).join('')}</div>
-   <p class="tiny muted">No receipts, no refunds. Bargains are usually 40% off. If one looks too cheap to be true, it probably is. Stock changes every night.</p></div>
+   <p class="tiny muted">The first three are only ever sold here. No receipts, no refunds. The trinket bargain is usually 40% off; if it looks too good to be true, it probably is. Stock changes every night.</p></div>
+   ${(()=>{const rl=bmRelics(night);return rl.length?`<div class="card"><h3>Fenced treasure</h3><p class="tiny muted">Relics you haven't found yet. They go straight into your Treasure and count towards their set.</p><div class="list">${rl.map(x=>`<div class="li"><canvas width="96" height="96" class="lfIco" data-relic="${x.r.id}" data-found="1"></canvas><span class="grow"><b>${esc(x.r.name)}</b><br><small>${esc(x.r.set)}</small></span><button class="btn sm" data-act="bmRelic" data-id="${x.r.id}" ${me.balance<x.price?'disabled':''}>${fmtN(x.price)} ${CN}</button></div>`).join('')}</div></div>`:'';})()}
    <div class="card"><h3>Fencing</h3><p class="tiny muted">The trader buys duplicate boss loot pieces (Pell won't). He always leaves you one of each.</p>${fl.length?`<div class="list">${fl.map(x=>`<div class="li"><canvas width="96" height="96" class="lfIco" data-piece="${x.pc.id}"></canvas><span class="grow"><b>${esc(x.pc.name)}</b><br><small class="r-${x.pc.rar}">${x.pc.rar} · you have ${x.n}</small></span><button class="btn sm" data-act="bmFence" data-id="${x.pc.id}">Sell 1 · ${x.pay} ${CN}</button></div>`).join('')}</div>`:'<p class="tiny">No duplicates to sell. Sink more bosses. "I\'ll be here," he says. "Not as Gary."</p>'}</div></div>`;};
 ACT.bmTalk=()=>{S.bmSalt=(S.bmSalt||0)+1;const h=document.querySelector('.bmCard h2');if(h)h.textContent='"'+bmSay(marketNight()+S.bmSalt)+'"';SND.pop();};
 ACT.bmBuy=async d=>{const night=marketNight();if(!night)return toast('<b>Shut.</b> The stall packed up at 1am.','joke');const x=marketStock(night).find(y=>y.it.id===d.id);if(!x)return;const me=G.players[S.me];

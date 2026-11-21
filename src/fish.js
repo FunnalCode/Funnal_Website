@@ -57,8 +57,8 @@ function drawFishing(c,t,lk){const bx=196+Math.sin(t/1400)*3,by=128+Math.sin(t/5
   for(let i=0;i<2;i++){const q=((t/1600)+i/2)%1;c.strokeStyle=`rgba(255,255,255,${.7*(1-q)})`;c.lineWidth=.6;c.beginPath();c.ellipse(bx,by+1.4,3+q*8,1+q*2.4,0,0,TAU);c.stroke();}
   disc(c,bx,by,2.4,'#FFFFFF');c.save();c.beginPath();c.rect(bx-3,by-3,6,3);c.clip();disc(c,bx,by,2.4,'#E0453B');c.restore();R(c,bx-.3,by-4.4,.6,2,'#3F3A30');
   hit(bx-8,by-8,16,14,'Fishing trip','Every DM you log is a cast. Most casts land a fish, rarer ones far less often. Your catches go in the Trophy case under More.');
-  const lc=S.lastCatch;if(lc){const a=(performance.now()-lc.at)/1800;if(a<1){const x=bx-6+a*10,y=by-Math.sin(Math.min(1,a*1.4)*Math.PI)*46;for(let i=0;i<6;i++){const an=-Math.PI*(i+.5)/6;disc(c,bx+Math.cos(an)*a*14,by+Math.sin(an)*a*10+a*a*10,1.2*(1-a)+.2,'rgba(255,255,255,.9)');}
-    c.save();c.translate(x,y);c.rotate(-.6+a*1.4);drawFish(c,lc.f,0,0,1.5,t,false,lc.v||'');c.restore();if(a>.15&&a<.9){c.globalAlpha=Math.min(1,(a-.15)*5,(.9-a)*6);rr(c,x-34,y-30,68,13,6,'rgba(255,252,244,.95)');txt(c,lc.f.name,x,y-23.4,FISH_RAR[lc.f.rar].col,7.2,'center');c.globalAlpha=1;}}}}
+  const lc=S.lastCatch;if(lc){const a=(performance.now()-lc.at)/(S.focus?2600:1800);if(a<1){const x=bx-6+a*10,y=by-Math.sin(Math.min(1,a*1.4)*Math.PI)*46;for(let i=0;i<6;i++){const an=-Math.PI*(i+.5)/6;disc(c,bx+Math.cos(an)*a*14,by+Math.sin(an)*a*10+a*a*10,1.2*(1-a)+.2,'rgba(255,255,255,.9)');}
+    c.save();c.translate(x,y);c.rotate(-.6+a*1.4);drawFish(c,lc.f,0,0,S.focus?2.1:1.5,t,false,lc.v||'');c.restore();if(a>.15&&a<.9){c.globalAlpha=Math.min(1,(a-.15)*5,(.9-a)*6);rr(c,x-34,y-30,68,13,6,'rgba(255,252,244,.95)');txt(c,lc.f.name,x,y-23.4,FISH_RAR[lc.f.rar].col,7.2,'center');c.globalAlpha=1;}}}}
 
 /* toast and animation when a new DM on a fishing trip lands a fish */
 S.fishSeen=S.fishSeen||null;

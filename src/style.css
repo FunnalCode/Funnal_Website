@@ -983,3 +983,6 @@ body.tvFsOn{overflow:hidden}
 .tvGame.h2h.win .gameMsg{color:#2F8F62;font-weight:700}.tvGame.h2h.lose .gameMsg{color:#C2453A}
 .tvGo{display:flex;align-items:center;gap:10px;padding:10px 12px;margin:0 0 10px;border-radius:16px;background:#FFF8EC;border:1.5px solid var(--line);color:inherit;text-decoration:none;box-shadow:0 2px 0 rgba(0,0,0,.05)}.tvGo .appIco{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;flex:0 0 auto}.tvGo .appIco svg{width:20px;height:20px;fill:#fff}.tvGo b{display:block;font:600 15px var(--display)}.tvGo small{color:var(--muted);font-size:12px}.tvGoArrow{font-size:24px;color:var(--muted)}
 .vaultSub{margin:16px 4px 6px;font:600 17px var(--display)}.rwRow .btn{flex:0 0 auto}
+/* 21 Nov: tips and toasts show over full screen */
+#tip{z-index:130}body:has(#focus) #toasts{z-index:125}
+.liGroup{overflow:hidden}.liGroup .liArt{display:block;width:calc(100% + 32px);margin:-14px -16px 8px;height:auto;aspect-ratio:300/140;border-radius:16px 16px 0 0}

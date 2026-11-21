@@ -47,9 +47,18 @@ const _drawShip17=drawShip;drawShip=function(c,x,y,s,pl,t,opts={}){_drawShip17.a
   if(!win&&!xm&&!nt&&!hull.ice)return;const ph=opts.phase||0;const fire=opts.firing>0?opts.firing:0,kick=fire*fire;const rock=Math.sin(t/900+ph)*.04+Math.sin(t/410+ph*2)*.012-kick*.045,bob=Math.sin(t/650+ph)*1.3+Math.sin(t/270+ph)*.3;
   c.save();c.translate(x-kick*2.2*s,y+bob*s*.4);c.rotate(rock);c.scale(s,s);
   try{
-  if(nt){for(let i=0;i<9;i++){const q=((t/900)+i/9)%1;const xx=40-q*78;c.globalAlpha=.55*(1-Math.abs(q-.5)*1.6);ell(c,xx,3.6+Math.sin(t/300+i)*.6,3.4,.7,'#6FF2D8');}c.globalAlpha=1;
+  // 21 Nov: the glow under the hull drifts slowly (it raced along before); the painted ship has its own lanterns, so the extra ones are for Classic only
+  const artS=typeof isArtLook==='function'&&isArtLook();
+  if(nt){for(let i=0;i<9;i++){const q=((t/(artS?5200:2600))+i/9)%1;const xx=40-q*78;c.globalAlpha=(artS?.3:.45)*(1-Math.abs(q-.5)*1.6);ell(c,xx,3.6+Math.sin(t/1400+i)*.5,3.4,.7,'#6FF2D8');}c.globalAlpha=1;
     c.save();c.globalCompositeOperation='lighter';ell(c,2,4.6,34,2.6,'rgba(60,220,200,.10)');c.restore();
-    [[0,-60],[36,-24],[-19,-46]].forEach(([lx,ly],i)=>{const fl=.8+.2*Math.sin(t/180+i*2);lamp(c,lx,ly+1.4,9*fl,.6,'255,200,110');rr(c,lx-1.2,ly,2.4,2.8,.8,'#FFE7A0');R(c,lx-.4,ly-.8,.8,.8,'#3F5160');});}
+    if(!artS)[[0,-60],[36,-24],[-19,-46]].forEach(([lx,ly],i)=>{const fl=.8+.2*Math.sin(t/180+i*2);lamp(c,lx,ly+1.4,9*fl,.6,'255,200,110');rr(c,lx-1.2,ly,2.4,2.8,.8,'#FFE7A0');R(c,lx-.4,ly-.8,.8,.8,'#3F5160');});}
+  // the painted ship has a different shape: its own snow, icicles and fairy lights
+  if(artS){if(win){const snow='#FFFFFF';[[-26.6,-44.6,15.4],[-11.6,-55.4,28.6],[16.6,-46.4,15.4]].forEach(([sx,sy,w])=>{rr(c,sx,sy-1.2,w,1.5,.7,snow);for(let k=0;k<3;k++)disc(c,sx+w*(.2+k*.3),sy-1.1,.8,snow);});
+      rr(c,-10.6,-16,31,1.5,.7,snow);for(let k=0;k<5;k++)disc(c,-8+k*6.6,-15.9,.85,snow);rr(c,-31.6,-24.2,16.4,1.5,.7,snow);rr(c,-3.4,-64.4,12.2,1.4,.7,snow);}
+    if(hull.ice||win){const n=hull.ice?12:6;for(let k=0;k<n;k++){const ix=-30+k*(48/(n-1)),top=ix<-14?-22.4:-12.4,len=(hull.ice?2:1.3)+((k*37)%10)/10*(hull.ice?2:1);c.fillStyle='rgba(225,245,255,.92)';c.beginPath();c.moveTo(ix-.5,top);c.lineTo(ix+.5,top);c.lineTo(ix,top+len);c.closePath();c.fill();}}
+    if(xm){[[[2.7,-73],[47.4,-24.4]],[[2.7,-73],[-30.6,-23.6]],[[-18.9,-50],[-30.6,-23.6]]].forEach(([a,b],li)=>{const n=li===2?6:11;for(let i=1;i<n;i++){const q=i/n;const bx=a[0]+(b[0]-a[0])*q,by=a[1]+(b[1]-a[1])*q+Math.sin(q*Math.PI)*1.2;const on=Math.sin(t/320+i*1.9+li)>-.3;
+      disc(c,bx,by,.5,on?XMAS_COLS[(i+li)%5]:'rgba(255,255,255,.35)');if(on&&nt)lamp(c,bx,by,2.6,.28,'255,230,160');}});}
+    c.restore();return;}
   if(win){const snow='#FFFFFF';[[-14,-54,24],[-17,-39,30],[-29,-40,18]].forEach(([sx,sy,w])=>{rr(c,sx-.6,sy-1.4,w+1.2,1.7,.8,snow);for(let k=0;k<3;k++)disc(c,sx+w*(.2+k*.3),sy-1.3,.9,snow);});
     rr(c,-4.8,-49.3,9.6,1.6,.8,snow);rr(c,-35.4,-18.6,66.6,1.7,.8,snow);for(let k=0;k<8;k++)disc(c,-31+k*8.4,-18.4,1,snow);disc(c,0,-58.6,1,snow);}
   if(hull.ice||win){const n=hull.ice?13:6;for(let k=0;k<n;k++){const ix=-31+k*(60/(n-1)),len=(hull.ice?2.2:1.4)+((k*37)%10)/10*(hull.ice?2.4:1.2);c.fillStyle='rgba(225,245,255,.92)';c.beginPath();c.moveTo(ix-.6,-15.6);c.lineTo(ix+.6,-15.6);c.lineTo(ix,-15.6+len);c.closePath();c.fill();}}

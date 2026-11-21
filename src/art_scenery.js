@@ -151,7 +151,7 @@ function artShip(c,x,y,s,pl,t,opts={}){
   c.save();c.translate(x-kick*2.2*s,y+bob*s*.4);
   // reflection: a dark, squashed mirror image and long streaks under the lights
   if(!neutral){c.save();c.scale(s,s);c.save();c.globalAlpha=.26;c.translate(0,4.6);c.scale(.45,-.45*.72);c.fillStyle=hc;c.fill(artHullPath());c.fillStyle=wood;[[-42,-98],[6,-152],[52,-102]].forEach(([mx,top])=>c.fillRect(mx-1.6,top,3.2,-14-top));c.restore();
-  if(lampOn){[[-21.6,7],[-29.7,3],[45,3]].forEach(([lx,wd],k)=>{for(let i=0;i<7;i++){const ww=wd*(.6+.5*Math.sin(t/300+i*1.7+k));c.fillStyle=`rgba(255,196,106,${.55-i*.07})`;c.fillRect(lx-ww/2+Math.sin(t/400+i)*.8,4+i*1.6,ww,.7);}});}
+  if(lampOn){[[-21.6,7],[-29.7,3],[45,3]].forEach(([lx,wd],k)=>{for(let i=0;i<7;i++){const ww=wd*(.6+.5*Math.sin(t/1100+i*1.7+k));c.fillStyle=`rgba(255,196,106,${.55-i*.07})`;c.fillRect(lx-ww/2+Math.sin(t/1400+i)*.8,4+i*1.6,ww,.7);}});}
   else for(let i=0;i<4;i++){c.fillStyle=rgbaOf(shadow,.18-i*.04);c.fillRect(-28+Math.sin(t/300+i+ph)*2,4+i*2.2,56-i*6,1.2);}
   c.restore();}
   c.rotate(rock);c.scale(s,s);
@@ -170,6 +170,8 @@ function artShip(c,x,y,s,pl,t,opts={}){
   if(lampOn){glowAt(c,6,-120,18,'255,196,106',.35);[-1,4.5,10].forEach(wx=>rr(c,wx,-123,3.6,5.4,1.2,lights));}else[-1,4.5,10].forEach(wx=>rr(c,wx,-123,3.6,5.4,1.2,shadeHex(wood,1.4)));
   // swallowtail pennants on the fore and mizzen (the main mast flies your own flag)
   [[-42,-98,18],[52,-102,16]].forEach(([mx,top,w],k)=>{const wv=Math.sin(t/260+k*2)*1.6;c.fillStyle=mixHex((it(pl.flag||SHIP_DEFAULT.flag)||{}).col||'#2E2B33',shadow,.25);c.beginPath();c.moveTo(mx,top);c.lineTo(mx+w,top+1+wv);c.quadraticCurveTo(mx+w*.7,top+4+wv,mx+w+3,top+8+wv);c.lineTo(mx,top+7);c.closePath();c.fill();});
+  // 21 Nov: the captain stands on the quarterdeck behind the rail (drawn before the hull, so the bulwark hides their legs)
+  if(opts.captain!==false&&opts.pid){c.save();c.translate(-48.9,-55.4+Math.sin(t/650+ph)*.5);c.scale(1/.45,1/.45);drawKeeper(c,0,0,opts.pid,pl,t,{chicken:opts.chicken,dance:opts.dance});c.restore();}
   // hull
   c.fillStyle=hc;c.fill(artHullPath());c.save();c.clip(artHullPath());
   if(hull.col2){c.fillStyle=mixHex(hull.col2,shadow,night?.55:.4);c.fillRect(-70,-10,160,4);}
@@ -189,7 +191,8 @@ function artShip(c,x,y,s,pl,t,opts={}){
   // your flag at the top of the main mast, the emissary pennant above it
   drawFlag(c,3.4,-74.4,pl.flag||SHIP_DEFAULT.flag,t);
   if(opts.em!=null){R(c,2.3,-84,.9,11,wood);disc(c,2.75,-84.4,1,'#E2AE45');drawEmissary(c,3.1,-83,opts.em,t);}
-  if(opts.captain!==false&&opts.pid){c.save();c.translate(-22,-31.4+Math.sin(t/650+ph)*.25);drawKeeper(c,0,0,opts.pid,pl,t,{chicken:opts.chicken,dance:opts.dance});c.restore();if(opts.moth!=null)drawMoth(c,-13,-27,opts.moth,t,pl.moth,false);}
+  // the parrot flies lazy loops above the masts instead of hovering at the captain's ear
+  if(opts.captain!==false&&opts.pid&&opts.moth!=null){const u=t/3400+ph,mx=4+Math.sin(u)*22,my=-78+Math.sin(u*2)*3,dir=Math.cos(u)>=0?1:-1;c.save();c.translate(mx,my);c.scale(dir*.9,.9);drawMoth(c,0,0,opts.moth,t,pl.moth,true);c.restore();}
   if(opts.pet)drawPet(c,opts.pet,-2,-12.6,t,.6);
   (pl.deck||[]).slice(0,4).forEach((id,i)=>id&&drawDeckItem(c,id,(typeof DECK_SPOTS!=='undefined'?DECK_SPOTS:[-8,6,18])[i],-12.6,t));
   {const sh=pl.shot&&ALL_ITEMS[pl.shot];if(sh){c.save();c.translate(-24,-23.6);c.scale(.8,.8);drawShot(c,-2.3,0,sh.st,t);drawShot(c,2.3,0,sh.st,t+300);drawShot(c,0,-3.3,sh.st,t+600);c.restore();}}
@@ -198,7 +201,7 @@ function artShip(c,x,y,s,pl,t,opts={}){
     c.beginPath();c.arc(34.2,-7.4,1,0,TAU*.75);c.stroke();c.translate(35.2,-9.4);c.rotate(.34);drawFigure(c,-.6,1.4,pl.figure);c.restore();}
   if(gild)for(let i=0;i<3;i++){const tw=Math.sin(t/260+i*2.1);if(tw>.5){const gx=-20+i*22,gy=-9;line(c,gx-1.6,gy,gx+1.6,gy,'#FFF6CF',.4);line(c,gx,gy-1.6,gx,gy+1.6,'#FFF6CF',.4);}}
   // water lapping at the hull and a little bow spray
-  if(!neutral){const hz=ART_HZ[THEME.scene]||108,f=Math.max(0,Math.min(1,(y-hz)/(H-hz)));const wc=f<.3?mixHex(P.sea[0],P.sea[1],f/.3):mixHex(P.sea[1],P.sea[2],(f-.3)/.7);c.fillStyle=rgbaOf(wc,.55);c.beginPath();c.moveTo(-36,0);for(let i=0;i<=8;i++)c.quadraticCurveTo(-36+i*9.6+4.8,-1.4+Math.sin(t/300+i)*.6,-36+(i+1)*9.6,0);c.lineTo(48,6);c.lineTo(-36,6);c.closePath();c.fill();
+  if(!neutral){const hz=ART_HZ[THEME.scene]||108,f=Math.max(0,Math.min(1,(y-hz)/(H-hz)));const wc=f<.3?mixHex(P.sea[0],P.sea[1],f/.3):mixHex(P.sea[1],P.sea[2],(f-.3)/.7);c.fillStyle=rgbaOf(wc,.55);c.beginPath();c.moveTo(-36,0);for(let i=0;i<=8;i++)c.quadraticCurveTo(-36+i*9.6+4.8,-1.4+Math.sin(t/900+i)*.6,-36+(i+1)*9.6,0);c.lineTo(48,6);c.lineTo(-36,6);c.closePath();c.fill();
   c.fillStyle=rgbaOf(P.rip,.35);c.fillRect(-30,.4,64,.4);}
   if(opts.moving)for(let i=0;i<7;i++){const q=((t/380)+i/7)%1;disc(c,37+q*5-i%3,-1-Math.sin(q*Math.PI)*(4+i%3*1.5),1.3*(1-q)+.3,`rgba(255,255,255,${.85*(1-q)})`);}
   if(fire){const p=1-fire;if(p<.3){lamp(c,37,-13,5+10*(1-p/.3),.9,'255,200,90');disc(c,36.5,-13,2.4*(1-p/.3),'#FFF1B8');}for(let i=0;i<5;i++)disc(c,34+p*9+i*2.2,-14-p*8-i*1.2,2+p*3.4,`rgba(250,250,250,${.7*(1-p)})`);}
@@ -373,8 +376,12 @@ const VOY_NAMES={fjord:'Pine Fjords',cliffs:'The Arches',ruins:'The Ruined Coast
     const sp=(typeof isFish==='function'&&isFish(lk.mode))?.25:1+Math.min(2,(S.voyBoost||0));VOY.off+=dt*sp*.012*(THEME.reduced?.5:1);VOY.lk=lk;VOY.el=progress*lk.dur;}
   return _dv.apply(this,arguments);};}
 const STRIPS={};
-function artStrip(c,key,w,h,draw){let sc=1;try{const m=c.getTransform();sc=Math.max(.5,Math.min(S.focus?12:4,Math.hypot(m.a,m.b)));}catch(e){}const k=key+'@'+sc.toFixed(2);let cv=STRIPS[k];
-  if(!cv){cv=document.createElement('canvas');cv.width=Math.ceil(w*sc);cv.height=Math.ceil(h*sc);const q=cv.getContext('2d');q.setTransform(sc,0,0,sc,0,0);draw(q);STRIPS[k]=cv;const ks=Object.keys(STRIPS);if(ks.length>36)delete STRIPS[ks[0]];}return cv;}
+// 21 Nov: cache scales snap to steps (so pinch-zooming doesn't make a new copy every frame) and the caches share a pixel budget, so phones don't run out of memory
+function cacheScale(raw,max){const st=1.25;return Math.max(.25,Math.min(max,Math.pow(st,Math.ceil(Math.log(Math.max(.25,raw))/Math.log(st)-1e-6))));}
+const CACHE_PX={n:0};const CACHE_BUDGET=()=>(/iPhone|iPad|Android/.test(navigator.userAgent)?22e6:48e6);
+function cacheTrim(store){let ks=Object.keys(store);const px=cv=>((cv&&cv.cv)||cv).width*((cv&&cv.cv)||cv).height;let tot=0;ks.forEach(k=>tot+=px(store[k]));while(tot>CACHE_BUDGET()/2&&ks.length>4){const k=ks.shift();tot-=px(store[k]);const v=store[k];delete store[k];try{const cv=(v&&v.cv)||v;cv.width=cv.height=0;}catch(e){}}}
+function artStrip(c,key,w,h,draw){let sc=1;try{const m=c.getTransform();sc=cacheScale(Math.hypot(m.a,m.b),S.focus?10:4);}catch(e){}const k=key+'@'+sc.toFixed(3);let cv=STRIPS[k];
+  if(!cv){cv=document.createElement('canvas');cv.width=Math.ceil(w*sc);cv.height=Math.ceil(h*sc);const q=cv.getContext('2d');q.setTransform(sc,0,0,sc,0,0);draw(q);STRIPS[k]=cv;const ks=Object.keys(STRIPS);if(ks.length>36)delete STRIPS[ks[0]];cacheTrim(STRIPS);}return cv;}
 function stripLoop(c,cv,w,h,y,off,alpha,flip){const x0=-(((off%w)+w)%w)-90;c.save();c.globalAlpha=alpha;if(flip){c.translate(0,y);c.scale(1,-.55);for(let x=x0;x<W+90;x+=w)c.drawImage(cv,x,-h,w,h);}else for(let x=x0;x<W+90;x+=w)c.drawImage(cv,x,y-h,w,h);c.restore();}
 // periodic helpers: draw a shape at x, x-640 and x+640 so the strip joins up
 const wrapX=(fn,x)=>{fn(x);fn(x-VOY_W);fn(x+VOY_W);};
@@ -448,15 +455,25 @@ function artFoeDraw(c,x,y,r,t,flash,seed,draw){const pad=r*2.4;const bob=Math.si
   artFoeDraw(c,bx,by,r,t,flash,(h32(boss.id||boss.name||'b')%100)/10,q=>(boss.type==='serpent'&&!boss.kit?artSerpent(q,boss,bx,by,r,ratio,t):_db2.call(self,q,boss,bx,by,r,ratio,t,false,...rest)));};}
 if(typeof drawMonster==='function'){const _dm=drawMonster;drawMonster=function(c,mon,x,y,r,ratio,t,flash,elite){if(!artFoeScene())return _dm.apply(this,arguments);const self=this;
   artFoeDraw(c,x,y,r,t,flash,(h32(String(mon))%100)/10,q=>_dm.call(self,q,mon,x,y,r,ratio,t,false,elite));};}
-// the serpent: three humps riding a travelling wave, a swaying neck and a head that looks about
-function artSerpent(c,boss,bx,by,r,ratio,t){let col=boss.col||'#7FB59A';if(boss.rare)col=`hsl(${(t/20)%360},62%,72%)`;const dark=shadeHex(col,.78),belly=mixHex(col,'#FFF3D0',.45);const wl=by+r*.6;
-  for(let i=0;i<3;i++){const ph=t/700-i*1.1;const hx=bx-r*1.25+i*r*.62+Math.sin(ph)*r*.05,hh=r*(.26+.08*Math.sin(ph));
-    c.fillStyle=dark;c.beginPath();c.ellipse(hx,wl,r*.3,hh+r*.03,0,Math.PI,0);c.fill();c.fillStyle=col;c.beginPath();c.ellipse(hx,wl,r*.27,hh,0,Math.PI,0);c.fill();
-    c.fillStyle='#F2C462';for(let k=-1;k<=1;k++){const sx=hx+k*r*.12;c.beginPath();c.moveTo(sx-r*.05,wl-hh*.86+Math.abs(k)*hh*.12);c.lineTo(sx,wl-hh-r*.14+Math.abs(k)*hh*.16);c.lineTo(sx+r*.05,wl-hh*.86+Math.abs(k)*hh*.12);c.fill();}}
-  const sw=Math.sin(t/1300)*r*.08,hx=bx+r*.55+sw,hy=by-r*.55+Math.sin(t/900)*r*.04;
-  c.fillStyle=col;c.beginPath();c.moveTo(bx+r*.05,wl);c.bezierCurveTo(bx+r*.05,by,hx-r*.45,hy+r*.35,hx-r*.3,hy);c.lineTo(hx+r*.1,hy+r*.1);c.bezierCurveTo(hx-r*.05,hy+r*.5,bx+r*.6,by+r*.1,bx+r*.62,wl);c.closePath();c.fill();
-  c.fillStyle=belly;c.beginPath();c.moveTo(bx+r*.42,wl);c.bezierCurveTo(bx+r*.42,by+r*.15,hx-r*.1,hy+r*.45,hx,hy+r*.18);c.lineTo(hx+r*.08,hy+r*.12);c.bezierCurveTo(hx-r*.02,hy+r*.5,bx+r*.6,by+r*.15,bx+r*.6,wl);c.closePath();c.fill();
-  c.save();c.translate(hx,hy);c.rotate(Math.sin(t/1700)*.08);ell(c,r*.06,-r*.02,r*.5,r*.4,col);ell(c,r*.34,r*.1,r*.26,r*.17,col);disc(c,-r*.16,-r*.2,r*.1,'rgba(255,255,255,.35)');
+// the serpent: one long body rolling through the water in a travelling wave (the coils move, they don't pulse), foam where
+// it breaks the surface, and a curved neck that sways while the head looks about
+function artSerpent(c,boss,bx,by,r,ratio,t){let col=boss.col||'#7FB59A';if(boss.rare)col=`hsl(${(t/20)%360},62%,72%)`;const dark=shadeHex(col,.72),belly=mixHex(col,'#FFF3D0',.45);const wl=by+r*.6;
+  const x0=bx-r*1.5,x1=bx+r*.1,ph=t/1100,yAt=x=>wl+r*.08-r*.34*Math.sin((x-x0)/(r*.62)-ph);
+  c.save();c.beginPath();c.rect(x0-r,wl-r*2,r*3,r*2);c.clip();
+  const body=(w,cl)=>{c.strokeStyle=cl;c.lineWidth=w;c.lineCap='round';c.lineJoin='round';c.beginPath();for(let x=x0;x<=x1;x+=r*.06){const y=yAt(x);x===x0?c.moveTo(x,y):c.lineTo(x,y);}c.stroke();};
+  body(r*.36,dark);body(r*.3,col);
+  for(let x=x0+r*.1;x<=x1-r*.1;x+=r*.17){const y=yAt(x);if(y<wl-r*.1){c.fillStyle='#F2C462';c.beginPath();c.moveTo(x-r*.05,y-r*.13);c.lineTo(x,y-r*.3);c.lineTo(x+r*.05,y-r*.13);c.closePath();c.fill();}}
+  c.restore();
+  // foam where the coils break the surface
+  for(let x=x0;x<=x1;x+=r*.06){const y=yAt(x),yN=yAt(x+r*.06);if((y-wl)*(yN-wl)<=0){c.strokeStyle='rgba(255,255,255,.8)';c.lineWidth=r*.04;c.beginPath();c.ellipse(x,wl+r*.02,r*.2,r*.05,0,0,TAU);c.stroke();}}
+  // the neck: a tapering curve from the water to the head
+  const sw=Math.sin(t/1500)*r*.12,hx=bx+r*.5+sw,hy=by-r*.62+Math.sin(t/1100)*r*.05;const nb=[bx+r*.2,wl+r*.05],c1=[bx+r*.05,by+r*.05],c2=[hx-r*.35+sw*.4,hy+r*.55];
+  c.save();c.beginPath();c.rect(bx-r*2,by-r*3,r*4,wl+r*.02-(by-r*3));c.clip();
+  for(let k=0;k<2;k++){const w0=r*(k?.3:.36),w1=r*(k?.2:.26);const N=18;for(let i=0;i<N;i++){const u=i/(N-1),q=1-u;const x=q*q*q*nb[0]+3*q*q*u*c1[0]+3*q*u*u*c2[0]+u*u*u*hx,y=q*q*q*nb[1]+3*q*q*u*c1[1]+3*q*u*u*c2[1]+u*u*u*(hy+r*.15);disc(c,x,y,(w0+(w1-w0)*u)/2,k?col:dark);}}
+  for(let i=2;i<15;i++){const u=i/17,q=1-u;const x=q*q*q*nb[0]+3*q*q*u*c1[0]+3*q*u*u*c2[0]+u*u*u*hx,y=q*q*q*nb[1]+3*q*q*u*c1[1]+3*q*u*u*c2[1]+u*u*u*(hy+r*.15);disc(c,x+r*.05,y,r*(.08-u*.03),belly);}
+  c.restore();
+  c.strokeStyle='rgba(255,255,255,.8)';c.lineWidth=r*.04;c.beginPath();c.ellipse(nb[0],wl+r*.03,r*.26+Math.sin(t/500)*r*.02,r*.06,0,0,TAU);c.stroke();
+  c.save();c.translate(hx,hy);c.rotate(Math.sin(t/1900)*.1);ell(c,r*.06,-r*.02,r*.5,r*.4,col);ell(c,r*.34,r*.1,r*.26,r*.17,col);disc(c,-r*.16,-r*.2,r*.1,'rgba(255,255,255,.35)');
   for(let i=0;i<3;i++)poly(c,[[-r*.3+i*r*.2,-r*.34],[-r*.2+i*r*.2,-r*.66+Math.abs(i-1)*r*.1],[-r*.1+i*r*.2,-r*.34]],'#F2C462');
   try{bossFace(c,r*.06,-r*.05,r*.55,ratio,t);}catch(e){}c.restore();}
 // characters keep their colours but take the scene's light

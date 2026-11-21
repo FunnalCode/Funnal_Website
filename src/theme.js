@@ -49,10 +49,10 @@ function sceneWrap(name,key){const f=window[name];if(typeof f!=='function'||f.__
 
 /* ---------- cached static layers: drawn once into an offscreen canvas at the current pixel scale ---------- */
 const LCACHE={};
-function layerCache(c,key,x,y,w,h,draw){let sc=1;try{const m=c.getTransform();sc=Math.max(.25,Math.min(S.focus?14:6,Math.hypot(m.a,m.b)));}catch(e){}
-  const k=key+'@'+sc.toFixed(2);let e=LCACHE[k];
+function layerCache(c,key,x,y,w,h,draw){let sc=1;try{const m=c.getTransform();sc=typeof cacheScale==='function'?cacheScale(Math.hypot(m.a,m.b),S.focus?12:6):Math.max(.25,Math.min(6,Math.hypot(m.a,m.b)));}catch(e){}
+  const k=key+'@'+sc.toFixed(3);let e=LCACHE[k];
   if(!e){const cv=document.createElement('canvas');cv.width=Math.ceil(w*sc);cv.height=Math.ceil(h*sc);const q=cv.getContext('2d');q.setTransform(sc,0,0,sc,-x*sc,-y*sc);draw(q);e=LCACHE[k]={cv};
-    const ks=Object.keys(LCACHE);if(ks.length>24)delete LCACHE[ks[0]];}
+    const ks=Object.keys(LCACHE);if(ks.length>24)delete LCACHE[ks[0]];if(typeof cacheTrim==='function')cacheTrim(LCACHE);}
   c.drawImage(e.cv,x,y,w,h);}
 
 /* ---------- first demonstration layer: snowfall, from 1 December or with ?theme=christmas ---------- */

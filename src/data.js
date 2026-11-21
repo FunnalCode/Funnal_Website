@@ -206,8 +206,8 @@ const ITEMS = [
   {id:'fx_whale', name:'Whale Friend', cat:'effect', track:80},
   {id:'fx_aurora', name:'Aurora Sky', cat:'effect', price:15000, lvl:45},
   {id:'fx_fireworks', name:'Victory Fireworks', cat:'effect', track:95},
-  {id:'goldlh', name:'Gilded Trim', cat:'effect', price:25000, lvl:50, dist:1},
-  {id:'shield', name:'Storm Shield', cat:'shield', price:400, lvl:3, desc:'Protects one missed day: cancels its forfeit and keeps your streak.'},
+  // 21 Nov: Gilded Trim is a hull now (it trims the hull in gold), not a sky and sea effect
+  {id:'goldlh', name:'Gilded Trim', cat:'hull', col:'#22304F', col2:'#F2C462', gold:true, price:25000, lvl:50, dist:1, desc:'Midnight blue with gold trim along the whole hull.'},
 ];
 const MERCHANT_ITEMS = [
   {id:'m_jelly', name:'Jellyfish Lamp', cat:'decor', price:1100},
@@ -310,7 +310,6 @@ const SINGLES = [
   ['wings','Pretty Polly','Your companion becomes a Parrot','rare','Companion',['mothStage',3]],
   ['greatmoth','Phoenix Rising','Fully evolve your parrot','mythic','Companion',['mothStage',5]],
   ['redeemed','Back From the Brig','Complete a redemption quest','uncommon','Forfeits',['redemptions',1]],
-  ['shielded','Shield Bearer','Use a Storm Shield','uncommon','Forfeits',['shieldsUsed',1]],
   ['merchant','Pell\'s Favourite','Buy something from the travelling barge','uncommon','Treasure',['merchantBuys',1]],
   ['decorator','Island Decorator','Fill all six spots in your hideout','rare','World',['decorFull',1]],
   ['firstresp','Someone Answered!','Log your first response','common','Responses',['r',1]],

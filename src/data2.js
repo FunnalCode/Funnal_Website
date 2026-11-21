@@ -115,7 +115,7 @@ MORE_ITEMS.forEach(i=>{ITEMS.push(i);ALL_ITEMS[i.id]=i;if(i.track){i.price=0;i.l
 TRACK.sort((a,b)=>a.track-b.track);
 Object.assign(CAT_NAMES,{trail:'Wakes',shot:'Cannonballs'});
 // re-order category tabs
-const CAT_ORDER=['hat','face','coat','hull','sail','flag','figure','deck','trail','shot','decor','moth','effect','shield'];
+const CAT_ORDER=['hat','face','coat','hull','sail','flag','figure','deck','trail','shot','decor','moth','effect'];
 
 /* ---------- Voyage (Lock In) ---------- */
 const VOYAGE_TIERS=[
@@ -147,7 +147,7 @@ const HELP=[
   ['Pet sightings','Once a working day, between 07:00 and 19:00, a limited-time pet is spotted. Log the shown number of DMs before the window closes, then claim it. Rarer pets give shorter windows and need more DMs. Pets rotate with the seasons, so some only appear a few months a year.'],
   ['Lock In voyages','Pick a time, choose a sea monster to fight and set sail. Every DM fires at the monster and pushes your ship on. Strange things appear at sea: tap bottles and chests for loot. When the timer ends you reach Treasure Island and open a chest worth more the more DMs you sent. Full screen mode leaves just the ship and the DM button (space bar works too).'],
   ['Challenges','From Lock In, challenge the other captain: Showdown, Rivalry, Treasure Race, or co-op Century Sprint, Last Push, Boss Rush and Kraken Raid. The other captain has to accept.'],
-  ['Forfeits','If you log zero DMs on a working day, or the crew misses the target, you owe a forfeit. Spin the wheel in the Herald. Forfeits are silly and temporary. Days off you add in Settings never count. Storm Shields cancel one.'],
+  ['Forfeits','If you log zero DMs on a working day, or the crew misses the target, you owe a forfeit. Spin the wheel in the Herald. Forfeits are silly and temporary. Days off you add in Settings never count.'],
   ['Your hideout','Switch from Ship to Hideout to see your pirate cove. It upgrades itself as you level up: a dock at level 5, a lookout tower at 10, a torch-lit skull cave at 20, a rope bridge and hammock at 30, a cannon battery at 40 and a crown for the skull at 50. The treasure pile grows with your doubloons, the tent is stitched from your sails, and the tower flies your flag. Tap anything for details.'],
   ['Feats and gold gear','Some cosmetics cannot be bought. The Golden Funnal Banner is earned by sinking 10 daily sea foes with the crew, the Gilded Funnal Sails at 2,500 lifetime DMs, and the Obsidian & Gold Hull by landing the final blow on 15 foes. They show in the Shop with a gold Feat ribbon and your progress.'],
   ['Full screen and sea sounds','Every harbour, ship, hideout and voyage view has a full screen button in its corner. In full screen you get the scene, a DM sent button (space bar works too) and a soundscape of sea, wind, gulls and creaking timber. The wave button turns the soundscape off; the speaker button mutes everything.'],

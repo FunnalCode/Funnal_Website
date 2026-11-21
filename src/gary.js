@@ -76,12 +76,20 @@ SCREENS.nest=()=>{const n=myNest();const cs=complaintsSoFar();const lf=lostFound
 
 /* ---------- on the Harbour: the nest on the lighthouse, and the doubloon heist ---------- */
 function lighthouseTop(){const B=G&&G.proj?G.proj.find(p=>p.id==='beacon'):null;return 106-(B&&B.built?50:34);}
+function artNestBowl(c,t,coins){ell(c,0,1.4,6.6,2.4,'#6A4A2E');ell(c,0,.6,6,1.6,'#8A6440');c.strokeStyle='#B08050';c.lineWidth=.45;for(let i=0;i<9;i++){c.beginPath();c.moveTo(-6+i*1.5,.4+(i%2)*.9);c.lineTo(-4.6+i*1.4,-.5+(i%3)*.5);c.stroke();}
+  for(let i=0;i<Math.min(coins,5);i++){const gx=-3.6+i*1.8,gy=-.2-(i%2)*.5;disc(c,gx,gy,.95,'#E8B43A');if(Math.sin(t/300+i*2)>.85)disc(c,gx-.3,gy-.3,.35,'#FFFFFF');}}
+function artGaryNest(c,x,y,t){const b=Math.sin(t/700)*.25,look=Math.sin(t/2300)>.6?-1:1;c.save();c.translate(x,y-1.6+b);c.scale(look*1.6,1.6);c.shadowColor='rgba(30,40,60,.45)';c.shadowBlur=1.2;
+  ell(c,1.6,.2,1.6,.7,'#9AA6B0');ell(c,0,-.4,3.4,2.1,'#FFFFFF');ell(c,-.4,-.7,2.4,1.2,'#B8C2CC');poly(c,[[-3.2,-.8],[-4.8,-1.6],[-3.4,.2]],'#3F4A55');
+  disc(c,2.4,-2.6,1.55,'#FFFFFF');poly(c,[[3.6,-2.9],[5.4,-2.5],[3.6,-2.1]],'#F2A33A');disc(c,3.5,-2.25,.25,'#D9485F');disc(c,2.9,-3,.36,'#2C2A28');disc(c,3,-3.1,.12,'#FFFFFF');
+  if(xmasNowSafe()){poly(c,[[1.1,-3.8],[3.8,-4],[2,-6.6]],'#C8102E');R(c,1,-4.2,3,.7,'#FFFFFF');disc(c,1.9,-6.8,.55,'#FFFFFF');}c.restore();}
 function drawNest(c,x,y,t,coins,gary){ell(c,x,y+1.2,6.4,2.2,'#7A5A3A');c.strokeStyle='#A8784A';c.lineWidth=.5;for(let i=0;i<7;i++){c.beginPath();c.moveTo(x-6+i*1.9,y+.4+(i%2)*.8);c.lineTo(x-4+i*1.7,y-.6+(i%3)*.6);c.stroke();}
   for(let i=0;i<Math.min(coins,5);i++){const gx=x-3.6+i*1.8,gy=y-.4-(i%2)*.5;disc(c,gx,gy,.95,'#E8B43A');if(Math.sin(t/300+i*2)>.85)disc(c,gx-.3,gy-.3,.35,'#FFFFFF');}
   if(gary){const b=Math.sin(t/600)*.3;ell(c,x+.5,y-1.6+b,3.2,2,'#FFFFFF');disc(c,x+2.6,y-3.6+b,1.5,'#FFFFFF');poly(c,[[x+3.8,y-3.8+b],[x+5.6,y-3.3+b],[x+3.8,y-2.9+b]],'#F2A33A');disc(c,x+3,y-4+b,.35,'#3F3A30');ell(c,x-1.6,y-1.4+b,2.2,1,'#B8C2CC');
     if(xmasNowSafe()){poly(c,[[x+1.2,y-4.8+b],[x+4,y-5+b],[x+2.2,y-7.6+b]],'#C8102E');R(c,x+1.1,y-5.2+b,3,.7,'#FFFFFF');disc(c,x+2.1,y-7.8+b,.55,'#FFFFFF');}}}
-addLayer('world','garyNest',(c,t)=>{if(!G||!S.me)return;const n=myNest();const top=lighthouseTop();const away=typeof marketOpen==='function'&&marketOpen();const x=114,y=top+12;
-  R(c,x-4,y+2.6,8,.8,'#6B5040');drawNest(c,x,y,t,n.held,!away&&!HEIST.on);if(away)txt(c,'out',x,y-4,'rgba(255,255,255,.7)',4.6,'center');
+// 21 Nov: in the painted look the nest sits on the lighthouse gallery with a proper Gary in it (it read as stray eggs half way up the tower)
+addLayer('world','garyNest',(c,t)=>{if(!G||!S.me)return;const n=myNest();const top=lighthouseTop();const away=typeof marketOpen==='function'&&marketOpen();const art=typeof isArtLook==='function'&&isArtLook();const x=art?118.4:114,y=art?top-3.6:top+12;
+  if(art){R(c,x-5.6,y+2.4,4,.8,'#4A3A30');line(c,x-3,y+3,x-5,y+5.2,'#4A3A30',.6);c.save();c.translate(x,y);c.scale(1.3,1.3);artNestBowl(c,t,n.held);c.restore();if(!away&&!HEIST.on)artGaryNest(c,x,y-1,t);}
+  else{R(c,x-4,y+2.6,8,.8,'#6B5040');drawNest(c,x,y,t,n.held,!away&&!HEIST.on);}if(away&&!art)txt(c,'out',x,y-4,'rgba(255,255,255,.7)',4.6,'center');
   hit(x-8,y-9,16,13,"Gary's nest",n.held?`${n.held} of your doubloons are in here. Hit the target to get them back. Tap to visit.`:'Twigs, chip papers and anything shiny. Tap to visit.',{go:'nest'});},{scenes:['harbour'],z:4});
 const HEIST={on:false,t0:0,back:false};
 addLayer('fx','garyHeist',(c,t)=>{if(!HEIST.on)return;const u=(performance.now()-HEIST.t0)/5200;if(u>=1){HEIST.on=false;return;}const top=lighthouseTop();
@@ -93,7 +101,8 @@ function heistCheck(){try{if(!G||!S.me||S.screen!=='harbour')return;const n=myNe
 {const _rdH=render;render=function(){_rdH.apply(this,arguments);setTimeout(heistCheck,600);};}
 
 /* scene hit regions that open a screen: {go:'nest'} */
-document.addEventListener('click',ev=>{const cv=ev.target.closest&&ev.target.closest('canvas.scene');if(!cv||cv.id==='focusCv'||!S.hits)return;const r=cv.getBoundingClientRect();const x=(ev.clientX-r.left)/r.width*W,y=(ev.clientY-r.top)/r.height*H;
-  for(let i=S.hits.length-1;i>=0;i--){const h=S.hits[i];if(x>=h.x&&x<=h.x+h.w&&y>=h.y&&y<=h.y+h.h){if(h.act&&h.act.go){const tp=document.getElementById('tip');if(tp)tp.hidden=true;setTimeout(()=>{location.hash='#'+h.act.go;},120);}return;}}});
+// 21 Nov: works in full screen too (it leaves full screen and goes there)
+document.addEventListener('click',ev=>{const cv=ev.target.closest&&ev.target.closest('canvas.scene');if(!cv||!S.hits)return;const r=cv.getBoundingClientRect();let x=(ev.clientX-r.left)/r.width*W,y=(ev.clientY-r.top)/r.height*H;const fs=cv.id==='focusCv';if(fs){const f=S.focusXf;if(!f)return;x=((ev.clientX-r.left)*f.dpr-f.ox)/f.s;y=((ev.clientY-r.top)*f.dpr-f.oy)/f.s;}
+  for(let i=S.hits.length-1;i>=0;i--){const h=S.hits[i];if(x>=h.x&&x<=h.x+h.w&&y>=h.y&&y<=h.y+h.h){if(h.act&&h.act.go){const tp=document.getElementById('tip');if(tp)tp.hidden=true;setTimeout(()=>{if(fs)try{focusOff();}catch(e){}location.hash='#'+h.act.go;},fs?260:120);}return;}}});
 
 HELP.push(["Gary's nest",'Gary lives on top of the Funnal Cove lighthouse. On a missed-target day he pinches one doubloon from each captain; the next day you hit the target he gives them all back, plus one chip. Tap the nest to see what he has, his complaints drawer, and the Lost and Found (things the other captain owns, at a 25% markup). Poke him on his Harbour card for a comment.']);

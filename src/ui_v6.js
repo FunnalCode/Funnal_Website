@@ -47,3 +47,5 @@ const _openModal6=openModal;openModal=function(html){_openModal6(html);try{paint
 /* 21 Nov: every More tile gets its own icon and colour (Hall of Fame and Achievements both had a star; Vault matched the review) */
 APP_ICONS.hall=['#3E7C8A','M7 3h10v2h3v3a4 4 0 0 1-4 4h-.4A5 5 0 0 1 13 14.9V17h3v2.2H8V17h3v-2.1A5 5 0 0 1 8.4 12H8a4 4 0 0 1-4-4V5h3zM6 7v1a2 2 0 0 0 1 1.7V7zm12 0h-1v2.7A2 2 0 0 0 18 8zM7 20.4h10V22H7z'];
 APP_ICONS.book=['#DDA94D','M6 2h4l2 4 2-4h4l-3.4 5.9A6.5 6.5 0 1 1 9.4 7.9zM12 10.5a3.5 3.5 0 1 0 0 7a3.5 3.5 0 1 0 0-7z'];
+// 21 Nov: the Trophy case gets a proper fish
+APP_ICONS.trophy=['#3E9FB8','M1.6 12C4.2 7.8 8 5.8 12 5.8c3.4 0 6.3 1.6 8.4 4.2l2-3.2v10.4l-2-3.2c-2.1 2.6-5 4.2-8.4 4.2-4 0-7.8-2-10.4-6.2zM8.4 10.6a1.4 1.4 0 0 0-2.8 0a1.4 1.4 0 0 0 2.8 0zM12.6 15.6c1.4-1 2.2-2.2 2.2-3.6s-.8-2.6-2.2-3.6c.6 1.1.9 2.3.9 3.6s-.3 2.5-.9 3.6z'];

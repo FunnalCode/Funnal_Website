@@ -77,7 +77,7 @@ function drawPetIcon(cv,pet,sil){cv.width=120;cv.height=120;const c=cv.getContex
 const EM_COLS=['#9AA3AE','#5DBE9C','#4A7EC2','#9B5DE5','#E2AE45'];
 function drawEmissary(c,x,y,grade,t){const col=EM_COLS[grade];const len=10+grade*2.4;c.fillStyle=col;c.beginPath();c.moveTo(x,y);for(let i=0;i<=6;i++)c.lineTo(x+i*len/6,y+Math.sin(t/180+i*.8)*.8+i*.25);for(let i=6;i>=0;i--)c.lineTo(x+i*len/6,y+4.6-i*.38+Math.sin(t/180+i*.8)*.8);c.closePath();c.fill();
   for(let i=0;i<=grade;i++)disc(c,x+1.8+i*2,y+2.2+Math.sin(t/180+i)*.5,.6,'#FFFFFF');if(grade===4)glowAt(c,x+len/2,y+2,8,'255,214,110',.35);}
-function drawWake(c,x,y,st,t,s=1){if(!st)return;for(let i=0;i<9;i++){const p=((t/900)+i/9)%1;const wx=x-p*40*s,wy=y+Math.sin(p*9+i)*1.5*s;const a=1-p;
+function drawWake(c,x,y,st,t,s=1){if(!st)return;for(let i=0;i<9;i++){const p=((t/2200)+i/9)%1;const wx=x-p*40*s,wy=y+Math.sin(p*9+i)*1.5*s;const a=1-p;
   if(st==='bubbles'){c.strokeStyle=`rgba(255,255,255,${a})`;c.lineWidth=.5*s;c.beginPath();c.arc(wx,wy,(1+p*2)*s,0,TAU);c.stroke();}
   else if(st==='sparkle')disc(c,wx,wy,(1.2-p)*s,`rgba(255,240,170,${a})`);
   else if(st==='petals')ell(c,wx,wy,1.2*s,.6*s,`rgba(247,182,204,${a})`,p*6);
