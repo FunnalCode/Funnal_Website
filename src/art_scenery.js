@@ -419,13 +419,13 @@ const ART_OFF=new Map();function artOffCanvas(k,w,h){let e=ART_OFF.get(k);if(!e)
   if(cv.width<w||cv.height<h||cv.width>w*2.5+64||cv.height>h*2.5+64){cv.width=Math.ceil(w*1.15)+8;cv.height=Math.ceil(h*1.15)+8;}const q=e.q;q.setTransform(1,0,0,1,0,0);q.globalCompositeOperation='source-over';q.globalAlpha=1;q.clearRect(0,0,w+2,h+2);return [cv,q];}
 // draw into an offscreen canvas in device pixels, keeping the caller's full transform (scale, rotation, translation)
 const ART_MAXPX=150000;
-function artDevBox(c,lx,ly,lw,lh){const m=c.getTransform();const pts=[[lx,ly],[lx+lw,ly],[lx,ly+lh],[lx+lw,ly+lh]].map(([x,y])=>[m.a*x+m.c*y+m.e,m.b*x+m.d*y+m.f]);
-  const x0=Math.floor(Math.min(...pts.map(p=>p[0]))),y0=Math.floor(Math.min(...pts.map(p=>p[1]))),x1=Math.ceil(Math.max(...pts.map(p=>p[0]))),y1=Math.ceil(Math.max(...pts.map(p=>p[1])));const w=x1-x0,h=y1-y0;const f=Math.min(1,Math.sqrt(ART_MAXPX/Math.max(1,w*h)));return {m,x0,y0,w,h,sc:Math.hypot(m.a,m.b),f,ow:Math.max(1,Math.ceil(w*f)),oh:Math.max(1,Math.ceil(h*f))};}
+function artDevBox(c,lx,ly,lw,lh,maxpx){const m=c.getTransform();const pts=[[lx,ly],[lx+lw,ly],[lx,ly+lh],[lx+lw,ly+lh]].map(([x,y])=>[m.a*x+m.c*y+m.e,m.b*x+m.d*y+m.f]);
+  const x0=Math.floor(Math.min(...pts.map(p=>p[0]))),y0=Math.floor(Math.min(...pts.map(p=>p[1]))),x1=Math.ceil(Math.max(...pts.map(p=>p[0]))),y1=Math.ceil(Math.max(...pts.map(p=>p[1])));const w=x1-x0,h=y1-y0;const f=Math.min(1,Math.sqrt((maxpx||ART_MAXPX)/Math.max(1,w*h)));return {m,x0,y0,w,h,sc:Math.hypot(m.a,m.b),f,ow:Math.max(1,Math.ceil(w*f)),oh:Math.max(1,Math.ceil(h*f))};}
 let ART_EYES=null;
 {const _bf=bossFace;bossFace=function(c,cx,cy,r,ratio,t,look){if(ART_EYES){const m=c.getTransform(),er=Math.max(1.2,r/7.5);[-r*.32,r*.32].forEach(dx=>{const x=cx+dx,y=cy;ART_EYES.push({x:m.a*x+m.c*y+m.e,y:m.b*x+m.d*y+m.f,r:er*Math.hypot(m.a,m.b),blink:(t%3700)<130,dizzy:ratio<.25});});}return _bf.apply(this,arguments);};}
 {const _kf=bkFace;bkFace=function(c,K,fx,fy,fr,ratio,t,mood){if(ART_EYES){const m=c.getTransform(),n=K.eyes||2,er=Math.max(1,fr/6.8);const xs=n===1?[0]:n===3?[-fr*.42,0,fr*.42]:[-fr*.32,fr*.32];
     xs.forEach((dx,k)=>{const x=fx+dx,y=fy-(n===3&&k===1?fr*.12:0);ART_EYES.push({x:m.a*x+m.c*y+m.e,y:m.b*x+m.d*y+m.f,r:er*(n===1?1.7:1)*Math.hypot(m.a,m.b),blink:(t%(3300+(K.seed||0)%900))<120,dizzy:ratio<.25});});}return _kf.apply(this,arguments);};}
-function artSilhouette(c,box,draw,o={}){const b=artDevBox(c,...box);if(b.w<2||b.h<2||b.w>3000||b.h>3000){draw(c);return;}const P=artPal();
+function artSilhouette(c,box,draw,o={}){const b=artDevBox(c,...box,o.maxpx||70000);if(b.w<2||b.h<2||b.w>3000||b.h>3000){draw(c);return;}const P=artPal();
   const f=b.f,ow=b.ow,oh=b.oh;const [A,qa]=artOffCanvas('sA',ow,oh);qa.setTransform(b.m.a*f,b.m.b*f,b.m.c*f,b.m.d*f,(b.m.e-b.x0)*f,(b.m.f-b.y0)*f);ART_EYES=[];try{draw(qa);}catch(e){}const eyes=ART_EYES||[];ART_EYES=null;
   const [B,qb]=artOffCanvas('sB',ow,oh);qb.drawImage(A,0,0,ow,oh,0,0,ow,oh);qb.globalCompositeOperation='source-atop';qb.fillStyle=o.col||shadeHex(P.near,.6);qb.globalAlpha=o.a==null?.84:o.a;qb.fillRect(0,0,ow,oh);qb.globalAlpha=1;qb.globalCompositeOperation='source-over';
   const [Cr,qc]=artOffCanvas('sC',ow,oh);qc.drawImage(A,0,0,ow,oh,0,0,ow,oh);qc.globalCompositeOperation='source-in';const rim=SUN&&SUN.night?'200,215,255':SUN?SUN.col:'255,240,210';qc.fillStyle=`rgb(${rim})`;qc.fillRect(0,0,ow,oh);qc.globalCompositeOperation='source-over';
@@ -436,10 +436,10 @@ function artSilhouette(c,box,draw,o={}){const b=artDevBox(c,...box);if(b.w<2||b.
     c.fillStyle=`rgba(255,226,150,${fl})`;c.beginPath();c.arc(ex,ey,er,0,TAU);c.fill();c.fillStyle=`rgba(255,250,230,${fl})`;c.beginPath();c.arc(ex-er*.25,ey-er*.25,er*.4,0,TAU);c.fill();});
   c.restore();}
 const artFoeScene=()=>ART_EYES===null&&isArtLook()&&!!THEME.scene&&['harbour','voyage'].includes(THEME.scene);
-{const _db2=drawBoss;drawBoss=function(c,boss,bx,by,r,ratio,t,flash,...rest){if(!artFoeScene())return _db2.call(this,c,boss,bx,by,r,ratio,t,flash,...rest);const self=this;const pad=r*2.8;
-  artSilhouette(c,[bx-pad,by-pad,pad*2,pad*2.2],q=>_db2.call(self,q,boss,bx,by,r,ratio,t,false,...rest),{flash});};}
-if(typeof drawMonster==='function'){const _dm=drawMonster;drawMonster=function(c,mon,x,y,r,ratio,t,flash,elite){if(!artFoeScene())return _dm.apply(this,arguments);const self=this;const pad=r*2.8;
-  artSilhouette(c,[x-pad,y-pad,pad*2,pad*2.2],q=>_dm.call(self,q,mon,x,y,r,ratio,t,false,elite),{flash,a:elite?.78:.84});};}
+{const _db2=drawBoss;drawBoss=function(c,boss,bx,by,r,ratio,t,flash,...rest){if(!artFoeScene())return _db2.call(this,c,boss,bx,by,r,ratio,t,flash,...rest);const self=this;const pad=r*2.4;
+  artSilhouette(c,[bx-pad,by-pad,pad*2,pad*2.1],q=>_db2.call(self,q,boss,bx,by,r,ratio,t,false,...rest),{flash});};}
+if(typeof drawMonster==='function'){const _dm=drawMonster;drawMonster=function(c,mon,x,y,r,ratio,t,flash,elite){if(!artFoeScene())return _dm.apply(this,arguments);const self=this;const pad=r*2.4;
+  artSilhouette(c,[x-pad,y-pad,pad*2,pad*2.1],q=>_dm.call(self,q,mon,x,y,r,ratio,t,false,elite),{flash,a:elite?.78:.84});};}
 // characters keep their colours but take the scene's light
 function artLightCol(){if(!isArtLook()||!THEME.scene)return null;if(THEME.scene==='tavern')return ['#B0602A',.1];if(THEME.weather==='storm')return ['#2A2840',.28];const m=artMode();return {night:['#1A2560',.34],sunset:['#7A2A5A',.14],dawn:['#6A4A8A',.12],gold:['#A0502A',.1]}[m]||null;}
 // the painted finish: soft light from the top left, shade towards the bottom right, the scene's light, and a faint rim of light in scenes
