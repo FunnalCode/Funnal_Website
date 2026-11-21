@@ -82,7 +82,7 @@ function drawSail(c,x,y,w,h,sid,t,showMark){const s=it(sid)||it('sail_canvas');c
 
 /* ---------- The ship ---------- */
 function drawShip(c,x,y,s,pl,t,opts={}){
-  if(typeof artShip==='function'&&isArtLook()&&THEME.scene)return artShip(c,x,y,s,pl,t,opts);
+  if(typeof artShip==='function'&&isArtLook())return artShip(c,x,y,s,pl,t,opts);
   pl=pl||{};const hull=it(pl.hull||SHIP_DEFAULT.hull)||it('hull_oak');const gild=pl.effect==='goldlh'||hull.gold;const ph=opts.phase||0,night=SUN.night;
   const fire=opts.firing>0?opts.firing:0,kick=fire*fire;const trim=gild?'#F2C462':'#6B4429';
   const rock=Math.sin(t/900+ph)*.04+Math.sin(t/410+ph*2)*.012-kick*.045,bob=Math.sin(t/650+ph)*1.3+Math.sin(t/270+ph)*.3;

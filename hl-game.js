@@ -1537,7 +1537,7 @@ function drawSail(c,x,y,w,h,sid,t,showMark){const s=it(sid)||it('sail_canvas');c
 
 /* ---------- The ship ---------- */
 function drawShip(c,x,y,s,pl,t,opts={}){
-  if(typeof artShip==='function'&&isArtLook()&&THEME.scene)return artShip(c,x,y,s,pl,t,opts);
+  if(typeof artShip==='function'&&isArtLook())return artShip(c,x,y,s,pl,t,opts);
   pl=pl||{};const hull=it(pl.hull||SHIP_DEFAULT.hull)||it('hull_oak');const gild=pl.effect==='goldlh'||hull.gold;const ph=opts.phase||0,night=SUN.night;
   const fire=opts.firing>0?opts.firing:0,kick=fire*fire;const trim=gild?'#F2C462':'#6B4429';
   const rock=Math.sin(t/900+ph)*.04+Math.sin(t/410+ph*2)*.012-kick*.045,bob=Math.sin(t/650+ph)*1.3+Math.sin(t/270+ph)*.3;
@@ -6371,18 +6371,18 @@ function artSail(c,cx,top,w,h,bel,sail,scol,sdk,t,mark,billow){const l=cx-w/2,r=
   c.fillStyle='rgba(0,0,0,.12)';c.beginPath();c.moveTo(cx+w*.12,top);c.lineTo(r+3,top);c.lineTo(r+bel+wv+3,top+h);c.lineTo(cx+w*.12,b+bel);c.closePath();c.fill();
   c.restore();}
 function artShip(c,x,y,s,pl,t,opts={}){
-  pl=pl||{};const hull=it(pl.hull||SHIP_DEFAULT.hull)||it('hull_oak');const sail=it(pl.sail||SHIP_DEFAULT.sail)||it('sail_canvas');const P=artPal();const night=!!(SUN&&SUN.night);
-  const lit=artLitNow()||THEME.weather==='storm';const ph=opts.phase||0;const gild=pl.effect==='goldlh'||hull.gold;const fire=opts.firing>0?opts.firing:0,kick=fire*fire;
+  pl=pl||{};const hull=it(pl.hull||SHIP_DEFAULT.hull)||it('hull_oak');const sail=it(pl.sail||SHIP_DEFAULT.sail)||it('sail_canvas');const neutral=!THEME.scene;const P=neutral?ART_PAL.day:artPal();const night=!neutral&&!!(SUN&&SUN.night);
+  const lit=!neutral&&(artLitNow()||THEME.weather==='storm');const ph=opts.phase||0;const gild=pl.effect==='goldlh'||hull.gold;const fire=opts.firing>0?opts.firing:0,kick=fire*fire;
   const rock=Math.sin(t/900+ph)*.04+Math.sin(t/410+ph*2)*.012-kick*.045,bob=Math.sin(t/650+ph)*1.3+Math.sin(t/270+ph)*.3;
-  const shadow=shadeHex(P.isl,.78);const hc=mixHex(hull.col||'#A8704A',shadow,night?.55:.4),hd=shadeHex(hc,.7),hlc=shadeHex(hc,1.32),wood=mixHex('#3A2418',shadow,.45);
-  let scol=mixHex(sail.col||'#FFFCF2',P.fog,.1);if(night)scol=mixHex(scol,'#3A4B82',.38);else if(SUN&&SUN.mode!=='day')scol=mixHex(scol,P.sky[2],.14);const sdk=shadeHex(scol,.86);
+  const shadow=shadeHex(P.isl,.78);const hc=mixHex(hull.col||'#A8704A',shadow,neutral?.12:night?.55:.4),hd=shadeHex(hc,.7),hlc=shadeHex(hc,1.32),wood=mixHex('#3A2418',shadow,.45);
+  let scol=neutral?(sail.col||'#FFFCF2'):mixHex(sail.col||'#FFFCF2',P.fog,.1);if(night)scol=mixHex(scol,'#3A4B82',.38);else if(SUN&&SUN.mode!=='day')scol=mixHex(scol,P.sky[2],.14);const sdk=shadeHex(scol,.86);
   const lights='#FFC46A',lampOn=lit;const billow=wind(t)*2;
   c.save();c.translate(x-kick*2.2*s,y+bob*s*.4);
   // reflection: a dark, squashed mirror image and long streaks under the lights
-  c.save();c.scale(s,s);c.save();c.globalAlpha=.26;c.translate(0,4.6);c.scale(.45,-.45*.72);c.fillStyle=hc;c.fill(artHullPath());c.fillStyle=wood;[[-42,-98],[6,-152],[52,-102]].forEach(([mx,top])=>c.fillRect(mx-1.6,top,3.2,-14-top));c.restore();
+  if(!neutral){c.save();c.scale(s,s);c.save();c.globalAlpha=.26;c.translate(0,4.6);c.scale(.45,-.45*.72);c.fillStyle=hc;c.fill(artHullPath());c.fillStyle=wood;[[-42,-98],[6,-152],[52,-102]].forEach(([mx,top])=>c.fillRect(mx-1.6,top,3.2,-14-top));c.restore();
   if(lampOn){[[-21.6,7],[-29.7,3],[45,3]].forEach(([lx,wd],k)=>{for(let i=0;i<7;i++){const ww=wd*(.6+.5*Math.sin(t/300+i*1.7+k));c.fillStyle=`rgba(255,196,106,${.55-i*.07})`;c.fillRect(lx-ww/2+Math.sin(t/400+i)*.8,4+i*1.6,ww,.7);}});}
   else for(let i=0;i<4;i++){c.fillStyle=rgbaOf(shadow,.18-i*.04);c.fillRect(-28+Math.sin(t/300+i+ph)*2,4+i*2.2,56-i*6,1.2);}
-  c.restore();
+  c.restore();}
   c.rotate(rock);c.scale(s,s);
   if(pl.trail)drawWake(c,-34,1,(it(pl.trail)||{}).st,t,1);
   if(opts.moving)for(let i=0;i<8;i++){const q=((t/520)+i/8)%1;disc(c,-34-q*30,1.6+Math.sin(i*2.3)*1.3,1.7*(1-q)+.4,`rgba(255,255,255,${.6*(1-q)})`);}
@@ -6424,8 +6424,8 @@ function artShip(c,x,y,s,pl,t,opts={}){
   if(pl.figure)drawFigure(c,36,-17.6,pl.figure);
   if(gild)for(let i=0;i<3;i++){const tw=Math.sin(t/260+i*2.1);if(tw>.5){const gx=-20+i*22,gy=-9;line(c,gx-1.6,gy,gx+1.6,gy,'#FFF6CF',.4);line(c,gx,gy-1.6,gx,gy+1.6,'#FFF6CF',.4);}}
   // water lapping at the hull and a little bow spray
-  {const hz=ART_HZ[THEME.scene]||108,f=Math.max(0,Math.min(1,(y-hz)/(H-hz)));const wc=f<.3?mixHex(P.sea[0],P.sea[1],f/.3):mixHex(P.sea[1],P.sea[2],(f-.3)/.7);c.fillStyle=rgbaOf(wc,.9);}c.beginPath();c.moveTo(-36,0);for(let i=0;i<=8;i++)c.quadraticCurveTo(-36+i*9.6+4.8,-1.4+Math.sin(t/300+i)*.6,-36+(i+1)*9.6,0);c.lineTo(48,6);c.lineTo(-36,6);c.closePath();c.fill();
-  c.fillStyle=rgbaOf(P.rip,.35);c.fillRect(-30,.4,64,.4);
+  if(!neutral){const hz=ART_HZ[THEME.scene]||108,f=Math.max(0,Math.min(1,(y-hz)/(H-hz)));const wc=f<.3?mixHex(P.sea[0],P.sea[1],f/.3):mixHex(P.sea[1],P.sea[2],(f-.3)/.7);c.fillStyle=rgbaOf(wc,.9);c.beginPath();c.moveTo(-36,0);for(let i=0;i<=8;i++)c.quadraticCurveTo(-36+i*9.6+4.8,-1.4+Math.sin(t/300+i)*.6,-36+(i+1)*9.6,0);c.lineTo(48,6);c.lineTo(-36,6);c.closePath();c.fill();
+  c.fillStyle=rgbaOf(P.rip,.35);c.fillRect(-30,.4,64,.4);}
   if(opts.moving)for(let i=0;i<7;i++){const q=((t/380)+i/7)%1;disc(c,37+q*5-i%3,-1-Math.sin(q*Math.PI)*(4+i%3*1.5),1.3*(1-q)+.3,`rgba(255,255,255,${.85*(1-q)})`);}
   if(fire){const p=1-fire;if(p<.3){lamp(c,37,-13,5+10*(1-p/.3),.9,'255,200,90');disc(c,36.5,-13,2.4*(1-p/.3),'#FFF1B8');}for(let i=0;i<5;i++)disc(c,34+p*9+i*2.2,-14-p*8-i*1.2,2+p*3.4,`rgba(250,250,250,${.7*(1-p)})`);}
   c.restore();}
@@ -6438,8 +6438,6 @@ function artTinted(c,bx,by,bw,bh,col,a,draw){let sc=1;try{const m=c.getTransform
   q.setTransform(1,0,0,1,0,0);q.clearRect(0,0,cv.width,cv.height);q.setTransform(sc,0,0,sc,-bx*sc,-by*sc);try{draw(q);}catch(e){}
   q.setTransform(1,0,0,1,0,0);q.globalCompositeOperation='source-atop';q.globalAlpha=a;q.fillStyle=col;q.fillRect(0,0,cw,ch);q.globalAlpha=1;q.globalCompositeOperation='source-over';
   c.drawImage(cv,0,0,cw,ch,bx,by,bw,bh);}
-{const _db=drawBoss;drawBoss=function(c,boss,bx,by,r,...rest){if(!isArtLook()||!THEME.scene||!['harbour','voyage'].includes(THEME.scene))return _db.call(this,c,boss,bx,by,r,...rest);
-  const P=artPal();const self=this;const pad=r*2.8;artTinted(c,bx-pad,by-pad,pad*2,pad*2.2,shadeHex(P.near,.7),.55,q=>_db.call(self,q,boss,bx,by,r,...rest));};}
 
 
 /* ---------- the port town: a hillside of timber houses, a fort, a church tower and a stone quay ---------- */
@@ -6637,6 +6635,45 @@ addLayer('sea','artVoyRefl',(c,t,ctx)=>{if(!VOY.lk||!VOY.cvCur)return;const y0=A
 // lightning over the far peaks on a stormy voyage
 addLayer('fx','artVoyStorm',(c,t)=>{const k=Math.floor(t/2600),u=(t%2600);if(h32('vl'+k)%3!==0||u>160)return;c.fillStyle=`rgba(230,225,255,${.28*(1-u/160)})`;c.fillRect(-90,-300,W+180,H+600);
   let x=60+h32('vx'+k)%200,y=-10;c.strokeStyle='rgba(245,240,255,.9)';c.lineWidth=1;c.beginPath();c.moveTo(x,y);while(y<ART_HZ.voyage-10){x+=(h32('vj'+k+y)%11)-5;y+=8;c.lineTo(x,y);}c.stroke();},{scenes:['voyage'],z:11,when:()=>isArtLook()&&THEME.weather==='storm'});
+
+/* ============================== ART STAGE C: FOES, CHARACTERS, SHIPS EVERYWHERE ==============================
+   Sea foes become painted silhouettes with a rim of light on their top edge and glowing eyes that still blink, glare
+   and go dizzy as they lose HP; a hit still flashes them white. The captains, pets and Gary keep their own designs
+   (they are who they are) but now take the scene's light: cool blue at night, rose at sunset, grey in a storm.
+   Shop and wardrobe pictures show the new ship. Everything works through transforms, so ships rocking, monsters
+   rising out of the water and the Harbour's zoomed views all line up. */
+const ART_OFF=[];function artOffCanvas(i,w,h){let cv=ART_OFF[i];if(!cv){cv=ART_OFF[i]=document.createElement('canvas');}if(cv.width<w)cv.width=w;if(cv.height<h)cv.height=h;const q=cv.getContext('2d');q.setTransform(1,0,0,1,0,0);q.clearRect(0,0,cv.width,cv.height);return [cv,q];}
+// draw into an offscreen canvas in device pixels, keeping the caller's full transform (scale, rotation, translation)
+function artDevBox(c,lx,ly,lw,lh){const m=c.getTransform();const pts=[[lx,ly],[lx+lw,ly],[lx,ly+lh],[lx+lw,ly+lh]].map(([x,y])=>[m.a*x+m.c*y+m.e,m.b*x+m.d*y+m.f]);
+  const x0=Math.floor(Math.min(...pts.map(p=>p[0]))),y0=Math.floor(Math.min(...pts.map(p=>p[1]))),x1=Math.ceil(Math.max(...pts.map(p=>p[0]))),y1=Math.ceil(Math.max(...pts.map(p=>p[1])));return {m,x0,y0,w:x1-x0,h:y1-y0,sc:Math.hypot(m.a,m.b)};}
+let ART_EYES=null;
+{const _bf=bossFace;bossFace=function(c,cx,cy,r,ratio,t,look){if(ART_EYES){const m=c.getTransform(),er=Math.max(1.2,r/7.5);[-r*.32,r*.32].forEach(dx=>{const x=cx+dx,y=cy;ART_EYES.push({x:m.a*x+m.c*y+m.e,y:m.b*x+m.d*y+m.f,r:er*Math.hypot(m.a,m.b),blink:(t%3700)<130,dizzy:ratio<.25});});}return _bf.apply(this,arguments);};}
+{const _kf=bkFace;bkFace=function(c,K,fx,fy,fr,ratio,t,mood){if(ART_EYES){const m=c.getTransform(),n=K.eyes||2,er=Math.max(1,fr/6.8);const xs=n===1?[0]:n===3?[-fr*.42,0,fr*.42]:[-fr*.32,fr*.32];
+    xs.forEach((dx,k)=>{const x=fx+dx,y=fy-(n===3&&k===1?fr*.12:0);ART_EYES.push({x:m.a*x+m.c*y+m.e,y:m.b*x+m.d*y+m.f,r:er*(n===1?1.7:1)*Math.hypot(m.a,m.b),blink:(t%(3300+(K.seed||0)%900))<120,dizzy:ratio<.25});});}return _kf.apply(this,arguments);};}
+function artSilhouette(c,box,draw,o={}){const b=artDevBox(c,...box);if(b.w<2||b.h<2||b.w>3000||b.h>3000){draw(c);return;}const P=artPal();
+  const [A,qa]=artOffCanvas(0,b.w,b.h);qa.setTransform(b.m.a,b.m.b,b.m.c,b.m.d,b.m.e-b.x0,b.m.f-b.y0);ART_EYES=[];try{draw(qa);}catch(e){}const eyes=ART_EYES||[];ART_EYES=null;
+  const [B,qb]=artOffCanvas(1,b.w,b.h);qb.drawImage(A,0,0);qb.globalCompositeOperation='source-atop';qb.fillStyle=o.col||shadeHex(P.near,.6);qb.globalAlpha=o.a==null?.84:o.a;qb.fillRect(0,0,b.w,b.h);qb.globalAlpha=1;qb.globalCompositeOperation='source-over';
+  const [Cr,qc]=artOffCanvas(2,b.w,b.h);qc.drawImage(A,0,0);qc.globalCompositeOperation='source-in';const rim=SUN&&SUN.night?'200,215,255':SUN?SUN.col:'255,240,210';qc.fillStyle=`rgb(${rim})`;qc.fillRect(0,0,b.w,b.h);qc.globalCompositeOperation='source-over';
+  c.save();c.setTransform(1,0,0,1,0,0);const k=Math.max(1,b.sc*.7);c.globalAlpha=.55;c.drawImage(Cr,0,0,b.w,b.h,b.x0-k,b.y0-k,b.w,b.h);c.globalAlpha=1;c.drawImage(B,0,0,b.w,b.h,b.x0,b.y0,b.w,b.h);
+  if(o.flash){c.globalAlpha=.75;c.drawImage(Cr,0,0,b.w,b.h,b.x0,b.y0,b.w,b.h);c.globalAlpha=1;}
+  const tm=performance.now();eyes.forEach((e,i)=>{if(e.blink)return;const fl=e.dizzy?(.4+.6*Math.abs(Math.sin(tm/120+i))):1;const ex=b.x0+e.x,ey=b.y0+e.y;const er=Math.max(1,e.r*.8);
+    const g=c.createRadialGradient(ex,ey,0,ex,ey,er*5);g.addColorStop(0,`rgba(255,200,110,${.55*fl})`);g.addColorStop(1,'rgba(255,200,110,0)');c.fillStyle=g;c.fillRect(ex-er*5,ey-er*5,er*10,er*10);
+    c.fillStyle=`rgba(255,226,150,${fl})`;c.beginPath();c.arc(ex,ey,er,0,TAU);c.fill();c.fillStyle=`rgba(255,250,230,${fl})`;c.beginPath();c.arc(ex-er*.25,ey-er*.25,er*.4,0,TAU);c.fill();});
+  c.restore();}
+const artFoeScene=()=>ART_EYES===null&&isArtLook()&&!!THEME.scene&&['harbour','voyage'].includes(THEME.scene);
+{const _db2=drawBoss;drawBoss=function(c,boss,bx,by,r,ratio,t,flash,...rest){if(!artFoeScene())return _db2.call(this,c,boss,bx,by,r,ratio,t,flash,...rest);const self=this;const pad=r*2.8;
+  artSilhouette(c,[bx-pad,by-pad,pad*2,pad*2.2],q=>_db2.call(self,q,boss,bx,by,r,ratio,t,false,...rest),{flash});};}
+if(typeof drawMonster==='function'){const _dm=drawMonster;drawMonster=function(c,mon,x,y,r,ratio,t,flash,elite){if(!artFoeScene())return _dm.apply(this,arguments);const self=this;const pad=r*2.8;
+  artSilhouette(c,[x-pad,y-pad,pad*2,pad*2.2],q=>_dm.call(self,q,mon,x,y,r,ratio,t,false,elite),{flash,a:elite?.78:.84});};}
+// characters keep their colours but take the scene's light
+function artLightCol(){if(!isArtLook()||!THEME.scene)return null;if(THEME.weather==='storm')return ['#2A2840',.28];const m=artMode();return {night:['#1A2560',.34],sunset:['#7A2A5A',.14],dawn:['#6A4A8A',.12],gold:['#A0502A',.1]}[m]||null;}
+function artLit(c,box,draw){const L_=artLightCol();if(!L_){draw(c);return;}const b=artDevBox(c,...box);if(b.w<2||b.h<2||b.w>2000||b.h>2000){draw(c);return;}
+  const [A,qa]=artOffCanvas(3,b.w,b.h);qa.setTransform(b.m.a,b.m.b,b.m.c,b.m.d,b.m.e-b.x0,b.m.f-b.y0);try{draw(qa);}catch(e){}qa.setTransform(1,0,0,1,0,0);qa.globalCompositeOperation='source-atop';qa.fillStyle=L_[0];qa.globalAlpha=L_[1];qa.fillRect(0,0,b.w,b.h);qa.globalAlpha=1;qa.globalCompositeOperation='source-over';
+  c.save();c.setTransform(1,0,0,1,0,0);c.drawImage(A,0,0,b.w,b.h,b.x0,b.y0,b.w,b.h);c.restore();}
+{const _dk=drawKeeper;drawKeeper=function(c,x,y,pid,pl,t,opts){const self=this,a=arguments;if(!artLightCol())return _dk.apply(self,a);artLit(c,[x-8,y-10,26,26],q=>_dk.call(self,q,x,y,pid,pl,t,opts));};}
+{const _dp=drawPet;drawPet=function(c,pet,x,y,t,s=1,opts={}){const self=this,a=arguments;if(!artLightCol())return _dp.apply(self,a);artLit(c,[x-16*s,y-22*s,32*s,26*s],q=>_dp.call(self,q,pet,x,y,t,s,opts));};}
+{const _dg=drawGull;drawGull=function(c,x,y,t){const self=this,a=arguments;if(!artLightCol())return _dg.apply(self,a);artLit(c,[x-2,y-3,15,12],q=>_dg.call(self,q,x,y,t));};}
+{const _dn=drawNest;drawNest=function(c,x,y,t,coins,gary){const self=this,a=arguments;if(!artLightCol())return _dn.apply(self,a);artLit(c,[x-10,y-14,20,19],q=>_dn.call(self,q,x,y,t,coins,gary));};}
 
 /* ============================== SUPABASE STORE (used when hosted on funnal.co.uk) ============================== */
 // Mirrors the small slice of the artifact db API the game uses: doc().get/set/update/delete/acquire/onSnapshot, collection().doc/onSnapshot.
