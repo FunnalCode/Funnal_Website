@@ -97,6 +97,7 @@ SCREENS.herald=function(){const raw=_heraldBase.apply(this,arguments);const rest
 
 /* ---------- drawings: the front-page illustration and the strip ---------- */
 function paintHillo(cv){const yd=cv.dataset.hillo;const D=G.days[yd];if(!D||!D.boss)return;const c=cv.getContext('2d');c.setTransform(2,0,0,2,0,0);const won=D.team>=D.target;
+  if(typeof isArtLook==='function'&&isArtLook()&&typeof artHillo==='function'){try{artHillo(c,D,won);cv.classList.add('inked');return;}catch(e){}}
   c.fillStyle='#E9DFC6';c.fillRect(0,0,320,140);for(let i=0;i<9;i++){c.strokeStyle='rgba(90,74,48,.18)';c.lineWidth=.6;c.beginPath();c.moveTo(0,20+i*6);c.lineTo(320,20+i*6+((i%2)?2:-2));c.stroke();}
   try{const r=won?26:30;drawBoss(c,D.boss,210,won?96:78,r,won?.05:.7,1200,false,D.boss.kit&&D.boss.kit.floats?null:110);}catch(e){}
   c.fillStyle='#B9AC8E';c.fillRect(0,104,320,36);for(let i=0;i<14;i++){c.strokeStyle='rgba(60,50,35,.35)';c.lineWidth=.7;c.beginPath();const y=108+(i%5)*6;c.moveTo(i*24-8,y);c.quadraticCurveTo(i*24+4,y-3,i*24+16,y);c.stroke();}

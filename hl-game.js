@@ -5061,6 +5061,7 @@ SCREENS.herald=function(){const raw=_heraldBase.apply(this,arguments);const rest
 
 /* ---------- drawings: the front-page illustration and the strip ---------- */
 function paintHillo(cv){const yd=cv.dataset.hillo;const D=G.days[yd];if(!D||!D.boss)return;const c=cv.getContext('2d');c.setTransform(2,0,0,2,0,0);const won=D.team>=D.target;
+  if(typeof isArtLook==='function'&&isArtLook()&&typeof artHillo==='function'){try{artHillo(c,D,won);cv.classList.add('inked');return;}catch(e){}}
   c.fillStyle='#E9DFC6';c.fillRect(0,0,320,140);for(let i=0;i<9;i++){c.strokeStyle='rgba(90,74,48,.18)';c.lineWidth=.6;c.beginPath();c.moveTo(0,20+i*6);c.lineTo(320,20+i*6+((i%2)?2:-2));c.stroke();}
   try{const r=won?26:30;drawBoss(c,D.boss,210,won?96:78,r,won?.05:.7,1200,false,D.boss.kit&&D.boss.kit.floats?null:110);}catch(e){}
   c.fillStyle='#B9AC8E';c.fillRect(0,104,320,36);for(let i=0;i<14;i++){c.strokeStyle='rgba(60,50,35,.35)';c.lineWidth=.7;c.beginPath();const y=108+(i%5)*6;c.moveTo(i*24-8,y);c.quadraticCurveTo(i*24+4,y-3,i*24+16,y);c.stroke();}
@@ -5260,7 +5261,7 @@ function bossIntro(force){try{if(!G||!S.me)return;const D=G.days[G.today];const 
   localStorage.setItem(INTRO_KEY(),'1');const ov=document.createElement('div');ov.className='bossIntro'+(THEME.reduced?' still':'');ov.setAttribute('role','dialog');ov.setAttribute('aria-label',`Today's boss: ${b.name}`);
   ov.innerHTML=`<i class="bar t"></i><i class="bar b"></i><canvas width="600" height="400"></canvas><div class="biName"><small>Boss of the Day</small><b>${esc(b.name)}</b>${b.title?`<em>${esc(b.title)}</em>`:''}</div><span class="biSkip">Tap to skip</span>`;
   document.body.appendChild(ov);const cv=ov.querySelector('canvas'),c=cv.getContext('2d');c.setTransform(2,0,0,2,0,0);const t0=performance.now();let raf;
-  const draw=()=>{const t=performance.now(),q=Math.min(1,(t-t0)/1200);c.clearRect(0,0,300,200);const ease=1-Math.pow(1-q,3);try{drawBoss(c,b,150,200-ease*95,42,1,t,false,b.kit&&b.kit.floats?null:170);}catch(e){}raf=requestAnimationFrame(draw);};draw();
+  const draw=()=>{const t=performance.now(),q=Math.min(1,(t-t0)/1200);c.clearRect(0,0,300,200);const ease=1-Math.pow(1-q,3);if(typeof isArtLook==='function'&&isArtLook()&&typeof artIntro==='function'){try{artIntro(c,b,t,ease);}catch(e){}}else{try{drawBoss(c,b,150,200-ease*95,42,1,t,false,b.kit&&b.kit.floats?null:170);}catch(e){}}raf=requestAnimationFrame(draw);};draw();
   if(S.sound){try{tone(70,.5,'sine',.25);setTimeout(()=>tone(55,.6,'sine',.2),180);}catch(e){}}
   const close=()=>{cancelAnimationFrame(raf);ov.classList.add('out');setTimeout(()=>ov.remove(),350);};ov.addEventListener('click',close);setTimeout(close,3400);setTimeout(()=>bossSay(true),3600);}catch(e){console.warn('intro',e);}}
 FEATURES.intros=true;
@@ -5275,7 +5276,7 @@ function bossPageHtml(id){const b=ALL_BOSSES[id];if(!b)return '';const q=(()=>{t
     ${W_?`<p><b>Weak spot:</b> ${esc(W_.name)}. ${esc(W_.rule)}.</p>`:''}${b.bio?`<p class="tiny">${esc(b.bio)}</p>`:''}${q?`<blockquote class="bpQuote">"${esc(q)}"</blockquote>`:''}
     <table class="bpStats"><tr><th></th>${cols.map(([p])=>`<th>${esc(pname(p))}</th>`).join('')}</tr>${row('Times sunk',s=>s.sunk)}${row('First sunk',s=>s.first?shortDate(s.first):'\u2013')}${row('Fastest kill',s=>s.fastest!=null?s.fastest+' min':'\u2013')}${row('Most DMs in a day',s=>s.bestDay)}${row('Total hits',s=>fmtN(s.total))}</table>
     <div class="row" style="justify-content:flex-end;margin-top:10px"><button class="btn primary" data-act="wnClose">Close</button></div></div>`;}
-ACT.bossInfo=d=>{openModal(bossPageHtml(d.id));setTimeout(()=>{const cv=document.querySelector('#modal canvas[data-boss]');if(!cv)return;const c=cv.getContext('2d');const b=ALL_BOSSES[d.id];let raf;const go=()=>{if(!document.body.contains(cv))return cancelAnimationFrame(raf);const t=performance.now();c.setTransform(2,0,0,2,0,0);c.clearRect(0,0,240,150);const g=c.createLinearGradient(0,0,0,150);g.addColorStop(0,'#BFE4F2');g.addColorStop(1,'#5BA9CC');c.fillStyle=g;c.fillRect(0,0,240,150);try{drawBoss(c,b,120,92,30,1,t,false,b.kit&&b.kit.floats?null:118);}catch(e){}raf=requestAnimationFrame(go);};go();},30);};
+ACT.bossInfo=d=>{openModal(bossPageHtml(d.id));setTimeout(()=>{const cv=document.querySelector('#modal canvas[data-boss]');if(!cv)return;const c=cv.getContext('2d');const b=ALL_BOSSES[d.id];let raf;const go=()=>{if(!document.body.contains(cv))return cancelAnimationFrame(raf);const t=performance.now();c.setTransform(2,0,0,2,0,0);c.clearRect(0,0,240,150);if(typeof isArtLook==='function'&&isArtLook()&&typeof artBestiary==='function'){try{artBestiary(c,b,t);}catch(e){}}else{const g=c.createLinearGradient(0,0,0,150);g.addColorStop(0,'#BFE4F2');g.addColorStop(1,'#5BA9CC');c.fillStyle=g;c.fillRect(0,0,240,150);try{drawBoss(c,b,120,92,30,1,t,false,b.kit&&b.kit.floats?null:118);}catch(e){}}raf=requestAnimationFrame(go);};go();},30);};
 function rosterHtml(){const seen=new Set(Object.values(G.days).filter(D=>D.boss&&D.date<=G.today).map(D=>D.boss.id));const list=[...ROSTER,ALL_BOSSES.mondaykraken,ALL_BOSSES.weekendsiren,ALL_BOSSES.icekraken,...RARE_BOSSES.filter(b=>b.id==='aurora'),...(typeof XMAS_BOSSES!=='undefined'?XMAS_BOSSES:[])];
   return `<div class="card"><h3>Bosses <small class="muted">${list.filter(b=>seen.has(b.id)).length} of ${list.length} met</small></h3><p class="tiny muted">Every boss of the day, with its weak spot, biography and your record against it. New ones join the rotation from 1 December.</p>
    <div class="bossGrid">${list.map(b=>`<button class="bossTile ${seen.has(b.id)?'':'unseen'}" data-act="bossInfo" data-id="${b.id}"><canvas width="160" height="120" data-bossicon="${b.id}"></canvas><b>${seen.has(b.id)?esc(b.name):'???'}</b></button>`).join('')}</div></div>`;}
@@ -6267,7 +6268,7 @@ function artFacets(q,base,peaks,col,snow){peaks.forEach(([px,ph,hw,k])=>{const t
   if(snow){q.fillStyle='rgba(255,255,255,.92)';q.beginPath();q.moveTo(px,top);q.lineTo(px-hw*.22,top+ph*.2);q.lineTo(px-hw*.08,top+ph*.16);q.lineTo(px+hw*.05,top+ph*.24);q.lineTo(px+hw*.2,top+ph*.18);q.closePath();q.fill();}});}
 function artFog(q,y,h,col,a){const g=q.createLinearGradient(0,y-h,0,y);g.addColorStop(0,rgbaOf(col,0));g.addColorStop(1,rgbaOf(col,a));q.fillStyle=g;q.fillRect(-90,y-h,W+180,h);}
 function artBackdrop(c,scene){const y0=ART_HZ[scene]||108;const mode=artMode();const P=artPal(mode);const snow=artSnowy()||THEME.festive==='christmas';
-  const key=`artbd_${scene}_${mode}_${THEME.weather}_${snow?1:0}`;
+  const key=`artbd_${scene}_${mode}_${THEME.weather}_${snow?1:0}${artBlendKey()}`;
   layerCache(c,key,-90,y0-80,W+180,82,q=>{
     artFacets(q,y0,artPeaks(scene+'far',7,-70,W+70,22,48,26,46),P.far,snow);artFog(q,y0,30,P.fog,.55);
     artFacets(q,y0,artPeaks(scene+'mid',6,-60,W+60,12,30,20,32),P.mid,snow);artFog(q,y0+1,12,P.fog,.45);});}
@@ -6421,7 +6422,9 @@ function artShip(c,x,y,s,pl,t,opts={}){
   if(opts.pet)drawPet(c,opts.pet,-2,-12.6,t,.6);
   (pl.deck||[]).slice(0,4).forEach((id,i)=>id&&drawDeckItem(c,id,(typeof DECK_SPOTS!=='undefined'?DECK_SPOTS:[-8,6,18])[i],-12.6,t));
   {const sh=pl.shot&&ALL_ITEMS[pl.shot];if(sh){c.save();c.translate(-24,-23.6);c.scale(.8,.8);drawShot(c,-2.3,0,sh.st,t);drawShot(c,2.3,0,sh.st,t+300);drawShot(c,0,-3.3,sh.st,t+600);c.restore();}}
-  if(pl.figure)drawFigure(c,36,-17.6,pl.figure);
+  // the figurehead sits on the prow under the bowsprit, leaning out over the water, on a little carved scroll
+  if(pl.figure){const gold=gild?'#F2C462':mixHex('#C9A24A',shadow,neutral?.1:.3);c.save();c.strokeStyle=gold;c.lineWidth=.8;c.lineCap='round';c.beginPath();c.moveTo(34.2,-15.4);c.quadraticCurveTo(36.6,-12,35.2,-7.6);c.stroke();
+    c.beginPath();c.arc(34.2,-7.4,1,0,TAU*.75);c.stroke();c.translate(35.2,-9.4);c.rotate(.34);drawFigure(c,-.6,1.4,pl.figure);c.restore();}
   if(gild)for(let i=0;i<3;i++){const tw=Math.sin(t/260+i*2.1);if(tw>.5){const gx=-20+i*22,gy=-9;line(c,gx-1.6,gy,gx+1.6,gy,'#FFF6CF',.4);line(c,gx,gy-1.6,gx,gy+1.6,'#FFF6CF',.4);}}
   // water lapping at the hull and a little bow spray
   if(!neutral){const hz=ART_HZ[THEME.scene]||108,f=Math.max(0,Math.min(1,(y-hz)/(H-hz)));const wc=f<.3?mixHex(P.sea[0],P.sea[1],f/.3):mixHex(P.sea[1],P.sea[2],(f-.3)/.7);c.fillStyle=rgbaOf(wc,.55);c.beginPath();c.moveTo(-36,0);for(let i=0;i<=8;i++)c.quadraticCurveTo(-36+i*9.6+4.8,-1.4+Math.sin(t/300+i)*.6,-36+(i+1)*9.6,0);c.lineTo(48,6);c.lineTo(-36,6);c.closePath();c.fill();
@@ -6465,7 +6468,7 @@ function townHouse(q,hs,P,night,snow,shadeK){const {x,w,h,base}=hs;const top=bas
 function townWindows(hs){const out=[];const {x,w,h,base,win}=hs;const rows=h>11?2:1;for(let r=0;r<rows;r++)for(let i=0;i<win;i++){const wx=x+(w/(win+1))*(i+1)-.7,wy=base-h+2+r*4.6;if(wy+2.2>base-3.6&&r>0)continue;out.push([wx,wy]);}return out;}
 function artTown(c,t){const dm=(typeof TEAMDM==='function'?TEAMDM():0)||0;const nH=townCount(dm);const vn=VENTURES.filter(v=>dm>=v.dm).length;const P=artPal();const mode=artMode();const night=!!(SUN&&SUN.night);const snow=artSnowy()||THEME.festive==='christmas';const lit=artLitNow()||THEME.weather==='storm';const plan=townPlan();
   const stone=mixHex('#B8AC94',P.bld,.5),dk=night?.72:.5;
-  layerCache(c,`arttown_${mode}_${THEME.weather}_${snow?1:0}_${nH}_${townHas('church',dm)?1:0}_${townHas('mill',dm)?1:0}_${vn}`,-40,30,300,92,q=>{
+  layerCache(c,`arttown_${mode}${artBlendKey()}_${THEME.weather}_${snow?1:0}_${nH}_${townHas('church',dm)?1:0}_${townHas('mill',dm)?1:0}_${vn}`,-40,30,300,92,q=>{
     // the hill behind the town
     q.fillStyle=mixHex(P.isl,P.mid,.3);q.beginPath();q.moveTo(-40,112);for(let x=-40;x<=244;x+=4)q.lineTo(x,townHillY(x)+2);q.lineTo(244,112);q.closePath();q.fill();
     q.fillStyle=shadeHex(mixHex(P.isl,P.mid,.3),1.15);q.beginPath();q.moveTo(-40,112);for(let x=-40;x<=40;x+=4)q.lineTo(x,townHillY(x)+2);q.lineTo(10,112);q.closePath();q.fill();
@@ -6622,7 +6625,7 @@ function voyNear(q,b,h,P,snow,lit){const col=P.near,dk=shadeHex(P.near,.78),lc=s
       if(lit){q.fillStyle='#FFC46A';q.fillRect(xx+w*.2+2.4,base-18,2,2.4);}},x0);});}
   else{[[30,60,9],[180,44,7],[330,70,11],[500,50,8]].forEach(([x0,w,hh],ii)=>wrapX(xx=>{q.fillStyle=col;q.beginPath();q.moveTo(xx,h+1);q.quadraticCurveTo(xx+w*.2,h-hh,xx+w*.5,h-hh);q.quadraticCurveTo(xx+w*.8,h-hh,xx+w,h+1);q.closePath();q.fill();
       q.fillStyle=P.beach;q.fillRect(xx+2,h-1.4,w-4,1.4);for(let k=0;k<3;k++){const px=xx+w*(.25+k*.25),ph=10+(h32('ip'+ii+k)%7);const sv=palm;try{q.save();q.translate(0,0);sv.call(null,q,px,h-hh*.7,ph,k*400);q.restore();}catch(e){}}},x0));}}
-function artVoyBackdrop(c){const y0=ART_HZ.voyage,mode=artMode(),P=artPal(mode),snow=artSnowy()||THEME.festive==='christmas',lit=artLitNow()||THEME.weather==='storm';const k=`${mode}_${THEME.weather}_${snow?1:0}`;
+function artVoyBackdrop(c){const y0=ART_HZ.voyage,mode=artMode(),P=artPal(mode),snow=artSnowy()||THEME.festive==='christmas',lit=artLitNow()||THEME.weather==='storm';const k=`${mode}_${THEME.weather}_${snow?1:0}${artBlendKey()}`;
   const far=artStrip(c,'vfar'+k,VOY_W,80,q=>voyFar(q,80,P.far,snow,'vfar'));stripLoop(c,far,VOY_W,80,y0,VOY.off*.12,1);artFog(c,y0,32,P.fog,.55);
   const mid=artStrip(c,'vmid'+k,VOY_W,60,q=>voyFar(q,60,P.mid,snow,'vmid'));stripLoop(c,mid,VOY_W,60,y0,VOY.off*.3,1);artFog(c,y0+1,14,P.fog,.45);
   const lk=VOY.lk;const i0=lk&&lk.id?h32(String(lk.id))%VOY_BIOMES.length:0;const seg=Math.floor(VOY.el/VOY_SEG),into=VOY.el%VOY_SEG;
@@ -6733,6 +6736,47 @@ const artPass=()=>isArtLook()&&ART_EYES===null;
   const tint=storm?'#8A8AA0':{night:'#4A5A9A',sunset:'#E8A8B8',dawn:'#E0C4DA',gold:'#F2C8A0'}[m]||'#E8EEF6';c.save();c.globalCompositeOperation='multiply';
   const g=c.createLinearGradient(0,96,0,H);g.addColorStop(0,'#FFFFFF');g.addColorStop(.25,tint);g.addColorStop(1,shadeHex(tint,.86));c.fillStyle=g;c.fillRect(-90,96,W+180,H-96+VIEW_EXT.bot+40);c.restore();
   const v=c.createRadialGradient(W/2,H*.6,H*.4,W/2,H*.6,H*1.05);v.addColorStop(0,'rgba(20,16,40,0)');v.addColorStop(1,`rgba(20,16,40,${m==='night'?.3:.16})`);c.fillStyle=v;c.fillRect(-90,-300,W+180,H+600);return r;};}
+
+/* ============================== ART STAGE F: PICTURES, POLISH AND SPEED ============================== */
+// a small painted scene for pictures: sky, sun or moon, faceted peaks, fog, sea with a light path
+function artPortraitBg(c,w,h,hz,mode,key){const P=artPal(mode);const night=mode==='night';const g=c.createLinearGradient(0,0,0,hz);g.addColorStop(0,P.sky[0]);g.addColorStop(.6,P.sky[1]);g.addColorStop(1,P.sky[2]);c.fillStyle=g;c.fillRect(0,0,w,hz+1);
+  const sx=w*.5,sy=hz-12;if(night){for(let i=0;i<40;i++){c.fillStyle=`rgba(255,255,255,${.3+(h32('ps'+i)%50)/100})`;c.fillRect(h32('px'+i)%w,h32('py'+i)%(hz-10),.6,.6);}glowAt(c,w*.78,hz*.25,26,'200,215,255',.3);disc(c,w*.78,hz*.25,5,'#F4F0DA');disc(c,w*.78+2.2,hz*.25-1.4,4.6,P.sky[0]);}
+  else{glowAt(c,sx,sy,w*.45,mode==='day'?'255,250,215':'255,214,160',.5);disc(c,sx,sy,w*.06,mode==='day'?'#FFF6D6':'#FFE2A6');}
+  const snow=artSnowy();layerCache(c,`pbg_${key}_${mode}_${snow?1:0}`,0,hz-60,w,62,q=>{artFacets(q,hz,artPeaks(key+'f',6,-20,w+20,22,44,22,40),P.far,snow);artFog(q,hz,24,P.fog,.55);artFacets(q,hz,artPeaks(key+'m',5,-20,w+20,10,24,18,30),P.mid,snow);artFog(q,hz+1,10,P.fog,.45);});
+  const sg=c.createLinearGradient(0,hz,0,h);sg.addColorStop(0,P.sea[0]);sg.addColorStop(.35,P.sea[1]);sg.addColorStop(1,P.sea[2]);c.fillStyle=sg;c.fillRect(0,hz,w,h-hz);
+  const col=night?'225,232,255':mode==='day'?'255,250,215':'255,214,160';const px=night?w*.78:sx;for(let i=0;i<12;i++){const yy=hz+2+i*i*.35+i*1.4;if(yy>h)break;const ww=(4+i*3)*(.7+.3*Math.sin(i*1.9));c.fillStyle=`rgba(${col},${(night?.5:.55)*(1-i/14)})`;c.fillRect(px-ww/2,yy,ww,.9);}
+  for(let i=0;i<24;i++){const dep=(h32('pr'+i)%1000)/1000;c.fillStyle=rgbaOf(P.rip,.12+dep*.12);c.fillRect(h32('prx'+i)%w,hz+3+dep*dep*(h-hz),5+dep*14,.6);}}
+// the Bestiary portrait: a painted sea behind the boss, who keeps their colours but gets the painted shading
+function artBestiary(c,b,t){artPortraitBg(c,240,150,118,'sunset','best');artLit(c,[60,30,120,100],q=>drawBoss(q,b,120,92,30,1,t,false,b.kit&&b.kit.floats?null:118),{slot:'best',noRim:true});}
+// the boss intro: a sunset sea, and the boss rising out of it as a silhouette with glowing eyes
+function artIntro(c,b,t,ease){c.clearRect(0,0,300,200);artPortraitBg(c,300,200,150,'sunset','intro');const by=200-ease*95;
+  const prev=THEME.scene;THEME.scene='intro';try{artSilhouette(c,[150-110,by-110,220,190],q=>drawBoss(q,b,150,by,42,1,t,false,b.kit&&b.kit.floats?null:170),{a:.86});}finally{THEME.scene=prev;}
+  c.fillStyle=rgbaOf(artPal('sunset').sea[1],.85);c.fillRect(0,170,300,30);for(let i=0;i<3;i++){const q=((t/900)+i/3)%1;c.strokeStyle=`rgba(255,220,180,${.5*(1-q)})`;c.lineWidth=.7;c.beginPath();c.ellipse(150,170,40*(1+q*.8),4*(1+q),0,0,TAU);c.stroke();}}
+// the Herald's picture: the same painted scene, printed in sepia ink on newsprint
+function artHillo(c,D,won){const P='sunset';artPortraitBg(c,320,140,104,P,'herald');const r=won?26:30;
+  const prev=THEME.scene;THEME.scene='intro';try{artSilhouette(c,[210-90,(won?96:78)-80,180,150],q=>drawBoss(q,D.boss,210,won?96:78,r,won?.05:.7,1200,false,D.boss.kit&&D.boss.kit.floats?null:110),{a:.88});
+    const pl=S.players[G.P[0]]||{};THEME.scene='ship';drawShip(c,80,124,.62,pl,1200,{pid:G.P[0],phase:0});}catch(e){}finally{THEME.scene=prev;}
+  if(won)for(let i=0;i<10;i++)disc(c,190+(i*13)%46,98-(i*7)%40,1+(i%3)*.6,'rgba(255,255,255,.75)');drawGull(c,40,26,0);
+  c.save();c.globalCompositeOperation='saturation';c.fillStyle='#808080';c.fillRect(0,0,320,140);c.globalCompositeOperation='multiply';c.fillStyle='#EAD9B6';c.fillRect(0,0,320,140);
+  c.globalCompositeOperation='screen';c.fillStyle='#2A2012';c.fillRect(0,0,320,140);c.restore();
+  for(let i=0;i<60;i++){c.strokeStyle='rgba(60,45,25,.07)';c.lineWidth=.5;c.beginPath();c.moveTo(0,i*2.4);c.lineTo(320,i*2.4+((i%2)?.6:-.6));c.stroke();}}
+// Vault relics: soft light, shade and a little sparkle
+{const _drR=drawRelic;drawRelic=function(cv){_drR.apply(this,arguments);if(!isArtLook()||cv.dataset.found!=='1')return;const c=cv.getContext('2d');c.save();c.setTransform(4,0,0,4,0,0);c.globalCompositeOperation='source-atop';
+  const g=c.createLinearGradient(0,0,10,24);g.addColorStop(0,'rgba(255,248,230,.25)');g.addColorStop(.5,'rgba(255,248,230,0)');g.addColorStop(1,'rgba(40,28,60,.18)');c.fillStyle=g;c.fillRect(0,0,24,24);c.globalCompositeOperation='source-over';
+  glowAt(c,12,11,8,'255,226,150',.25);line(c,16,5,16,8,'rgba(255,255,255,.9)',.4);line(c,14.5,6.5,17.5,6.5,'rgba(255,255,255,.9)',.4);c.restore();};}
+
+/* ---------- smooth changes of light: for twenty minutes around sunrise and sunset the colours blend instead of switching ---------- */
+const ART_BLEND={key:'',pal:null};
+function artPalBlend(mode){try{const m=L().min,s=sunTimes();const B=[[s.rise-35,'night','dawn'],[s.rise+55,'dawn','day'],[s.set-55,'day','sunset'],[s.set+40,'sunset','night']];
+    for(const [b,from,to] of B){if(Math.abs(m-b)<10&&(mode===from||mode===to)){const k=Math.round(((m-b+10)/20)*10)/10;return {from,to,k};}}}catch(e){}return null;}
+function mixPal(A,B,k){const out={};for(const key in A){const a=A[key],b=B[key];if(Array.isArray(a))out[key]=a.map((v,i)=>mixHex(v,b[i],k));else if(typeof a==='string'&&a[0]==='#')out[key]=mixHex(a,b,k);else out[key]=k<.5?a:b;}return out;}
+{const _ap=artPal;artPal=function(mode){const md=mode||artMode();const base=_ap.call(this,md);if(THEME.weather==='storm'||mode&&mode!==artMode())return base;const bl=artPalBlend(md);if(!bl||bl.from===bl.to)return base;
+  const key=bl.from+bl.to+bl.k+THEME.season+THEME.festive;if(ART_BLEND.key===key)return ART_BLEND.pal;const A=_ap.call(this,bl.from),Bp=_ap.call(this,bl.to);ART_BLEND.key=key;ART_BLEND.pal=mixPal(A,Bp,bl.k);return ART_BLEND.pal;};}
+const artBlendKey=()=>{const bl=artPalBlend(artMode());return bl?`_b${bl.from}${bl.k}`:'';};
+
+/* ---------- drifting mist over the water ---------- */
+addLayer('sea','artMist',(c,t,ctx)=>{const y0=(ctx&&ctx.y0)||108;const P=artPal();const q=THEME.reduced?.3:1;for(let i=0;i<5;i++){const sp=40+i*12;const x=((((h32('mw'+i)%1000)/1000)*(W+200)+t*q/sp)%(W+200))-100;const y=y0+3+i*3.2+Math.sin(t/3000+i)*1.2;
+  const g=c.createRadialGradient(x,y,0,x,y,60);g.addColorStop(0,rgbaOf(P.fog,.13));g.addColorStop(1,rgbaOf(P.fog,0));c.save();c.translate(x,y);c.scale(1,.12);c.translate(-x,-y);c.fillStyle=g;c.fillRect(x-60,y-60,120,120);c.restore();}},{z:-6,when:()=>isArtLook()&&THEME.weather!=='storm'});
 
 /* ============================== SUPABASE STORE (used when hosted on funnal.co.uk) ============================== */
 // Mirrors the small slice of the artifact db API the game uses: doc().get/set/update/delete/acquire/onSnapshot, collection().doc/onSnapshot.
