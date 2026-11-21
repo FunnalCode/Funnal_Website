@@ -41,11 +41,13 @@ function hFishing(yd){const P=G.P;let x='';try{x=heraldFish(yd);}catch(e){}
   return `${rows.length?rows.join(' '):'No rods out yesterday. The fish are smug.'} ${x?esc(x):''} The one that got away: ${gone}, measured generously at ${40+h32(yd+'gw')%160} cm.`;}
 function hGary(yd){const c=HC().columns||[];const ws=weekStart(yd);const xmasWk=ws.slice(5,7)==='12'&&+ws.slice(8)>=8&&+ws.slice(8)<=14;const wish=c.find(x=>/Christmas/.test(x.t));const pool=c.filter(x=>x!==wish);
   const col=xmasWk&&wish?wish:pool[Math.abs(dayNo(ws)/7|0)%pool.length]||{t:'',b:''};const n=myNest();const cmp=complaintFor(ws);
-  return `<i>${esc(col.t)}.</i> ${esc(col.b)}<br>${n.held?`Gary is currently holding ${n.held} of your doubloons. "For safekeeping."`:'Gary is holding none of your doubloons. He is "keeping an eye out".'}${cmp&&cmp.date<=G.today?` This week: Complaint #${cmp.n}, "${esc(cmp.text)}"`:''}`;}
+  let iv='';try{const ev=eventOn(yd);if(ev&&ev.type==='heist'&&!evState(ev).sunk)iv=`<br><b>Exclusive:</b> ${esc(hPick(EVL().garyInterview,yd))}`;}catch(e){}
+  return `<i>${esc(col.t)}.</i> ${esc(col.b)}${iv}<br>${n.held?`Gary is currently holding ${n.held} of your doubloons. "For safekeeping."`:'Gary is holding none of your doubloons. He is "keeping an eye out".'}${cmp&&cmp.date<=G.today?` This week: Complaint #${cmp.n}, "${esc(cmp.text)}"`:''}`;}
 function hWeather(yd){const P=G.P;const winter=typeof seasonOf==='function'&&seasonOf(yd)==='winter';let x=`Yesterday: ${winter?'bitter cold, frost on the rigging':'mild, a light breeze'}${xmasNowSafe()?', tinsel in the air':''}. ${hPick(HC().forecast,yd+'w0')}.`;
+  try{const ev=eventOn(yd);if(ev){const st=evState(ev);const E=EVL();x+=' '+(ev.type==='storm'?(st.sunk?`A squall hit at ${hmS(ev.start)} and was sunk${st.sunkAt?` by ${hhmm(Math.round((st.sunkAt-londonTs(yd,0))/60000))}`:''}. Storm chests all round.`:`A squall hit at ${hmS(ev.start)} and got away with ${st.hp-st.hits} HP left.`):ev.type==='ghost'?(st.sunk?'The ghost fleet came out of the mist and was scattered by follow-ups.':'The ghost fleet drifted past, wailing.'):ev.type==='shoal'?`A golden shoal turned the water gold at ${hmS(ev.start)}.`:'');}}catch(e){}
   const days=[];let d=G.today;for(let i=0;i<10&&days.length<4;i++){if(isWork(d))days.push(d);d=addDays(d,1);}
   x+=`<br>${days.map(dd=>{let b=null;try{b=bossFor(dd);}catch(e){}const lg=typeof LEGEND_BY_DATE!=='undefined'&&LEGEND_BY_DATE[dd];
-    return `${dd===G.today?'Today':DAYN[wd(dd)]}: ${esc(hPick(HC().forecast,dd+'fc')||'')}${lg?`. <b class="lgWarn">Legend warning: ${esc(lg.name)}</b>`:b?`, chance of ${esc(b.name)}`:''}.`;}).join('<br>')}`;return x;}
+    let ev=null;try{ev=eventOn(dd);}catch(e){}return `${dd===G.today?'Today':DAYN[wd(dd)]}: ${ev&&ev.type==='storm'?'<b>chance of squalls</b>':ev&&ev.type==='ghost'?'<b>mist by late afternoon</b>':ev&&ev.type==='shoal'?'<b>something glinting in the water</b>':esc(hPick(HC().forecast,dd+'fc')||'')}${lg?`. <b class="lgWarn">Legend warning: ${esc(lg.name)}</b>`:b?`, chance of ${esc(b.name)}`:''}.`;}).join('<br>')}`;return x;}
 function hClassifieds(yd){const ads=[];const P=G.P;
   if(typeof LEGENDS!=='undefined'){const nx=LEGENDS.find(l=>l.date>=G.today);if(nx&&dayNo(nx.date)-dayNo(G.today)<=21)ads.push(`WANTED: brave captains for ${niceDate(nx.date)}'s ${nx.name}. Bring snacks. And about 1.4 times the usual DMs.`);}
   for(let i=0;i<7;i++){const d=addDays(G.today,i);if(merchantToday(d)){ads.push(i===0?"ARRIVED: Pell's barge is in the harbour today. Rare stock, fair prices, greedy merchant.":`COMING SOON: Pell's barge docks ${['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][wd(d)]}. Start saving.`);break;}}
@@ -80,6 +82,7 @@ SCREENS.herald=function(){const raw=_heraldBase.apply(this,arguments);const rest
     ${sec('Weather report',esc(fs.deck))}
     ${sec('Hunting news',hHunting(yd,D))}
     ${sec('Leaderboard',`${D.p[h.top].d===D.p[h.bottom]?.d?'Dead heat. Both keepers refuse to comment.':`${pname(h.top)} won the day by ${D.p[h.top].d-D.p[h.bottom].d}.`} ${hPick(['Sources close to the loser cite "a dodgy wifi signal".','The gulls were unavailable for comment.','A rematch has been demanded.','The bakery has named a bun after the winner.'],yd)}`)}
+    ${(()=>{try{const r=recordsSetOn(yd);return r.length?sec('Records broken',esc(r.join('. '))+'.'):'';}catch(e){return '';}})()}
     ${sec('Fishing report',hFishing(yd))}
     ${sec("Gary's Corner",hGary(yd))}
     ${sec('Forecast',hWeather(yd))}

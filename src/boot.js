@@ -10,7 +10,7 @@ function render(){
   sc.querySelectorAll('canvas.icon').forEach(cv=>drawItemIcon(cv,cv.dataset.id));paintPets(sc);
   sc.querySelectorAll('canvas.collect').forEach(cv=>drawCollectIcon(cv,COLLECTIBLES.find(x=>x.id===cv.dataset.c),cv.dataset.f==='1'));
   const gi=$('#gullIco');if(gi)drawGullIcon(gi);
-  document.querySelectorAll('#tabs a').forEach(a=>a.classList.toggle('on',a.dataset.s===S.screen||(a.dataset.s==='more'&&['book','rivals','herald','ledger','settings','log','pets','help','trophy','bestiary','hall','review','tavern','nest','market'].includes(S.screen))));
+  document.querySelectorAll('#tabs a').forEach(a=>a.classList.toggle('on',a.dataset.s===S.screen||(a.dataset.s==='more'&&['book','rivals','herald','ledger','settings','log','pets','help','trophy','bestiary','hall','review','tavern','nest','market','vault'].includes(S.screen))));
 }
 function hud(){
   const me=S.me&&G.players[S.me];if(!me)return;

@@ -15,6 +15,9 @@ window.HL_CONTENT={
       "<b>Better fits:</b> beards follow your jaw, mutton chops stay on your cheeks, and the straw hat, bicorne, captain's cap and chef's hat sit on your head.",
       "<b>The Salty Herald, a proper newspaper:</b> tap it for the full broadsheet: a front page drawn from yesterday's boss, hunting news with loot and final words, the fishing report, Gary's weekly column, a forecast that names the bosses coming up, classifieds with real hints, Dear Mrs B, a crossword, tide table and a weekly strip.",
       "<b>Gary moves in:</b> he lives in a nest on the lighthouse, comments on how the day is going (poke him on his card), pinches a doubloon on a missed-target day and hands them all back when you hit it, files a weekly formal complaint, and runs a Lost and Found.",
+      "<b>Storms and live events:</b> up to twice a week, a storm (a 15-minute warning, then 30 minutes of double damage against the Squall for a storm chest each), a ghost fleet where follow-ups hit three times as hard, a golden shoal for variant fish, and every other week Gary stealing a chest that 15 quick DMs gets back.",
+      "<b>Records and the ghost ship:</b> a Records card on Rivals (fastest 25 and 50, best hour, longest unbroken run, best day, best Lock In of each length), and your best Lock In now races you as a see-through ghost ship.",
+      "<b>Relics and treasure maps:</b> 60 relics to find in chests and bottles at sea, ten sets with a reward each, torn map pieces that lead a Lock In to X Marks the Spot, and spare relics to donate to the crew's next build. All in More, Vault.",
       "<b>The Rusty Anchor:</b> a tavern by the jetty (or in More), open 8am to 11pm. Barnacle Bill gossips from your real numbers, slags off whoever isn't in, and asks to borrow money (he pays back, eventually). Drinks with small boosts, 21, Liar's Dice with Gary, Pirate Poker, a free daily dart, a jukebox of shanties, and a fire that grows with the day's DMs. If you're both in, you're both at the bar and can raise a glass.",
       "<b>The Black Market:</b> 9pm to 1am, a lantern-lit stall on the far side of the Harbour. Four shady items a night, exclusive cosmetics you can't get anywhere else, a nightly bargain (usually), and the trader buys duplicate loot. He is not Gary.",
       "<b>Settings, Game feel:</b> turn Gary's heckles on or off, and pick reduced motion if the sea makes you queasy."]},
@@ -38,6 +41,34 @@ window.HL_CONTENT={
     lanternjaw:{name:'Lanternjaw Angler',title:'Follow The Light',kit:{body:'blob',col:'#3E4A6E',col2:'#5C6A94',eyes:2,eyeStyle:'round',mouth:'fangs',acc:['lure','spikes'],mood:'smug'}}
   },
   lines:{
+    events:{
+      warn:["STORM WARNING. A squall is coming in at {time}. Thirty minutes. Double damage. Batten down the inbox."],
+      storm:["Hold the line!","The storm's taking hits!","{other} is firing! Back them up!","Every DM counts double. Fire everything.","The sky's cracking. So is the storm."],
+      stormWon:"The sky clears. The storm chest is yours. Gary is soaked and furious.",
+      stormLost:"The storm moves on to bother someone else. Probably the Rival Sloop. Good.",
+      shoal:"The water's gone gold. Cast now, ask questions later.",
+      ghost:"Ghost ships on the horizon. Follow-ups do triple damage to the dead.",
+      ghostWon:"The ghost fleet fades back into the mist. They left a chest. Ghosts are terrible at holding on to things.",
+      ghostLost:"The ghost fleet drifts off, wailing. Mostly about you.",
+      heist:"GARY HAS THE CHEST. 15 DMs in 15 minutes to stop him!",
+      heistFlee:"You'll never take me alive! Or at all! I'm very fast!",
+      heistWon:"Gary drops the chest in the harbour and pretends he was 'just checking it was safe'.",
+      heistLost:"Gary got away with the bonus chest. He's giving interviews.",
+      garyInterview:["Gary, speaking from an undisclosed bin: 'I regret nothing. Except the weight. Chests are heavy.'","Gary told the Herald: 'Fifteen DMs. Fifteen. That's all it would have taken. I'm almost disappointed.'","Gary, exclusive: 'It's not stealing if nobody's watching. Everybody was watching. Still not stealing.'"]
+    },
+    ghostShip:{behind:["Past you was faster.","I did this on a Monday. Hungover.","Catch me if you can. You can't."],close:["Neck and neck. Like old times. Last Tuesday."],passed:["Noooo... I'm fading... remember me as... fast..."],record:"You've replaced me. I'm going to haunt someone in accounts."},
+    relics:[
+      ["Ancient Cutlery",["A Very Old Biscuit Fork","The Spoon of Destiny","A Knife That's Mostly Handle","Blackbeard's Butter Knife","A Spork (Cursed)","The Last Teaspoon in Port Royal"]],
+      ["Lost Royal Jewels",["A Crown Jewel (Small One)","The Queen's Spare Earring","A Ruby the Size of a Pea","Prince Rupert's Ring Pull","A Sapphire Nobody Wanted","The Tiara of Mild Importance"]],
+      ["Questionable Maps",["A Map of Somewhere Else","Treasure Map (Upside Down)","A Map Drawn by a Seagull","The Map of Wales, Wet","A Very Confident Arrow","Here Be Dragons (Probably Not)"]],
+      ["The Captain's Wardrobe",["Blackbeard's Second-Best Sock","A Single Fancy Glove","The Eyepatch of Both Eyes","A Hat With a Hole for a Parrot","The Captain's Lucky Pants","A Very Long Scarf"]],
+      ["The Ship's Galley",["A Very Old Biscuit","The Original Ship's Biscuit Tin","A Cannonball-Shaped Pudding","Salt Pork (Unopened, Do Not Open)","The Cook's Ladle of Doom","A Jar of Grog-Flavoured Jam"]],
+      ["Sea Oddities",["A Mermaid's Hair Comb","A Kraken's Baby Tooth","A Bottle With a Bottle in It","A Shell That Hums","A Starfish With Six Arms","A Pebble That Looks Like Gary"]],
+      ["Gary's Hoard",["Gary's First Chip","A Doubloon With a Beak Mark","Gary's Stolen Badge","A Laminated Picture of a Chip","Gary's Diary, Mostly Chips","A Tiny Gull-Sized Crown"]],
+      ["Navigation Instruments",["The Original Funnel","A Compass That Points to Lunch","A Sextant With Five Sides","A Telescope That Only Sees Gulls","A Barometer Stuck on Moist","The Captain's Wobbly Astrolabe"]],
+      ["Tavern Leftovers",["Bill's First Medallion","A Tankard With No Bottom","The Dart That Hit the Cat","A Coaster From 1803","Bill's IOU (Unpaid)","A Pickled Egg, Ancient"]],
+      ["Legends of the Deep",["A Leviathan's Lost Scale","The Krampus Kraken's Naughty List","A Drop of Bryn's Mum's Sherry","A Siren's Unpaid Singing Bill","The Ghost Fleet's Logbook","The Kraken Queen's Hairpin"]]
+    ],
     bill:{
       alone:[
         "{here}! The only captain worth the price of a pint. I never did like {absent}.",
@@ -387,6 +418,7 @@ window.HL_CONTENT={
         "Captain, with respect, go and bother the boss.",
         "One more tap and I'm telling {other}."
       ],
+      storm:["Storm! Everybody under the jetty! Except you. You keep sending DMs.","I'm soaked. I'm furious. I'm a gull. This is my life now.","The sky's angry. So am I. We're bonding.","Double damage! Fire! Fire! Not actual fire, it's raining.","If this storm takes my nest I'm suing the sky."],
       pokeLimit:"Stop poking me.",
       night:[
         "It's late, Captain. The cannons are asleep. So should you be.",

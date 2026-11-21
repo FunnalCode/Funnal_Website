@@ -962,3 +962,12 @@ html.hl-reduced .advDoor.ready{animation:none}
 .die{display:inline-grid;grid-template-columns:repeat(3,1fr);gap:2px;width:34px;height:34px;padding:5px;background:#FFFDF6;border:1.5px solid #CFC3A6;border-radius:7px;box-shadow:0 2px 0 rgba(0,0,0,.12)}.die.mine{background:#FFF3D6;border-color:#E0B070}
 .die i,.dieS i{border-radius:50%}.die i.on{background:#2A2730}.dieS{display:inline-grid;grid-template-columns:repeat(3,1fr);gap:1px;width:16px;height:16px;padding:2px;background:#FFFDF6;border:1px solid #CFC3A6;border-radius:3px;vertical-align:middle}.dieS i.on{background:#2A2730}
 .chip.on .dieS{border-color:#fff}
+/* ---------- v17 Stage 6: events, records, the Vault ---------- */
+.evCard{color:#F1EEF6}.evCard.storm{background:linear-gradient(135deg,#2E3446,#4A5568)}.evCard.ghost{background:linear-gradient(135deg,#3A4256,#6A7690)}.evCard.shoal{background:linear-gradient(135deg,#8A6A1E,#D9A830);color:#FFF8E6}.evCard.heist{background:linear-gradient(135deg,#3A4A5C,#5C7A94)}
+.evCard small{opacity:.8}.evCard h3{color:#FFE7A0;margin:2px 0}.evCard p{margin:4px 0 6px}.evCard.warn{animation:evPulse 2s infinite}@keyframes evPulse{50%{box-shadow:0 0 0 3px rgba(255,231,160,.35),0 4px 0 var(--shadow)}}
+.evBar{height:8px;border-radius:6px;background:rgba(0,0,0,.3);overflow:hidden;margin:4px 0 2px}.evBar i{display:block;height:100%;background:#F2C462;border-radius:6px}
+.recTable{width:100%;border-collapse:collapse;font-size:13px;margin:6px 0}.recTable th{text-align:left;font-weight:600;padding:5px 4px;color:var(--muted);font-size:12px}.recTable td{padding:5px 4px;border-top:1px solid rgba(0,0,0,.06);font-weight:700}.recTable td small{display:block;font-weight:500;color:var(--muted);font-size:10.5px}.recTable td.recWin{color:#B4782A}
+.vaultHead{background:linear-gradient(135deg,#2E3A5C,#4A5A80);color:#EEF2FA}.vaultHead small{opacity:.8}.vaultHead h2{color:#FFE7A0}
+.relics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0}.relic{text-align:center}.relic canvas{width:64px;height:64px;border-radius:10px;display:block;margin:0 auto 3px}.relic small{font-size:11px;line-height:1.2;display:block}.relic.none{opacity:.6}
+.mapPieces{display:grid;grid-template-columns:repeat(2,64px);gap:3px;margin:8px 0}.mp{height:44px;display:grid;place-items:center;background:#EDE4CC;border:2px dashed #C9B48A;border-radius:6px;color:#B8AE98;font-weight:700}.mp.on{background:#F2D9A0;border:2px solid #A8784A;color:#7A4E30}
+.digCard{background:#FFF3D6;border-left:4px solid #C8102E}#digCv{width:100%;max-width:360px;height:auto;border-radius:10px}
