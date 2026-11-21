@@ -986,3 +986,45 @@ body.tvFsOn{overflow:hidden}
 /* 21 Nov: tips and toasts show over full screen */
 #tip{z-index:130}body:has(#focus) #toasts{z-index:125}
 .liGroup{overflow:hidden}.liGroup .liArt{display:block;width:calc(100% + 32px);margin:-14px -16px 8px;height:auto;aspect-ratio:300/140;border-radius:16px 16px 0 0}
+/* 21 Nov, stage 2: the Tavern, redesigned */
+.tvGames h3{margin:0}
+.stakeBar{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:8px 12px;margin:10px 0 12px;padding:10px 12px;border-radius:16px;background:#F6EEDC;border:1.5px solid var(--line)}
+.stakeBar .stLbl{font:600 14px var(--display)}
+.stepper{display:flex;align-items:center;justify-self:end;background:#fff;border:1.5px solid var(--line);border-radius:12px;overflow:hidden}
+.stepper button{width:34px;height:34px;border:0;background:transparent;font:600 20px var(--display);color:var(--ink);cursor:pointer}
+.stepper input{width:58px;height:34px;border:0;border-left:1.5px solid var(--line);border-right:1.5px solid var(--line);text-align:center;font:600 16px var(--display);background:#fff;-moz-appearance:textfield}
+.stepper input::-webkit-outer-spin-button,.stepper input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.stQuick{grid-column:1/-1;display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.stQuick button{height:30px;border-radius:10px;border:1.5px solid var(--line);background:#fff;font:600 13px var(--display);color:var(--ink);cursor:pointer}
+.stQuick button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.stakeBar .stLeft{grid-column:1/-1;font-size:12px}
+.gameGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.gameTile{display:flex;flex-direction:column;gap:4px;padding:8px 8px 10px;border-radius:16px;background:#FFFCF6;border:1.5px solid var(--line);box-shadow:0 2px 0 rgba(0,0,0,.05)}
+.gameTile .gameIco{width:100%;height:auto;aspect-ratio:200/140;border-radius:12px;display:block}
+.gameTile b{font:600 15px var(--display);margin-top:4px}.gameTile small{color:var(--muted);font-size:12px;line-height:1.3;min-height:31px}
+.gtBtns{display:grid;gap:6px;margin-top:auto}.gtBtns .btn{width:100%;justify-content:center}
+.tvMenu{background:#FBF4E4;border:2px solid #D9C49A;box-shadow:inset 0 0 0 4px #FBF4E4,inset 0 0 0 5px #E6D5B0}
+.tvMenu .mHead{text-align:center;padding:4px 0 6px;border-bottom:1.5px dashed #D9C49A;margin-bottom:8px}
+.tvMenu .mHead h3{font:italic 400 26px Georgia,'Times New Roman',serif;margin:2px 0;color:#5A3A22}.tvMenu .mHead small{display:block;color:#8A7050;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+.tvMenu .mNote{font-size:12.5px;color:#7A6040;text-align:center;margin:0 0 6px}
+.tvMenu h4{font:600 12px var(--display);letter-spacing:.14em;text-transform:uppercase;color:#A0522D;margin:14px 0 4px;text-align:center}
+.mItem{display:flex;align-items:center;gap:10px;width:100%;padding:7px 6px;border:0;border-radius:12px;background:transparent;text-align:left;cursor:pointer;color:inherit}
+.mItem:hover:not([disabled]){background:rgba(160,82,45,.07)}.mItem[disabled]{opacity:.5}
+.mItem .mGlass{width:30px;height:36px;flex:0 0 auto}
+.mItem .mTxt{flex:1;min-width:0}.mItem .mName{display:flex;align-items:baseline;gap:6px;font:600 15px Georgia,serif;color:#3A2416}
+.mItem .mName i{flex:1;border-bottom:2px dotted #CDB78C;transform:translateY(-4px)}.mItem .mName b{font:600 14px var(--display);color:#A0522D}
+.mItem small{display:block;font:italic 12.5px Georgia,serif;color:#7A6A55;margin-top:1px}
+.tvMenu .mFoot{text-align:center;font:italic 11.5px Georgia,serif;color:#9A8466;margin:12px 0 0}
+.jukebox{background:linear-gradient(180deg,#3A2416,#2A1A10);color:#F4EFE4;border:0}
+.jukebox .muted,.jukebox small{color:#CDB89A}
+.jbHead{display:flex;align-items:center;gap:14px}.jbRecord{width:92px;height:92px;flex:0 0 auto}
+.jbNow h3{margin:2px 0;font:600 18px var(--display);color:#FFE7A0}.jbNow .btn{margin-top:6px}
+.jbList{margin-top:10px;display:grid;gap:2px}
+.jbTrack{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:12px}.jbTrack.on{background:rgba(255,231,160,.12)}
+.jbTrack b{display:block;font:600 14px var(--display);color:#F4EFE4}.jbTrack small{font-size:11.5px}
+.jbTrack.locked b{color:#9A8A78}.jbNum{width:22px;font:600 13px var(--display);color:#F2C462;text-align:center}
+.jbBtn{width:32px;height:32px;border-radius:50%;border:0;background:#F2C462;color:#3A2416;font-size:12px;cursor:pointer}
+.jbAll{height:30px;padding:0 10px;border-radius:15px;border:1.5px solid rgba(242,196,98,.5);background:transparent;color:#F2C462;font:600 12px var(--display);cursor:pointer}.jbAll.on{background:#F2C462;color:#3A2416}
+.jbLock{opacity:.7}
+.jbNow .btn{background:transparent;color:#F2C462;border:1.5px solid rgba(242,196,98,.6);box-shadow:none}
+.mItem .mGlass{width:34px;height:41px}

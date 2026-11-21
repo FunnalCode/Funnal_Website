@@ -69,7 +69,11 @@ addLayer('world','liveEvent',(c,t)=>{if(!G)return;const e=eventOn(G.today);if(!e
 addLayer('sea','ghostFleet',(c,t,ctx)=>{const e=G&&eventOn(G.today);if(!e||e.type!=='ghost'||evPhase(e)!=='live'||evState(e).sunk)return;const y0=(ctx&&ctx.y0)||108;c.fillStyle='rgba(210,218,235,.22)';c.fillRect(-80,y0-14,W+160,22);
   c.globalAlpha=.62;for(let i=0;i<3;i++){const x=(340-((t/110+i*130)%440)),y=y0+2+i;c.save();c.translate(x,y);c.scale(-.42,.42);try{drawShip(c,0,0,1,{hull:'hull_ghost',sail:'sail_canvas',flag:'flag_skull'},t,{captain:false});}catch(err){}c.restore();}c.globalAlpha=1;},{scenes:['harbour'],z:5});
 addLayer('fx','stormRain',(c,t)=>{const top=-VIEW_EXT.top-6,span=H+VIEW_EXT.top+VIEW_EXT.bot+12,left=-VIEW_EXT.side-6,wid=W+VIEW_EXT.side*2+12;const n=THEME.reduced?40:110;const sp=THEME.reduced?.4:1;
-  c.fillStyle='rgba(30,40,60,.12)';c.fillRect(left,top,wid,span);c.strokeStyle='rgba(200,215,235,.5)';c.lineWidth=.6;c.beginPath();for(let i=0;i<n;i++){const x=left+((i*53.7+t*sp*.09)%wid),y=top+((i*91.3+t*sp*.42)%span);c.moveTo(x,y);c.lineTo(x-2.4,y+7);}c.stroke();},{z:12,when:()=>THEME.weather==='storm'});
+  // 21 Nov: three depths of rain, each drop with its own speed and length, gusts that lean it, and splashes on the water
+  c.fillStyle='rgba(30,40,60,.12)';c.fillRect(left,top,wid,span);const gust=Math.sin(t/2300)*.25+Math.sin(t/700)*.08;
+  [[n*.9,.32,4,.4,.28],[n*.6,.5,7,.6,.42],[n*.25,.8,11,.9,.6]].forEach(([cnt,spd,len,w,a],L)=>{c.strokeStyle=`rgba(205,218,238,${a})`;c.lineWidth=w;c.beginPath();
+    for(let i=0;i<cnt;i++){const r=h32('sr'+L+'_'+i);const v=spd*(.8+((r%100)/100)*.5);const p=((t*sp*v/span)+(r%1000)/1000)%1;const y=top+p*span,x=left+(((r>>10)%1000)/1000*wid+p*span*(.3+gust))%wid;const l=len*(.7+((r>>4)%10)/20);c.moveTo(x,y);c.lineTo(x-l*(.3+gust),y+l);}c.stroke();});
+  const sy=(typeof ART_HZ!=='undefined'&&THEME.scene&&ART_HZ[THEME.scene])||108;c.strokeStyle='rgba(225,235,250,.45)';c.lineWidth=.35;for(let i=0;i<26;i++){const r=h32('sp'+i);const q=((t*sp/(300+r%400))+(r%1000)/1000)%1;const x=left+((r>>8)%1000)/1000*wid,y=sy+8+((r>>18)%1000)/1000*(H-sy-6);if(q<.35){c.beginPath();c.ellipse(x,y,.6+q*5,.2+q*1.2,0,0,TAU);c.stroke();}}},{z:12,when:()=>THEME.weather==='storm'});
 
 /* ---------- Gary and Bill notice ---------- */
 {const _gsE=garySituation;garySituation=function(){try{const e=G&&eventOn(G.today);if(e&&e.type==='storm'&&evPhase(e)==='live')return 'storm';}catch(err){}return _gsE.apply(this,arguments);};}

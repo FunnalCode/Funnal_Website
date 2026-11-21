@@ -160,6 +160,7 @@ window.HL_CONTENT={
       closing:["Time, gentlemen, please! Not you, {here}. You can stay. {absent} has to go."],
       closed:["We're closed. I'm only here because I sleep under the bar. Don't tell the health inspector. He's also under the bar.","Closed, darling. Drinks are off, games are off, I'm off. Mostly. I'm still here though."],
       leaving:["Off already? Take an umbrella. It's 30 doubloons. It's got a hole in.","Mind the step. And the cat. And the bloke under the bar.","Come back soon. Bring money. Bring {absent}'s money."],
+      drinkAny:["Coming right up. Glass is clean. Cleanish.","There you go. Don't tell the cat what's in it. I don't know either.","One of those. Good choice. Terrible choice. Both.","Lovely. That's on the house. No it isn't. Pay the parrot.","Mixed it myself. With my own hands. Recently washed hands.","Careful, that one bites back."],
       drinks:{
         grog:"One grog, coming up. Glass rinsed. Recently. Ish.",
         stout:"Kraken Ink Stout. Black as a squid's soul. Mind the moustache.",

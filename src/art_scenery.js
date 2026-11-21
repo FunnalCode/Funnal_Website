@@ -506,6 +506,13 @@ const artPass=()=>isArtLook()&&ART_EYES===null;
 
 /* ---------- the Rusty Anchor, painted: a misty view through the window, firelight that flickers across the room,
    glowing candles and lanterns, a cool shaft of window light with dust drifting in it, deep shadows in the corners ---------- */
+// 21 Nov: rain you can believe in: slanted streaks at two depths outside, and beads on the glass that sit, swell and run
+function tvRain(c,wx,wy,ww,wh,t,storm){const lay=(n,spd,len,a,w,seed)=>{c.strokeStyle=`rgba(205,220,250,${a})`;c.lineWidth=w;c.beginPath();for(let i=0;i<n;i++){const r=h32(seed+i);const p=((t/spd)+(r%1000)/1000)%1;const x=wx-4+((r>>10)%1000)/1000*(ww+8)+p*3,y=wy-len+p*(wh+len);c.moveTo(x,y);c.lineTo(x-len*.22,y+len);}c.stroke();};
+  lay(storm?60:38,storm?300:420,5,.22,.25,'rf');lay(storm?34:20,storm?220:300,8,.4,.35,'rn');
+  for(let i=0;i<(storm?22:16);i++){const r=h32('drop'+i);const per=6000+(r%7000),ph=((t+(r%9000))/per)%1;const x=wx+2+((r>>8)%1000)/1000*(ww-4),y0=wy+3+((r>>18)%1000)/1000*wh*.65;const sz=.45+((r>>4)%10)/16;
+    let y=y0,run=0;if(ph>.72){run=(ph-.72)/.28;y=y0+run*run*(wy+wh-y0+4);c.strokeStyle='rgba(220,232,255,.16)';c.lineWidth=sz*.9;c.beginPath();c.moveTo(x,y0);c.lineTo(x+Math.sin(run*6+i)*.4,y);c.stroke();}
+    const g=sz*(1+(ph<.72?ph*.4:.3));c.fillStyle='rgba(190,210,240,.22)';c.beginPath();c.ellipse(x,y,g*.85,g,0,0,TAU);c.fill();c.strokeStyle='rgba(255,255,255,.32)';c.lineWidth=.18;c.stroke();disc(c,x-g*.3,y-g*.35,g*.28,'rgba(255,255,255,.75)');}
+  if(Math.sin(t/(storm?900:2600))>.985){c.fillStyle='rgba(230,235,255,.16)';c.fillRect(wx,wy,ww,wh);}}
 {const _dtv=drawTavern;drawTavern=function(cv,t){if(!isArtLook())return _dtv.apply(this,arguments);const prev=THEME.scene;THEME.scene='tavern';try{_dtv.apply(this,arguments);}finally{THEME.scene=prev;}
   const c=cv.getContext('2d');const s=(typeof TVXF!=='undefined'&&TVXF.s)||cv.width/TVW;c.setTransform(s,0,0,s,(typeof TVXF!=='undefined'&&TVXF.ox)||0,(typeof TVXF!=='undefined'&&TVXF.oy)||0);const ph=tvPhase();const mode=ph==='dusk'?'sunset':ph;const P=artPal(mode==='night'?'night':mode);const lv=(typeof fireLevel==='function'?fireLevel():.6);const sp=THEME.reduced?.35:1;
   const winter=THEME.season==='winter',storm=THEME.weather==='storm';
@@ -515,7 +522,7 @@ const artPass=()=>isArtLook()&&ART_EYES===null;
   else glowAt(c,wx+30,wy+wh*.62,16,SUN?SUN.col:'255,230,190',.5);
   layerCache(c,'tvview_'+mode+(winter?'w':''),wx,wy+16,ww,wh-16,q=>{artFacets(q,wy+wh*.72,[[wx+6,14,10,.3],[wx+22,20,12,.7],[wx+38,13,9,.5]],P.far,winter);artFog(q,wy+wh*.72,8,P.fog,.5);
     q.fillStyle=P.sea[1];q.fillRect(wx,wy+wh*.72,ww,wh*.28);q.fillStyle=shadeHex(P.isl,.8);q.beginPath();q.moveTo(wx,wy+wh*.74);q.quadraticCurveTo(wx+10,wy+wh*.62,wx+18,wy+wh*.74);q.closePath();q.fill();});
-  const n=storm?44:winter?24:18;for(let i=0;i<n;i++){const p=((t*sp/(winter&&!storm?2600:650))+i*.137)%1;const x=wx+((i*29.3)%ww)+(winter&&!storm?Math.sin(t/500+i)*2:0),y=wy+p*wh;if(winter&&!storm)disc(c,x,y,.7,'rgba(255,255,255,.9)');else line(c,x,y,x-1.4,y+4.4,'rgba(210,225,255,.6)',.35);}
+  if(winter&&!storm){for(let i=0;i<24;i++){const p=((t*sp/2600)+i*.137)%1;const x=wx+((i*29.3)%ww)+Math.sin(t/500+i)*2,y=wy+p*wh;disc(c,x,y,.7,'rgba(255,255,255,.9)');}}else tvRain(c,wx,wy,ww,wh,t*sp,storm);
   const st=c.createLinearGradient(0,wy+wh*.55,0,wy+wh);st.addColorStop(0,'rgba(255,255,255,0)');st.addColorStop(1,'rgba(255,255,255,.22)');c.fillStyle=st;c.fillRect(wx,wy,ww,wh);c.restore();
   R(c,wx+ww/2-1,wy,2,wh,'#2E1C12');R(c,wx,wy+wh/2-1,ww,2,'#2E1C12');
   // shadows: corners and ceiling fall away into darkness, the fire side stays warm

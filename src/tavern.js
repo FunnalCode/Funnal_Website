@@ -54,14 +54,34 @@ function fireLevel(){const D=G&&G.days[G.today];if(!D)return .3;const tgt=D.targ
 /* ---------- drinks ---------- */
 // 21 Nov: drinks are just for show now: whatever you order sits in your pirate's hand at the bar for the rest of the day.
 // (Old orders of Grog, Stout, Mojito and the Captain's Special keep their effects so nothing already bought is lost.)
+// the whole cellar; tonight's menu is a rotating pick from it (see tonightsMenu)
 const DRINKS=[
-  {id:'dk_grog',name:'Grog',price:20,glass:'mug',col:'#B8732E',desc:'A tankard of the house grog. Mostly rum, partly regret.'},
-  {id:'dk_stout',name:'Kraken Ink Stout',price:30,glass:'pint',col:'#2A1A14',desc:'Black as the trench, with a creamy head.'},
-  {id:'dk_mojito',name:"Mermaid's Mojito",price:40,glass:'tall',col:'#8FD9B0',desc:'Minty, fizzy, and suspiciously sparkly.'},
-  {id:'dk_rum',name:'Spiced Rum',price:35,glass:'tumbler',col:'#C9852E',desc:'A short glass of something warming.'},
-  {id:'dk_cocoa',name:'Hot Cocoa',price:25,glass:'cup',col:'#6A3A22',desc:'With a splash. Bill won\'t say of what.'},
-  {id:'bilge',name:'Bilge Water',price:0,glass:'tin',col:'#7A8A5A',desc:'Free. You get what you pay for.'},
-  {id:'sherry',name:"Bryn's Mum's Sherry",price:50,glass:'sherry',col:'#8A2A3A',desc:'December only. The parrot sings a carol.',xmas:true}];
+  {id:'dk_grog',name:'Grog',kind:'spirit',price:20,glass:'mug',col:'#B8732E',desc:'A tankard of the house grog. Mostly rum, partly regret.'},
+  {id:'dk_stout',name:'Kraken Ink Stout',kind:'spirit',price:30,glass:'pint',col:'#2A1A14',desc:'Black as the trench, with a creamy head.'},
+  {id:'dk_rum',name:'Spiced Rum',kind:'spirit',price:35,glass:'tumbler',col:'#C9852E',desc:'A short glass of something warming.'},
+  {id:'dk_whisky',name:"Old Salty's Whisky",kind:'spirit',price:45,glass:'tumbler',col:'#B9772A',desc:'Aged in a barrel that used to hold anchovies.'},
+  {id:'dk_gin',name:'Gunpowder Gin',kind:'spirit',price:35,glass:'tumbler',col:'#DDEFF2',desc:'Goes off with a bang. Metaphorically. Mostly.'},
+  {id:'dk_ale',name:"Captain's Cask Ale",kind:'spirit',price:25,glass:'pint',col:'#C98A2E',desc:'Brewed below deck. Tastes like it.'},
+  {id:'dk_shandy',name:'Sea Shanty Shandy',kind:'spirit',price:20,glass:'pint',col:'#E8C76A',desc:'Half ale, half lemonade, half singing.'},
+  {id:'dk_fog',name:'The Fog Cutter',kind:'spirit',price:40,glass:'tumbler',col:'#B8C4CC',desc:'Clears the head. Then clouds it again.'},
+  {id:'dk_mule',name:'Mutiny Mule',kind:'cocktail',price:35,glass:'copper',col:'#E9E2C0',desc:'Ginger, lime and a strong sense of injustice.'},
+  {id:'dk_mojito',name:"Mermaid's Mojito",kind:'cocktail',price:40,glass:'tall',col:'#8FD9B0',desc:'Minty, fizzy and suspiciously sparkly.'},
+  {id:'dk_colada',name:'Kraken Colada',kind:'cocktail',price:45,glass:'tall',col:'#C9A0E8',desc:'Pineapple, coconut and a tentacle garnish.'},
+  {id:'dk_triangle',name:'Bermuda Triangle',kind:'cocktail',price:45,glass:'coupe',col:'#5FB8E0',desc:'Three rums go in. Nobody knows where they go.'},
+  {id:'dk_plank',name:'Walk the Plank',kind:'cocktail',price:35,glass:'tumbler',col:'#F2913A',desc:'Orange, bitter, and you don\'t get a choice.'},
+  {id:'dk_sunset',name:'Sunset on the Poop Deck',kind:'cocktail',price:40,glass:'tall',col:'#F26A4A',desc:'Tastes better than it sounds. It would have to.'},
+  {id:'dk_bellini',name:'Barnacle Bellini',kind:'cocktail',price:40,glass:'flute',col:'#F7C59A',desc:'Peach, bubbles and one barnacle (decorative).'},
+  {id:'dk_shiver',name:'Shiver Me Timbers',kind:'cocktail',price:35,glass:'coupe',col:'#BFE6F2',desc:'Served over a small iceberg.'},
+  {id:'dk_scurvy',name:'The Scurvy Cure',kind:'cocktail',price:30,glass:'tall',col:'#A6D94A',desc:'Mostly lime. Some cure.'},
+  {id:'dk_parrot',name:'Parrot Juice',kind:'cocktail',price:30,glass:'tall',col:'#F2C43A',desc:'No parrots were harmed. One was annoyed.'},
+  {id:'dk_plunder',name:'The Plunderita',kind:'cocktail',price:40,glass:'coupe',col:'#D8E86A',desc:'Salt on the rim, gold in the glass (it\'s lime).'},
+  {id:'dk_locker',name:"Davy Jones's Punch",kind:'cocktail',price:45,glass:'cup',col:'#6A2A4A',desc:'Ladled from a chest. Do not ask whose chest.'},
+  {id:'dk_cocoa',name:'Hot Cocoa',kind:'spirit',price:25,glass:'cup',col:'#6A3A22',desc:'With a splash. Bill won\'t say of what.'},
+  {id:'bilge',name:'Bilge Water',kind:'house',price:0,glass:'tin',col:'#7A8A5A',desc:'Free. You get what you pay for.'},
+  {id:'sherry',name:"Bryn's Mum's Sherry",kind:'house',price:50,glass:'sherry',col:'#8A2A3A',desc:'December only. The parrot sings a carol.',xmas:true}];
+// tonight's menu: four cocktails and three spirits, a new pick every day, plus Bilge Water (and the sherry in December)
+function tonightsMenu(date){date=date||(G?G.today:'');const pick=(kind,n)=>DRINKS.filter(d=>d.kind===kind).map(d=>({d,k:h32(date+d.id+'menu')})).sort((a,b)=>a.k-b.k).slice(0,n).map(x=>x.d);
+  return {cocktails:pick('cocktail',4),spirits:pick('spirit',3),house:DRINKS.filter(d=>d.kind==='house'&&(!d.xmas||xmasNowSafe()))};}
 const DRINK_BY=Object.fromEntries(DRINKS.map(d=>[d.id,d]));
 const hourEnd=x=>Math.min((x.ts||0)+3600000,londonTs(x.date,1439)+60000);
 function stoutUsed(x,p){return stoutDay(x,p)!=null;}
@@ -89,7 +109,7 @@ setInterval(()=>{try{tvSettle();}catch(e){}},45000);setTimeout(()=>{try{tvSettle
 ACT.tvDrink=async d=>{const dr=DRINK_BY[d.id];if(!dr)return;const me=G.players[S.me];
   if(dr.xmas&&!xmasNowSafe())return toast('<b>December only.</b> Bryn\'s Mum keeps the sherry locked up the rest of the year.','joke');
   if(me.balance<dr.price)return toast('<b>Not enough doubloons.</b> Bill offers to start a tab. Don\'t.','joke');
-  try{await writeDay(S.me,G.today,{spend:{[uid()]:{item:'tv_'+dr.id,cost:dr.price,ts:Date.now()}}});SND.coin();tvSetLine(fill(TV().drinks?.[dr.id.replace('dk_','')]||'Coming right up.',tvVars()),'');TVS.next=Date.now()+20000;
+  try{await writeDay(S.me,G.today,{spend:{[uid()]:{item:'tv_'+dr.id,cost:dr.price,ts:Date.now()}}});SND.coin();tvSetLine(fill(TV().drinks?.[dr.id.replace('dk_','')]||tvPick(TV().drinkAny||['Coming right up.','One '+dr.name+'. Pay the parrot.','There you go. Don\'t tell the cat.']),tvVars()),'');TVS.next=Date.now()+20000;
     if(dr.id==='sherry')sherryCard();TVS.cheerT=Date.now();}catch(e){writeFail(e);}};
 // the drink in each captain's hand: the last one they ordered today
 function drinkInHand(p){try{const l=tvSpends(p).filter(x=>x.date===G.today&&/^tv_(dk_|bilge|sherry|grog|stout|mojito)/.test(x.item));if(!l.length)return null;const id=l[l.length-1].item.slice(3);return DRINK_BY[id]||DRINK_BY['dk_'+id]||null;}catch(e){return null;}}
