@@ -189,6 +189,10 @@ html[data-hc-theme=dark] .coveNext{background:#1E2938}
 html[data-hc-theme=dark] .coveRow .cvDot{border:2px solid #344051;background:#243042}
 html[data-hc-theme=dark] .coveRow.open .cvDot{background:#18212D}
 html[data-hc-theme=dark] .qAll::after{background:linear-gradient(105deg,transparent 30%,rgba(36,48,66,0.55) 48%,transparent 66%)}
+html[data-hc-theme=dark] .pipeTop small b{color:#D7C3C1}
+html[data-hc-theme=dark] .pillNav{background:#161E2A}
+html[data-hc-theme=dark] .pCard{background:var(--card2,#202B3B)}
+html[data-hc-theme=dark] .btn.ghost.danger{color:#D7C2C1}
 /* ===== dark mode, hand-tuned: one navy family, readable accents, paper stays paper ===== */
 html[data-hc-theme=dark]{color-scheme:dark;
  --bg:#111823;--dot:#17212D;--card:#1B2532;--card2:#172030;--raised:#243142;--line:#2E3C4F;--shadow:#0A0F16;
@@ -249,3 +253,18 @@ html[data-hc-theme=dark] .bounty{filter:brightness(.9) saturate(.92)}
 html[data-hc-theme=dark] .qVoy .qChart{filter:brightness(.88);border-color:var(--line)}
 html[data-hc-theme=dark] .liGroup{background:var(--card2)}
 html[data-hc-theme=dark] .liGroup.on{background:var(--raised);border-color:#E3B05A;box-shadow:0 3px 0 #0A0F16}
+/* pipeline */
+html[data-hc-theme=dark] .pillNav{background:#0E151F}
+html[data-hc-theme=dark] .pillInd{background:#E3B05A;box-shadow:0 2px 6px rgba(0,0,0,.4)}
+html[data-hc-theme=dark] .pillNav button.on{color:#2A1C05}
+html[data-hc-theme=dark] .pCard{background:var(--raised)}
+html[data-hc-theme=dark] .pTag,html[data-hc-theme=dark] .pRag,html[data-hc-theme=dark] .pDue{background:rgba(255,255,255,.08);color:#C9D3DE}
+html[data-hc-theme=dark] .pTag.hot,html[data-hc-theme=dark] .pDue.over{background:rgba(255,127,146,.16);color:#FF9AAA}
+html[data-hc-theme=dark] .pTag.chk,html[data-hc-theme=dark] .pDue.today,html[data-hc-theme=dark] .pTag.gold{background:rgba(242,188,69,.16);color:#F2C46A}
+html[data-hc-theme=dark] .pDue.later{background:rgba(94,211,158,.14);color:#7FE0B2}
+html[data-hc-theme=dark] .pTag.link{background:rgba(120,182,244,.16);color:#9CC8F6}
+html[data-hc-theme=dark] .pRag{background:color-mix(in srgb,var(--rc) 22%,transparent);color:color-mix(in srgb,var(--rc) 60%,#fff)}
+html[data-hc-theme=dark] .pRevNote{background:rgba(242,188,69,.12);border-color:rgba(242,188,69,.4);color:#F4DDA6}
+html[data-hc-theme=dark] .pStTag{color:color-mix(in srgb,var(--sc) 55%,#fff)}
+html[data-hc-theme=dark] .pStage b{background:rgba(255,255,255,.08)}
+html[data-hc-theme=dark] .pipeTop small b{color:#FF9AAA}

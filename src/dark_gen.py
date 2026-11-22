@@ -77,7 +77,7 @@ def kind_of(prop):
     if prop in ('box-shadow', 'text-shadow'): return 'shadow'
     return None
 
-SKIP = ('.bounty', '.qRing', '.qRew', '.qStamp', '.qLeft', '.qBoard', '.qChart', '.evHero', '.evTxt', '.evCount', '.advCal', '.advDoor', '.advGrid', '.advNudge', '.flyCoin', '.paper', '.hIllo', '.heraldCard', '.hMast', '.hStamp', '.tvMenu', '.mItem', '.mHead', '.mNote', '.mFoot', '.mTxt', '.jukebox', '.jb', '#focus', '.fTop', '.fStat', '#catchFx', '.bmCard', '.bmShut', '#tip', '.dmBtn', '#dm', '.lvlBadge', 'canvas', '.okTag', '.rtag', '.r-', '.appIco', '#intro', '.splash', '.gate')
+SKIP = ('.pillInd', '.pIni', '.pBanner', '.pBanIco', '.pTag', '.pRag', '.pDue', '.pRevNote', '.pStTag', '.bounty', '.qRing', '.qRew', '.qStamp', '.qLeft', '.qBoard', '.qChart', '.evHero', '.evTxt', '.evCount', '.advCal', '.advDoor', '.advGrid', '.advNudge', '.flyCoin', '.paper', '.hIllo', '.heraldCard', '.hMast', '.hStamp', '.tvMenu', '.mItem', '.mHead', '.mNote', '.mFoot', '.mTxt', '.jukebox', '.jb', '#focus', '.fTop', '.fStat', '#catchFx', '.bmCard', '.bmShut', '#tip', '.dmBtn', '#dm', '.lvlBadge', 'canvas', '.okTag', '.rtag', '.r-', '.appIco', '#intro', '.splash', '.gate')
 
 def prefix(sel):
     out = []
