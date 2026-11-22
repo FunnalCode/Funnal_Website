@@ -307,3 +307,5 @@ html[data-hc-theme=dark] .s7Tag{background:rgba(94,211,158,.14);color:#7FE0B2}ht
 html[data-hc-theme=dark] .s7Lock,html[data-hc-theme=dark] .s7SetItem{background:var(--raised)}html[data-hc-theme=dark] .s7WishCard.can{background:linear-gradient(120deg,#1E3A2E,var(--card));border-color:#2F6B4F}
 html[data-hc-theme=dark] .s7Off{background:#B83232}
 html[data-hc-theme=dark] .s7TryInfo .rtag{color:color-mix(in srgb,var(--rc) 70%,#fff)}
+
+html[data-hc-theme=dark] .hStop{background:#FFF6DA;color:#2A2218}

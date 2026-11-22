@@ -111,7 +111,7 @@ async function pMove(id,to,opts){const r=PIPE.rows.find(x=>x.id===id);if(!r||r.s
   const prev=await pipePatch(id,patch,'stage',{from,to});if(prev===false)return;PIPE.undo={id,prev,to};try{SND.pop&&SND.pop();}catch(e){}
   if(to==='client'){try{fireworks(2600);SND.level&&SND.level();}catch(e){}}
   const gk=P_GAME[to];const offer=gk&&!(r.tags||[]).includes('game:'+gk)&&!(opts&&opts.quiet);
-  toast(`<b>${esc(r.business)}</b> moved to ${esc(PIPE_BY[to].name)}.${offer?` <button class="tLink gold" data-act="pGame" data-k="${gk}" data-id="${r.id}">Count it: +${fmtN(KINDS[gk].xp)} XP</button>`:''} <button class="tLink" data-act="pUndo">Undo</button>`,'',offer?8000:5000);}
+  toast(`<b>${esc(r.business)}</b> moved to ${esc(PIPE_BY[to].name)}.${typeof pQuip==='function'&&pQuip(to)?` <i class="pQuip">${esc(pQuip(to))}</i>`:''}${offer?` <button class="tLink gold" data-act="pGame" data-k="${gk}" data-id="${r.id}">Count it: +${fmtN(KINDS[gk].xp)} XP</button>`:''} <button class="tLink" data-act="pUndo">Undo</button>`,'',offer?8000:5000);}
 ACT.pNext=(d,el)=>{const r=PIPE.rows.find(x=>x.id===d.id);if(!r)return;const i=PIPE_STAGES.findIndex(s=>s.id===r.stage);const nx=PIPE_STAGES[i+1];if(!nx)return;const card=el&&el.closest('.pCard');
   if(card&&!matchMedia('(prefers-reduced-motion: reduce)').matches){card.classList.add('sailOff');setTimeout(()=>pMove(r.id,nx.id),260);}else pMove(r.id,nx.id);};
 ACT.pUndo=async()=>{const u=PIPE.undo;if(!u)return;PIPE.undo=null;await pipePatch(u.id,u.prev,'stage',{from:u.to,to:u.prev.stage,undo:true});};
