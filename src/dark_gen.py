@@ -77,7 +77,7 @@ def kind_of(prop):
     if prop in ('box-shadow', 'text-shadow'): return 'shadow'
     return None
 
-SKIP = ('.pillInd', '.pIni', '.pBanner', '.pBanIco', '.pTag', '.pRag', '.pDue', '.pRevNote', '.pStTag','.pipePage .btn','.pDay','.pSched','.pWDay','.pKpi','.pGoBadge','.pGoalBar','.pColStack','.pFBar','.pDueLink','.pSGroup','.tLink','.pLegend', '.bounty', '.qRing', '.qRew', '.qStamp', '.qLeft', '.qBoard', '.qChart', '.evHero', '.evTxt', '.evCount', '.advCal', '.advDoor', '.advGrid', '.advNudge', '.flyCoin', '.paper', '.hIllo', '.heraldCard', '.hMast', '.hStamp', '.tvMenu', '.mItem', '.mHead', '.mNote', '.mFoot', '.mTxt', '.jukebox', '.jb', '#focus', '.fTop', '.fStat', '#catchFx', '.bmCard', '.bmShut', '#tip', '.dmBtn', '#dm', '.lvlBadge', 'canvas', '.okTag', '.rtag', '.r-', '.appIco', '#intro', '.splash', '.gate')
+SKIP = ('.pillInd', '.pIni', '.pBanner', '.pBanIco', '.pTag', '.pRag', '.pDue', '.pRevNote', '.pStTag','.pipePage .btn','.lvDist','.lvBig','.lvIn','.lvCell','.lvCurse','.lvChestCard','.lvp','.lvFree','.lvDye','.lvCurseFx','.lvCurseTxt','.lvTierCard','.lvCurseIco','.lvTierBtn','.lvDyeSlot','.lvFrAv','.pDay','.pSched','.pWDay','.pKpi','.pGoBadge','.pGoalBar','.pColStack','.pFBar','.pDueLink','.pSGroup','.tLink','.pLegend', '.bounty', '.qRing', '.qRew', '.qStamp', '.qLeft', '.qBoard', '.qChart', '.evHero', '.evTxt', '.evCount', '.advCal', '.advDoor', '.advGrid', '.advNudge', '.flyCoin', '.paper', '.hIllo', '.heraldCard', '.hMast', '.hStamp', '.tvMenu', '.mItem', '.mHead', '.mNote', '.mFoot', '.mTxt', '.jukebox', '.jb', '#focus', '.fTop', '.fStat', '#catchFx', '.bmCard', '.bmShut', '#tip', '.dmBtn', '#dm', '.lvlBadge', 'canvas', '.okTag', '.rtag', '.r-', '.appIco', '#intro', '.splash', '.gate')
 
 def prefix(sel):
     out = []

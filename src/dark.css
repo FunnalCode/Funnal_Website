@@ -195,6 +195,8 @@ html[data-hc-theme=dark] .pCard{background:var(--card2,#202B3B)}
 html[data-hc-theme=dark] .btn.ghost.danger{color:#D7C2C1}
 html[data-hc-theme=dark] .pActRow img{background:var(--track,#161E2A)}
 html[data-hc-theme=dark] .pGoBtn small b.pGoDue{color:#D7C3C1}
+html[data-hc-theme=dark] .lvRowBtn.on{box-shadow:inset 0 0 0 2px rgba(15,20,23,0.5)}
+html[data-hc-theme=dark] .lvFrame.on{box-shadow:inset 0 0 0 2px rgba(15,20,23,0.5)}
 /* ===== dark mode, hand-tuned: one navy family, readable accents, paper stays paper ===== */
 html[data-hc-theme=dark]{color-scheme:dark;
  --bg:#111823;--dot:#17212D;--card:#1B2532;--card2:#172030;--raised:#243142;--line:#2E3C4F;--shadow:#0A0F16;
@@ -284,3 +286,8 @@ html[data-hc-theme=dark] .pSGroup h4 span{background:rgba(255,255,255,.1)}
 html[data-hc-theme=dark] .pFRow:not(.still):hover{background:rgba(255,255,255,.05)}
 html[data-hc-theme=dark] .tLink.gold{background:#F2C46A;color:#2A1C05}
 html[data-hc-theme=dark] .pGoBadge{background:#B83232}
+
+/* levels */
+html[data-hc-theme=dark] .lvChestCard{background:linear-gradient(120deg,#3A2F17,#4A3B16);border-color:#7A6326}html[data-hc-theme=dark] .lvChestCard small{color:#E6D3A0}
+html[data-hc-theme=dark] .lvCell{background:var(--raised)}html[data-hc-theme=dark] .lvCell.got{background:color-mix(in srgb,#5DBE9C 16%,var(--raised))}
+html[data-hc-theme=dark] .lvTierBtn.done b::after{color:#7FE0B2}html[data-hc-theme=dark] .lvRowBtn small{color:#7FE0B2}
