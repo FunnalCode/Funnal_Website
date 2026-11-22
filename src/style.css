@@ -1194,3 +1194,62 @@ html:not([data-hc-theme=dark]) .jbTrack.locked b{color:#CDB79C}
 .btn.danger{background:#C0392B;color:#fff}.btn.ghost.danger{background:none;color:#B8322A}
 .tLink{border:0;background:none;color:inherit;text-decoration:underline;font-weight:800;cursor:pointer;padding:0 0 0 4px}
 @media (prefers-reduced-motion:reduce){.pCard.sailOff{animation:none}.pillInd{transition:none!important}}
+
+/* ===== 22 Nov: pipeline part 2 (Overview, Schedule, Growth) ===== */
+.pDueLink{cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.pDue.stale{background:#ECE7DE;color:#6B5E4C}
+.pKpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0 0 10px}
+.pKpi{border:1px solid var(--line);background:var(--card);border-radius:14px;padding:11px 6px 9px;text-align:center;cursor:pointer;color:var(--ink);font:inherit;transition:transform .15s,box-shadow .15s;animation:pPop .38s cubic-bezier(.3,1.5,.5,1) both}
+.pKpi:nth-child(2){animation-delay:.05s}.pKpi:nth-child(3){animation-delay:.1s}.pKpi:nth-child(4){animation-delay:.15s}
+.pKpi b{display:block;font:700 19px var(--display);line-height:1.1}.pKpi small{display:block;font-size:11px;color:var(--muted);margin-top:2px}
+.pKpi.hot b{color:#C0392B}.pKpi:hover{box-shadow:0 3px 10px rgba(0,0,0,.08)}.pKpi:active{transform:scale(.95)}
+@keyframes pPop{from{opacity:0;transform:translateY(8px) scale(.94)}}
+.pOvCard{margin-bottom:10px}.pOvCard h3{margin:0}
+.pFunnel,.pReach{display:flex;flex-direction:column;gap:5px}
+.pFRow{display:grid;grid-template-columns:96px 1fr 30px;align-items:center;gap:8px;border:0;background:none;padding:3px 2px;border-radius:9px;font:inherit;color:var(--ink);cursor:pointer;text-align:left}
+.pFRow.still{cursor:default}.pFRow:not(.still):hover{background:rgba(0,0,0,.04)}.pFRow:not(.still):active .pFBar i{filter:brightness(1.12)}
+.pFName{font-size:12.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pFBar{height:14px;border-radius:999px;background:var(--track,#EFE6D0);overflow:hidden}
+.pFBar i{display:block;height:100%;width:var(--w);border-radius:999px;background:linear-gradient(90deg,color-mix(in srgb,var(--sc) 78%,#fff),var(--sc));transform-origin:left;animation:pGrow .7s cubic-bezier(.2,.9,.3,1) both;animation-delay:var(--d,0ms)}
+.pFRow b{font-size:13px;text-align:right}
+@keyframes pGrow{from{transform:scaleX(0)}}
+.pConv{font-size:10.5px;font-weight:800;color:var(--muted);padding-left:104px;margin:-2px 0}
+.pAct{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.pActRow{display:flex;align-items:center;gap:8px;font-size:13px}.pActRow img{width:26px;height:26px;border-radius:50%;flex:none;background:var(--track,#EFE6D0)}.pActRow small{color:var(--muted);font-size:11px;white-space:nowrap}
+.pSchList{display:flex;flex-direction:column;gap:7px;margin-top:8px}
+.pSched{display:flex;align-items:center;gap:10px;padding:8px 8px 8px 8px;border-radius:13px;background:var(--card2,#FBF8F1);border:1px solid var(--line);border-left:3px solid var(--sc);transition:transform .3s,opacity .3s}
+.pSched .grow{min-width:0;cursor:pointer}.pSched .grow b{display:block;font-size:14px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pSched .grow small{display:block;font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pDay{flex:none;width:40px;text-align:center;border-radius:10px;padding:4px 0;background:#E7F1E9;color:#2F6B43;line-height:1}.pDay b{display:block;font:700 17px var(--display)}.pDay small{font-size:10.5px;font-weight:800;text-transform:uppercase}
+.pSched.over .pDay{background:#FBE4E1;color:#A3271B}.pSched.today .pDay{background:#FFF0C9;color:#7A5200}.pSched.stale .pDay{background:#ECE7DE;color:#6B5E4C}
+.pSchBtns{display:flex;gap:5px;flex:none}.pSchBtns .btn{padding:7px 10px;font-size:12px}.pSnz{min-width:0}
+.pSched.stale{flex-wrap:wrap}.pSched.stale .grow{flex:1 1 0}.pSched.stale .pSchBtns{width:100%;justify-content:flex-end;padding-left:50px}
+.pSched.ticked{transform:translateX(30px);opacity:0}
+.pSched.ticked .btn.primary{animation:pTick .3s ease-out}
+@keyframes pTick{50%{transform:scale(1.15)}}
+.pWeek{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin:0 0 12px}
+.pWDay{border:1px solid var(--line);background:var(--card);border-radius:12px;padding:6px 0 5px;font:inherit;color:var(--ink);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;transition:transform .15s}
+.pWDay small{font-size:10.5px;font-weight:800;color:var(--muted)}.pWDay b{font:700 16px var(--display)}
+.pWDay i{font-style:normal;font-size:10.5px;font-weight:800;min-width:18px;height:16px;line-height:16px;border-radius:999px;color:transparent}
+.pWDay.has i{background:#3E8DDB;color:#fff}.pWDay.today{border-color:#2C3E50;box-shadow:inset 0 0 0 1.5px #2C3E50}.pWDay.today.has i{background:#C0392B}
+.pWDay:active{transform:scale(.93)}
+.pSGroup{margin:0 0 14px;scroll-margin-top:70px}.pSGroup h4{margin:0 4px;font:700 13px var(--body,inherit);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}.pSGroup h4 span{background:rgba(0,0,0,.07);border-radius:999px;padding:1px 7px;margin-left:4px}
+.pSGroup.over h4{color:#A3271B}.pSAnchor{scroll-margin-top:80px}
+.pStale summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px}.pStale summary::-webkit-details-marker{display:none}.pStale summary::after{content:"›";margin-left:auto;transition:transform .2s;font-size:20px;color:var(--muted)}.pStale[open] summary::after{transform:rotate(90deg)}
+.pGoalNums{display:flex;align-items:baseline;gap:8px;margin:6px 0 8px}.pGoalNums b{font:700 30px var(--display);color:var(--ink)}.pGoalNums small{color:var(--muted)}
+.pGoalBar{position:relative;height:22px;border-radius:999px;background:var(--track,#EFE6D0);overflow:hidden}
+.pGoalBar i{position:absolute;inset:0 auto 0 0;width:var(--p);border-radius:999px;background:linear-gradient(90deg,#D9A62B,#A9781C);animation:pGrow 1s cubic-bezier(.2,.9,.3,1) both;transform-origin:left}
+.pGoalBar span{position:absolute;right:10px;top:0;line-height:22px;font-size:11.5px;font-weight:800;color:var(--ink)}
+.pCols{display:flex;align-items:flex-end;gap:6px;height:150px;margin-top:10px}
+.pColW{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%;min-width:0}
+.pColStack{flex:1;width:70%;max-width:34px;display:flex;flex-direction:column-reverse;justify-content:flex-start;border-radius:8px 8px 3px 3px;overflow:hidden;border-bottom:2px solid var(--line)}
+.pColStack i{display:block;height:var(--h);background:var(--c);transform-origin:bottom;animation:pRise .7s cubic-bezier(.2,.9,.3,1) both;animation-delay:var(--d,0ms)}
+@keyframes pRise{from{transform:scaleY(0)}}
+.pColW b{font-size:11.5px;min-height:14px}.pColW small{font-size:10px;color:var(--muted);white-space:nowrap}
+.pLegend{font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:5px}.pLegend i{width:9px;height:9px;border-radius:3px;background:var(--c);display:inline-block;margin-left:6px}
+.pGoBtn{position:relative}.pGoBtn small b.pGoDue{display:inline;font:inherit;font-weight:800;color:#C0392B}
+.pGoBadge{background:#C0392B;color:#fff;font-size:11.5px;font-weight:800;border-radius:999px;min-width:22px;height:22px;line-height:22px;text-align:center;padding:0 6px;animation:pBadge 2.4s ease-in-out infinite}
+@keyframes pBadge{0%,80%,100%{transform:scale(1)}88%{transform:scale(1.18)}}
+.tLink.gold{color:#7A5200;background:#FFE4A3;border-radius:999px;padding:2px 9px;margin-left:6px;text-decoration:none}
+@media (max-width:380px){.pFRow{grid-template-columns:80px 1fr 26px}.pConv{padding-left:88px}.pKpi b{font-size:16px}}
+@media (prefers-reduced-motion:reduce){.pKpi,.pFBar i,.pColStack i,.pGoalBar i,.pGoBadge{animation:none}.pSched{transition:none}}
+.pipePage .btn.primary{color:#2A1C05}

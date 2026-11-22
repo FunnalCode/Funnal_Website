@@ -16,7 +16,7 @@ const PIPE_EXITS=[{id:'not_now',name:'Not now',col:'#7A8794',hint:'Comes back on
 const PIPE_ALL=[...PIPE_STAGES,...PIPE_EXITS];const PIPE_BY=Object.fromEntries(PIPE_ALL.map(s=>[s.id,s]));
 const PIPE_PRODUCTS=['Websites','Full Package','Social Media Management','Branding','Email & SMS','Paid Adverts'];
 const PIPE_RAG={likely:{n:'Likely',c:'#2F9A63'},maybe:{n:'Maybe',c:'#D9902B'},unlikely:{n:'Unlikely',c:'#C0392B'}};
-const PIPE={rows:[],ready:false,err:null,src:null,ev:{},undo:null};
+const PIPE={rows:[],ready:false,err:null,src:null,ev:{},undo:null,allEv:null};
 
 /* ---------- data ---------- */
 const pLocal={get(){try{return JSON.parse(localStorage.getItem('hl_pipe_v1')||'[]');}catch(e){return [];}},set(r){try{localStorage.setItem('hl_pipe_v1',JSON.stringify(r));}catch(e){}}};
@@ -27,7 +27,7 @@ function pipeStart(){if(PIPE.src)return;if(S.sb){PIPE.src='supa';pipeLoad();
 async function pipeLoad(){try{const {data,error}=await S.sb.from('hl_prospects').select('*').order('sort',{ascending:true}).limit(5000);if(error)throw error;PIPE.rows=data||[];PIPE.ready=true;PIPE.err=null;}catch(e){PIPE.err=(e&&e.message)||'Could not load the pipeline';PIPE.ready=true;}pipeRefresh();}
 function pipeRefresh(){if(S.screen==='pipeline'||S.screen==='more')render();}
 function pipeSaveLocal(){if(PIPE.src==='local')pLocal.set(PIPE.rows);}
-async function pipeLog(id,kind,detail){const ev={prospect_id:id,by:S.me,kind,detail:detail||{},at:new Date().toISOString()};(PIPE.ev[id]=PIPE.ev[id]||[]).unshift(ev);
+async function pipeLog(id,kind,detail){const ev={prospect_id:id,by:S.me,kind,detail:detail||{},at:new Date().toISOString()};(PIPE.ev[id]=PIPE.ev[id]||[]).unshift(ev);if(PIPE.allEv)PIPE.allEv.unshift(ev);
   if(PIPE.src==='supa'){try{await S.sb.from('hl_prospect_events').insert({prospect_id:id,by:S.me,kind,detail:detail||{}});}catch(e){}}else{try{const k='hl_pipe_ev_'+id;const l=JSON.parse(localStorage.getItem(k)||'[]');l.unshift(ev);localStorage.setItem(k,JSON.stringify(l.slice(0,200)));}catch(e){}}}
 async function pipePatch(id,patch,kind,detail){const r=PIPE.rows.find(x=>x.id===id);if(!r)return;const prev={};Object.keys(patch).forEach(k=>prev[k]=r[k]);Object.assign(r,patch,{updated_by:S.me,updated_at:new Date().toISOString()});pipeSaveLocal();pipeRefresh();
   if(PIPE.src==='supa'){const {error}=await S.sb.from('hl_prospects').update({...patch,updated_by:S.me}).eq('id',id);if(error){Object.assign(r,prev);pipeRefresh();toast(`<b>Couldn't save.</b> ${esc(error.message||'')}`,'joke');return false;}}
@@ -47,7 +47,11 @@ const PAV={};const pAvatar=p=>{const k=p+'|'+JSON.stringify((S.players[p]||{}).l
 const pIni=s=>{const w=String(s||'?').replace(/[^\p{L}\p{N} &]/gu,' ').split(/\s+/).filter(x=>x&&x!=='&'&&!/^(the|and|of)$/i.test(x));return ((w[0]||'?')[0]+((w[1]||'')[0]||'')).toUpperCase();};
 const pMoney=n=>n==null||n===''?'':'£'+fmtN(Math.round(+n));
 const pVal=r=>r.deal_value!=null?+r.deal_value:r.quote_value!=null?+r.quote_value:null;
-function pDue(r){const d=r.stage==='not_now'?r.return_on:r.next_due;if(!d)return null;const t=G.today;return{d,cls:d<t?'over':d===t?'today':'later'};}
+// when a prospect is next due: the date you set, else a sensible gap after the last contact (so the imported sheet has dates too)
+const P_GAP={messaged:5,followed_up:5,talking:3,quote_sent:4};
+function pDueDate(r){if(r.stage==='not_now')return r.return_on||null;if(r.stage==='client'||r.stage==='no_response')return null;if(r.stage==='meeting'&&!r.meeting_held&&r.meeting_at)return r.meeting_at;if(r.next_due)return r.next_due;const g=P_GAP[r.stage];return g&&r.last_contact?addDays(r.last_contact,g):null;}
+function pDue(r){const d=pDueDate(r);if(!d)return null;const t=G.today;return{d,cls:d<addDays(t,-30)?'stale':d<t?'over':d===t?'today':'later'};}
+function pDueN(rows){return (rows||PIPE.rows).filter(r=>{const d=pDue(r);return d&&(d.cls==='over'||d.cls==='today');}).length;}
 const pShortD=d=>{try{return new Date(d+'T12:00:00Z').toLocaleDateString('en-GB',{day:'numeric',month:'short'});}catch(e){return d;}};
 const pHost=u=>{try{return new URL(/^https?:/.test(u)?u:'https://'+u).hostname.replace(/^www\./,'');}catch(e){return u;}};
 function pFilter(rows){const ow=S.view.powner||'all';return rows.filter(r=>ow==='all'||r.owner===ow);}
@@ -69,18 +73,19 @@ function pCard(r){const st=PIPE_BY[r.stage]||PIPE_STAGES[0];const due=pDue(r);co
   return `<div class="pCard ${r.priority?'prio':''}" data-act="pOpen" data-id="${r.id}" data-q="${esc(pSearchKey(r))}" style="--sc:${st.col}">
     <span class="pIni">${esc(pIni(r.business))}</span>
     <div class="grow"><b>${esc(r.business||'Unnamed')}</b><small>${esc([r.contact,prod].filter(Boolean).join(' · ')||'No details yet')}</small>
-      <div class="pMeta">${rag?`<span class="pRag" style="--rc:${rag.c}">${rag.n}</span>`:''}${r.priority?'<span class="pTag hot">Priority</span>':''}${v!=null?`<span class="pTag">${pMoney(v)}${r.deal_period==='monthly'?'/mo':''}</span>`:''}${r.follow_ups?`<span class="pTag">${r.follow_ups}× followed up</span>`:''}${due?`<span class="pDue ${due.cls}">${due.cls==='over'?'Overdue · ':due.cls==='today'?'Today · ':''}${pShortD(due.d)}</span>`:''}${r.review?'<span class="pTag chk">Check</span>':''}</div></div>
+      <div class="pMeta">${rag?`<span class="pRag" style="--rc:${rag.c}">${rag.n}</span>`:''}${r.priority?'<span class="pTag hot">Priority</span>':''}${v!=null?`<span class="pTag">${pMoney(v)}${r.deal_period==='monthly'?'/mo':''}</span>`:''}${r.follow_ups?`<span class="pTag">${r.follow_ups}× followed up</span>`:''}${due?`<span class="pDue ${due.cls}">${due.cls==='stale'?`Gone quiet${r.last_contact?' · '+pShortD(r.last_contact):''}`:(due.cls==='over'?'Overdue · ':due.cls==='today'?'Today · ':'')+pShortD(due.d)}</span>`:''}${r.review?'<span class="pTag chk">Check</span>':''}</div></div>
     <div class="pSide"><img class="pOwner" alt="${esc(pname(r.owner))}" src="${pAvatar(r.owner)}">${nextSt?`<button class="pNext" data-act="pNext" data-id="${r.id}" aria-label="Move to ${esc(nextSt.name)}" title="Move to ${esc(nextSt.name)}">›</button>`:''}</div></div>`;}
 
 /* ---------- the screen ---------- */
-SCREENS.pipeline=()=>{pipeStart();const tab=S.view.ptab||'board';
+SCREENS.pipeline=()=>{pipeStart();const tab=S.view.ptab||'overview';
   if(!PIPE.ready)return `<div class="pad pipePage"><div class="card pEmpty"><h2>Pipeline</h2><p class="muted">Loading your prospects…</p></div></div>`;
   const act=PIPE.rows.filter(r=>PIPE_STAGES.some(s=>s.id===r.stage)&&r.stage!=='client');const cl=PIPE.rows.filter(r=>r.stage==='client');
-  const mrr=cl.filter(r=>r.deal_period==='monthly').reduce((a,r)=>a+(+r.deal_value||0),0);const due=PIPE.rows.filter(r=>{const d=pDue(r);return d&&d.cls!=='later';}).length;const chk=PIPE.rows.filter(r=>r.review).length;
-  const head=`<div class="pipeTop"><div class="grow"><h2>Pipeline</h2><small>${act.length} active · ${cl.length} client${cl.length===1?'':'s'}${mrr?` · ${pMoney(mrr)} a month`:''}${due?` · <b>${due} due</b>`:''}</small></div><button class="btn primary pAddBtn" data-act="pAdd">+ New</button></div>
+  const mrr=cl.filter(r=>r.deal_period==='monthly').reduce((a,r)=>a+(+r.deal_value||0),0);const due=pDueN();const chk=PIPE.rows.filter(r=>r.review).length;
+  const head=`<div class="pipeTop"><div class="grow"><h2>Pipeline</h2><small>${act.length} active · ${cl.length} client${cl.length===1?'':'s'}${mrr?` · ${pMoney(mrr)} a month`:''}${due?` · <b data-act="pTab" data-t="schedule" class="pDueLink">${due} due</b>`:''}</small></div><button class="btn primary pAddBtn" data-act="pAdd">+ New</button></div>
     ${PIPE.err?`<div class="card pErr"><b>Couldn't reach the pipeline.</b><small>${esc(PIPE.err)}</small><button class="btn sm" data-act="pReload">Try again</button></div>`:''}
-    ${pillNav('pTabs',[['board','Board'],['clients','Clients',0],...(chk?[['review','Check import',chk]]:[])],tab,'pTab')}`;
-  return `<div class="pad pipePage">${head}${tab==='clients'?pClientsHtml(cl):tab==='review'?pReviewHtml():pBoardHtml()}</div>`;};
+    ${pillNav('pTabs',[['overview','Overview'],['board','Board'],['schedule','Schedule',due],['clients','Clients'],['growth','Growth'],...(chk?[['review','Check import',chk]]:[])],tab,'pTab')}`;
+  const body={overview:()=>pOverviewHtml(),schedule:()=>pScheduleHtml(),growth:()=>pGrowthHtml(),clients:()=>pClientsHtml(cl),review:()=>pReviewHtml()}[tab];
+  return `<div class="pad pipePage">${head}${body?body():pBoardHtml()}</div>`;};
 function pBoardHtml(){const cur=S.view.pstage||'video_needed';const st=PIPE_BY[cur];const rows=pStageRows(cur);const tot=rows.reduce((a,r)=>a+(pVal(r)||0),0);const ow=S.view.powner||'all';
   const strip=`<div class="pStrip" role="tablist">${PIPE_ALL.map((s,i)=>`${i===PIPE_STAGES.length?'<span class="pStripGap"></span>':''}<button class="pStage ${s.id===cur?'on':''}" role="tab" aria-selected="${s.id===cur}" data-act="pStage" data-s="${s.id}" style="--sc:${s.col}"><i></i>${esc(s.name)}<b>${pFilter(PIPE.rows.filter(r=>r.stage===s.id)).length}</b></button>`).join('')}</div>`;
   return `<div class="pTools"><input class="pSearch" type="search" placeholder="Search name, contact, product or notes" aria-label="Search the pipeline" value="${esc(S.view.pq||'')}" data-pq><div class="seg mini pOwn">${[['all','Everyone'],['sam',pnameRaw('sam')],['james',pnameRaw('james')]].map(([k,n])=>`<button class="${ow===k?'on':''}" data-act="pOwner" data-o="${k}">${esc(n)}</button>`).join('')}</div></div>
@@ -105,7 +110,8 @@ async function pMove(id,to,opts){const r=PIPE.rows.find(x=>x.id===id);if(!r||r.s
   const sort=Math.max(0,...PIPE.rows.filter(x=>x.stage===to).map(x=>x.sort||0))+1;patch.sort=sort;
   const prev=await pipePatch(id,patch,'stage',{from,to});if(prev===false)return;PIPE.undo={id,prev,to};try{SND.pop&&SND.pop();}catch(e){}
   if(to==='client'){try{fireworks(2600);SND.level&&SND.level();}catch(e){}}
-  toast(`<b>${esc(r.business)}</b> moved to ${esc(PIPE_BY[to].name)}. <button class="tLink" data-act="pUndo">Undo</button>`,'',5000);}
+  const gk=P_GAME[to];const offer=gk&&!(r.tags||[]).includes('game:'+gk)&&!(opts&&opts.quiet);
+  toast(`<b>${esc(r.business)}</b> moved to ${esc(PIPE_BY[to].name)}.${offer?` <button class="tLink gold" data-act="pGame" data-k="${gk}" data-id="${r.id}">Count it: +${fmtN(KINDS[gk].xp)} XP</button>`:''} <button class="tLink" data-act="pUndo">Undo</button>`,'',offer?8000:5000);}
 ACT.pNext=(d,el)=>{const r=PIPE.rows.find(x=>x.id===d.id);if(!r)return;const i=PIPE_STAGES.findIndex(s=>s.id===r.stage);const nx=PIPE_STAGES[i+1];if(!nx)return;const card=el&&el.closest('.pCard');
   if(card&&!matchMedia('(prefers-reduced-motion: reduce)').matches){card.classList.add('sailOff');setTimeout(()=>pMove(r.id,nx.id),260);}else pMove(r.id,nx.id);};
 ACT.pUndo=async()=>{const u=PIPE.undo;if(!u)return;PIPE.undo=null;await pipePatch(u.id,u.prev,'stage',{from:u.to,to:u.prev.stage,undo:true});};
@@ -207,7 +213,7 @@ function pApplySearch(){const q=(S.view.pq||'').trim().toLowerCase();const box=$
 {const _dv=decorateView;decorateView=function(){_dv.apply(this,arguments);try{if(S.screen==='pipeline'){document.querySelectorAll('.pillNav').forEach(pillPlace);pApplySearch();const on=$('.pStage.on');if(on&&on.scrollIntoView&&!S.pStripKept){on.scrollIntoView({block:'nearest',inline:'center'});}}}catch(e){console.warn(e);}};}
 
 /* ---------- way in: a banner at the top of More ---------- */
-{const _mP=SCREENS.more;SCREENS.more=function(){pipeStart();const h=_mP.apply(this,arguments);const act=PIPE.rows.filter(r=>PIPE_STAGES.some(s=>s.id===r.stage)&&r.stage!=='client').length;const chk=PIPE.rows.filter(r=>r.review).length;const due=PIPE.ready?PIPE.rows.filter(r=>{const d=pDue(r);return d&&d.cls!=='later';}).length:0;
+{const _mP=SCREENS.more;SCREENS.more=function(){pipeStart();const h=_mP.apply(this,arguments);const act=PIPE.rows.filter(r=>PIPE_STAGES.some(s=>s.id===r.stage)&&r.stage!=='client').length;const chk=PIPE.rows.filter(r=>r.review).length;const due=PIPE.ready?pDueN():0;
   const ban=`<a class="card pBanner" href="#pipeline"><span class="pBanIco"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h4v14H3zm7 0h4v9h-4zm7 0h4v5h-4z"/></svg></span><span class="grow"><b>Pipeline</b><small>${PIPE.ready?`${act} active prospects${due?` · ${due} due`:''}${chk?` · ${chk} to check`:''}`:'Your prospects, clients and follow-ups'}</small></span><span class="chev">›</span></a>`;
   return h.replace('<div class="pad">','<div class="pad">'+ban);};}
 HELP.push(['Pipeline','More, then Pipeline, is your client pipeline: every prospect from first video to signed client, shared between you both and saved straight away. Tap + New and paste a website or Instagram link to add someone. Swipe a card right (or tap ›) to move it to the next stage, or tap it to edit everything: contact, products, links to the Loom video and quote, money, dates and notes. Each card keeps a history of who changed what. Not now asks when to bring them back.']);

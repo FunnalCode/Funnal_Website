@@ -193,6 +193,8 @@ html[data-hc-theme=dark] .pipeTop small b{color:#D7C3C1}
 html[data-hc-theme=dark] .pillNav{background:#161E2A}
 html[data-hc-theme=dark] .pCard{background:var(--card2,#202B3B)}
 html[data-hc-theme=dark] .btn.ghost.danger{color:#D7C2C1}
+html[data-hc-theme=dark] .pActRow img{background:var(--track,#161E2A)}
+html[data-hc-theme=dark] .pGoBtn small b.pGoDue{color:#D7C3C1}
 /* ===== dark mode, hand-tuned: one navy family, readable accents, paper stays paper ===== */
 html[data-hc-theme=dark]{color-scheme:dark;
  --bg:#111823;--dot:#17212D;--card:#1B2532;--card2:#172030;--raised:#243142;--line:#2E3C4F;--shadow:#0A0F16;
@@ -268,3 +270,17 @@ html[data-hc-theme=dark] .pRevNote{background:rgba(242,188,69,.12);border-color:
 html[data-hc-theme=dark] .pStTag{color:color-mix(in srgb,var(--sc) 55%,#fff)}
 html[data-hc-theme=dark] .pStage b{background:rgba(255,255,255,.08)}
 html[data-hc-theme=dark] .pipeTop small b{color:#FF9AAA}
+
+/* pipeline part 2 */
+html[data-hc-theme=dark] .pDue.stale,html[data-hc-theme=dark] .pSched.stale .pDay{background:rgba(255,255,255,.08);color:#B9C3CE}
+html[data-hc-theme=dark] .pDay{background:rgba(94,211,158,.14);color:#7FE0B2}
+html[data-hc-theme=dark] .pSched.over .pDay{background:rgba(255,127,146,.16);color:#FF9AAA}
+html[data-hc-theme=dark] .pSched.today .pDay{background:rgba(242,188,69,.16);color:#F2C46A}
+html[data-hc-theme=dark] .pSched{background:var(--raised)}
+html[data-hc-theme=dark] .pKpi.hot b,html[data-hc-theme=dark] .pGoBtn small .pGoDue,html[data-hc-theme=dark] .pSGroup.over h4{color:#FF9AAA}
+html[data-hc-theme=dark] .pWDay.today{border-color:#9FB4CC;box-shadow:inset 0 0 0 1.5px #9FB4CC}
+html[data-hc-theme=dark] .pWDay.has i{background:#4F9BE6;color:#0E1A27}
+html[data-hc-theme=dark] .pSGroup h4 span{background:rgba(255,255,255,.1)}
+html[data-hc-theme=dark] .pFRow:not(.still):hover{background:rgba(255,255,255,.05)}
+html[data-hc-theme=dark] .tLink.gold{background:#F2C46A;color:#2A1C05}
+html[data-hc-theme=dark] .pGoBadge{background:#B83232}
