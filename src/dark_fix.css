@@ -52,3 +52,9 @@ html[data-hc-theme=dark] .jbTrack.locked b{color:#C9B49A}
 html[data-hc-theme=dark] canvas.icon{background-color:#203A32}
 html[data-hc-theme=dark] .bossTile canvas,html[data-hc-theme=dark] .fishIco{filter:brightness(.86) saturate(.92)}
 html[data-hc-theme=dark] .bossTile{border-color:var(--line)}
+/* quests: the board stays wood, the bounty notes stay paper (dimmed), the chart stays parchment */
+html[data-hc-theme=dark] .qBoard{filter:brightness(.9)}
+html[data-hc-theme=dark] .bounty{filter:brightness(.9) saturate(.92)}
+html[data-hc-theme=dark] .qVoy .qChart{filter:brightness(.88);border-color:var(--line)}
+html[data-hc-theme=dark] .liGroup{background:var(--card2)}
+html[data-hc-theme=dark] .liGroup.on{background:var(--raised);border-color:#E3B05A;box-shadow:0 3px 0 #0A0F16}

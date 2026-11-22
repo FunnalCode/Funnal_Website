@@ -73,7 +73,7 @@ html[data-hc-theme=dark] .cf-transcendent .cfCard{box-shadow:0 0 0 4px rgba(15,2
 html[data-hc-theme=dark] .qTick{background:#151D28}
 html[data-hc-theme=dark] .miniBar{background:#161E29}
 html[data-hc-theme=dark] .pips i{background:#161E29}
-html[data-hc-theme=dark] .part{background:#161E29}
+html[data-hc-theme=dark] .part{background:#161E29;color:#D1CEC7}
 html[data-hc-theme=dark] .plaque{color:#E3DED3;box-shadow:0 4px 0 #A87A22,inset 0 0 0 2px rgba(15,20,23,0.35)}
 html[data-hc-theme=dark] .bfCard{background:#212D3E;box-shadow:0 10px 0 rgba(0,0,0,.25),0 0 90px rgba(15,20,23,0.5);color:#C7CCD1}
 html[data-hc-theme=dark] .bf-c .bfCard{box-shadow:0 0 0 5px rgba(15,20,23,0.5),0 10px 0 rgba(0,0,0,.25),0 0 120px rgba(15,20,23,0.5)}
@@ -138,11 +138,6 @@ html[data-hc-theme=dark] .spTier.cos{box-shadow:inset 0 0 0 2px rgba(15,20,23,0.
 html[data-hc-theme=dark] .recapGrid div{background:#1D2735}
 html[data-hc-theme=dark] .recapPlayers div{background:#243042;border:1px solid #344051}
 html[data-hc-theme=dark] .card.advent{background:linear-gradient(160deg,#422C24,#243042 55%);border:1px solid #6A4639}
-html[data-hc-theme=dark] .advDoor{border:1px solid #344051;background:#1B2432}
-html[data-hc-theme=dark] .advDoor b{color:#D5CAC3}
-html[data-hc-theme=dark] .advDoor.shut{background:#18212D}
-html[data-hc-theme=dark] .advDoor.ready{box-shadow:0 0 0 2px rgba(15,20,23,0.5) inset}
-html[data-hc-theme=dark] .advDoor.cl{background:#244226;border-color:#396A40}
 html[data-hc-theme=dark] .advReveal div{background:#1E2837}
 html[data-hc-theme=dark] .xEd{color:#D7C1C4}
 html[data-hc-theme=dark] .xEdS{color:#D7C1C4}
@@ -193,6 +188,7 @@ html[data-hc-theme=dark] .gameTile{background:#222E3F}
 html[data-hc-theme=dark] .coveNext{background:#1E2938}
 html[data-hc-theme=dark] .coveRow .cvDot{border:2px solid #344051;background:#243042}
 html[data-hc-theme=dark] .coveRow.open .cvDot{background:#18212D}
+html[data-hc-theme=dark] .qAll::after{background:linear-gradient(105deg,transparent 30%,rgba(36,48,66,0.55) 48%,transparent 66%)}
 /* ===== dark mode, hand-tuned: one navy family, readable accents, paper stays paper ===== */
 html[data-hc-theme=dark]{color-scheme:dark;
  --bg:#111823;--dot:#17212D;--card:#1B2532;--card2:#172030;--raised:#243142;--line:#2E3C4F;--shadow:#0A0F16;
@@ -247,3 +243,9 @@ html[data-hc-theme=dark] .jbTrack.locked b{color:#C9B49A}
 html[data-hc-theme=dark] canvas.icon{background-color:#203A32}
 html[data-hc-theme=dark] .bossTile canvas,html[data-hc-theme=dark] .fishIco{filter:brightness(.86) saturate(.92)}
 html[data-hc-theme=dark] .bossTile{border-color:var(--line)}
+/* quests: the board stays wood, the bounty notes stay paper (dimmed), the chart stays parchment */
+html[data-hc-theme=dark] .qBoard{filter:brightness(.9)}
+html[data-hc-theme=dark] .bounty{filter:brightness(.9) saturate(.92)}
+html[data-hc-theme=dark] .qVoy .qChart{filter:brightness(.88);border-color:var(--line)}
+html[data-hc-theme=dark] .liGroup{background:var(--card2)}
+html[data-hc-theme=dark] .liGroup.on{background:var(--raised);border-color:#E3B05A;box-shadow:0 3px 0 #0A0F16}
