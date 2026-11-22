@@ -576,7 +576,7 @@ const HELP=[
   ['Meetings and clients','Meetings and clients are the real treasure. A meeting pays 150 doubloons and 400 XP, and a client pays 1,000 doubloons and 2,000 XP, plus a share for your crewmate (40 for a meeting, 250 for a client). Each one triggers a full-screen celebration for you both, and every client gets a gold plaque in the Client Hall of Fame and in both hideouts.'],
   ['Crew goals','You share a target, so some rewards need you both. Crew week: sink the daily sea foe on 5 days in a week for +400 doubloons and 300 XP each. Friday Kraken: every Friday, if you both log 30 or more DMs, you each get +200 doubloons and 150 XP. Grand ventures are giant projects built from your combined lifetime DMs (2,500 up to 100,000). Each one adds a monument to the harbour and pays you both.'],
   ['Reviews','The Weekly review in the More tab compares this week with last: DMs, replies, meetings and clients for each captain, your busiest hours, fishing and monster hunts. The game also shows an end-of-day card after 17:30 and an end-of-week card on Friday evening, ready to screenshot.'],
-  ['Fishing trips','In Lock In, switch from Monster hunt to Fishing trip. Every DM is a cast and about 7 in 10 land a fish. The voyage length picks your spot: The Shallows (15 min), Open Sea (25), Deep Water (45) or The Abyss (60). Deeper spots have more species and slightly better odds on rare fish, and some fish only bite deep, before 09:00 or after 17:00. Every catch has its own size, so each species has a record holder: a gold crown in the Trophy case (More tab) means you hold it. About 1 catch in 30 is a Golden, Albino or Rainbow variant, which counts as its own trophy. Bait is optional and used up by one trip: Glow Worms double the odds of rare-or-better fish, Squid Chunk makes fish about 20% bigger, and the Golden Lure triples variant odds. The Fish of the day is 6 times more likely, and the first captain to land the week\'s Big One wins 500 doubloons. The ten transcendent fish each turn up roughly once in 2,000 to 5,000 casts.'],
+  ['Fishing trips','In Lock In, switch from Monster hunt to Fishing trip. Every DM is a cast and about 7 in 10 land a fish. Every trip drops anchor at a random spot (The Shallows, Open Sea, Deep Water or The Abyss) in random waters, whatever the length. Every fish can bite on any trip, transcendent ones included. Deeper spots nudge the odds on rare fish a little, and a few fish only bite before 09:00 or after 17:00. Every catch has its own size, so each species has a record holder: a gold crown in the Trophy case (More tab) means you hold it. About 1 catch in 30 is a Golden, Albino or Rainbow variant, which counts as its own trophy. Bait is optional and used up by one trip: Glow Worms double the odds of rare-or-better fish, Squid Chunk makes fish about 20% bigger, and the Golden Lure triples variant odds. The Fish of the day is 6 times more likely, and the first captain to land the week\'s Big One wins 500 doubloons. The ten transcendent fish each turn up roughly once in 2,000 to 5,000 casts.'],
   ['Rigging your ship','Besides shop items and level rewards, some hulls, sails, figureheads, flags and deck pieces are earned. Fish gear unlocks from your Trophy case (species caught, fish landed, Whoppers, variants). Boss trophies unlock by sinking a particular daily sea foe or voyage monster several times. Veteran pieces unlock with time: days played, weeks sailed or a long streak. The grandest ships simply cost a fortune. Every locked item in the Shop shows what it needs and how far along you are.'],
   ['Honesty','All counts are self-reported. Caps, reload timers and crew confirmation stop accidental spam, but the game works because you both log honestly.'],
 ];
@@ -2743,7 +2743,7 @@ function drawFishing(c,t,lk){const bx=196+Math.sin(t/1400)*3,by=128+Math.sin(t/5
   disc(c,bx,by,2.4,'#FFFFFF');c.save();c.beginPath();c.rect(bx-3,by-3,6,3);c.clip();disc(c,bx,by,2.4,'#E0453B');c.restore();R(c,bx-.3,by-4.4,.6,2,'#3F3A30');
   hit(bx-8,by-8,16,14,'Fishing trip','Every DM you log is a cast. Most casts land a fish, rarer ones far less often. Your catches go in the Trophy case under More.');
   const lc=S.lastCatch;if(lc){const a=(performance.now()-lc.at)/(S.focus?2600:1800);if(a<1){const x=bx-6+a*10,y=by-Math.sin(Math.min(1,a*1.4)*Math.PI)*46;for(let i=0;i<6;i++){const an=-Math.PI*(i+.5)/6;disc(c,bx+Math.cos(an)*a*14,by+Math.sin(an)*a*10+a*a*10,1.2*(1-a)+.2,'rgba(255,255,255,.9)');}
-    c.save();c.translate(x,y);c.rotate(-.6+a*1.4);drawFish(c,lc.f,0,0,S.focus?2.1:1.5,t,false,lc.v||'');c.restore();if(a>.15&&a<.9){c.globalAlpha=Math.min(1,(a-.15)*5,(.9-a)*6);rr(c,x-34,y-30,68,13,6,'rgba(255,252,244,.95)');txt(c,lc.f.name,x,y-23.4,FISH_RAR[lc.f.rar].col,7.2,'center');c.globalAlpha=1;}}}}
+    c.save();c.translate(x,y);c.rotate(-.6+a*1.4);drawFish(c,lc.f,0,0,S.focus?2.1:1.5,t,false,lc.v||'');c.restore();if(a>.15&&a<.9){c.globalAlpha=Math.min(1,(a-.15)*5,(.9-a)*6);fishTag(c,lc.f.name,x,y-23.5,FISH_RAR[lc.f.rar].col);c.globalAlpha=1;}}}}
 
 /* toast and animation when a new DM on a fishing trip lands a fish */
 S.fishSeen=S.fishSeen||null;
@@ -2788,6 +2788,8 @@ function drawPlunder(c,t,lk,dms,vb){const wx=232-((t/40)%40),wy=124;
   if(H){const a=(performance.now()-H.at)/900;if(a<1){for(let i=0;i<7;i++){const q=Math.min(1,a*1.2+i*.04);const x=250-q*150,y=118-Math.sin(q*Math.PI)*(34+i*3)+q*12;disc(c,x,y,1.6,'#F2C462');disc(c,x-.4,y-.4,.6,'#FFF3B8');}
     lamp(c,250,120,14*(1-a),.6*(1-a),'255,214,110');c.globalAlpha=1-a;txt(c,'+3',112,96-a*12,'#C07E0C',9,'center');c.globalAlpha=1;
     if(a<.4)for(let i=0;i<8;i++){const an=-Math.PI*(i+.5)/8;disc(c,252+Math.cos(an)*a*30,124+Math.sin(an)*a*20,1.1,'rgba(255,255,255,.9)');}}}}
+
+function fishTag(c,s,x,cy,col){c.save();const art=typeof isArtLook==='function'&&isArtLook();c.font=art?'600 7.2px Fredoka, Nunito, sans-serif':'7px "Pixelify Sans", monospace';c.textAlign='center';c.textBaseline='middle';const w=Math.max(40,c.measureText(s).width+12);rr(c,x-w/2,cy-6.5,w,13,6,'rgba(255,252,244,.95)');c.fillStyle=col;c.fillText(s,x,cy+.4);c.restore();}
 
 /* ============================== FISHING v2: sizes, records, variants, spots, bait, the Big One ============================== */
 let FISH_V2_AT=1794605935200; /* catches logged before this moment keep their original roll, so nothing already caught changes */
@@ -3205,7 +3207,7 @@ function drawHuntV2(c,t,lk,mx,my){const h=huntLive(lk);if(!h||!h.cur){S.target=n
     c.globalAlpha=Math.min(1,(1-q)*3);txt(c,pw.elite?'ELITE SUNK!':'SUNK!',mx,my-34-q*8,pw.elite?'#C07E0C':'#2C3E50',12,'center');c.globalAlpha=1;S.target=null;}
   else{const rise=K&&since<2400?Math.min(1,(since-1400)/1000):1;c.save();c.beginPath();c.rect(0,0,W,my+r*.2);c.clip();c.translate(0,(1-rise)*30);drawMonster(c,w.mon,mx,my,r,w.left/w.hp,t,S.bossFlash>t,w.elite);c.restore();S.target=rise>=1?{x:mx,y:my}:null;
     for(let i=0;i<3;i++){const q=((t/1000)+i/3)%1;c.strokeStyle=`rgba(255,255,255,${.6*(1-q)})`;c.lineWidth=.7;c.beginPath();c.ellipse(mx,my+r*.25,r*(1+q*.5),r*.12*(1+q),0,0,TAU);c.stroke();}}
-  const vd=VOYAGE_DIFF[w.mon];rr(c,mx-34,my-r-24,68,16,6,'rgba(255,252,244,.94)');txt(c,`Wave ${w.n+1}${w.elite?' \u00b7 ELITE':''}`,mx,my-r-20,w.elite?'#C07E0C':'#7F8A95',6,'center');txt(c,vd.name,mx,my-r-13.6,'#2C3E50',6.6,'center');
+  const vd=VOYAGE_DIFF[w.mon];{const l1=`Wave ${w.n+1}${w.elite?' \u00b7 ELITE':''}`;c.save();const art=typeof isArtLook==='function'&&isArtLook(),F=z=>art?`600 ${z}px Fredoka, Nunito, sans-serif`:`${z}px "Pixelify Sans", monospace`;c.font=F(6.6);const w2=c.measureText(vd.name).width;c.font=F(6);const bw=Math.max(68,w2+12,c.measureText(l1).width+12);rr(c,mx-bw/2,my-r-26,bw,19,6,'rgba(255,252,244,.94)');c.textAlign='center';c.textBaseline='middle';c.fillStyle=w.elite?'#C07E0C':'#7F8A95';c.fillText(l1,mx,my-r-21);c.font=F(6.6);c.fillStyle='#2C3E50';c.fillText(vd.name,mx,my-r-13.2);c.restore();}
   rr(c,mx-26,my-r-6,52,4,2,'#E9E1CC');rr(c,mx-26,my-r-6,52*(w.left/w.hp),4,2,w.elite?'#E2AE2C':'#E0453B');
   if(S.huntCrit&&now-S.huntCrit<900){const q=(now-S.huntCrit)/900;c.globalAlpha=1-q;txt(c,'CRIT \u00d73',mx+18,my-14-q*14,'#E0453B',9,'center');c.globalAlpha=1;}
   txt(c,`${h.kills.length} sunk this hunt`,160,16,'#3F5160',7,'center');
@@ -3801,7 +3803,7 @@ HELP.length=0;[
  ['Days off','In Settings, ask for a day off (or a run of days) for yourself or the whole crew. The other captain accepts or declines it on their Harbour. Accepted days off never trigger forfeits or break streaks. You can cancel a day off of your own that has not happened yet.'],
  ['Lock In voyages','Pick a time and set sail, either on a monster hunt or a fishing trip. Every DM fires at the monster or casts a line. Tap bottles and chests at sea for loot. When the timer ends you reach Treasure Island, and a finished voyage pays a doubloon for every DM you sent on it. Full screen leaves just the scene and the DM button (space bar works too).'],
  ['Monster hunts','Monsters come in waves and are built for a crew that can send 5 DMs a minute: the first wave\'s HP shows on each monster card, and each wave is 15% tougher. About 1 in 8 DMs is a critical hit for 3 damage, and every 4th wave is a golden Elite worth double. Each kill pays XP and doubloons and drops a part (common, rare or a legendary trophy) for your Bestiary.'],
- ['Fishing trips','Every DM is a cast and about 7 in 10 land a fish. The voyage length picks your spot: The Shallows (15 min), Open Sea (25), Deep Water (45) or The Abyss (60). Deeper water has more species and better odds on rare fish, and some fish only bite deep, before 09:00 or after 17:00. There are 120 fish: 28 common, 25 uncommon, 21 rare, 16 epic, 12 legendary, 10 mythic and 8 transcendent. Transcendent fish roll on their own odds, from 1 in 2,000 casts (The Kraken\'s Goldfish) to 1 in 8,000 (The Funnal Fish, the rarest thing in the game). Every shark has its own look.'],
+ ['Fishing trips','Every DM is a cast and about 7 in 10 land a fish. Every trip drops anchor at a random spot (The Shallows, Open Sea, Deep Water or The Abyss) in random waters, whatever the length. Every fish can bite on any trip, transcendent ones included. Deeper spots nudge the odds on rare fish a little, and a few fish only bite before 09:00 or after 17:00. There are 120 fish: 28 common, 25 uncommon, 21 rare, 16 epic, 12 legendary, 10 mythic and 8 transcendent. Transcendent fish roll on their own odds, from 1 in 2,000 casts (The Kraken\'s Goldfish) to 1 in 8,000 (The Funnal Fish, the rarest thing in the game). Every shark has its own look.'],
  ['Sizes, variants and bait','Every catch has a size, and each species has a record holder (a gold crown in the Trophy case). A catch 30% over typical size is a Whopper. About 1 catch in 30 is a Golden, Albino or Rainbow variant, and that now includes legendary, mythic and transcendent fish. Bait lasts one trip: Glow Worms (300) make rare-or-better fish 60% more likely, Squid Chunk (250) makes fish about 20% bigger, and the Golden Lure (2,500) doubles variant odds and makes transcendent fish 25% more likely. The Fish of the day is 6 times more likely, and the first captain to land the week\'s Big One wins 500 doubloons.'],
  ['Fishing rewards','Fish gear unlocks from the Trophy case: species caught, fish landed, Whoppers, variants, legendary and mythic species, records held and complete rarity rows. The best pieces take months: 105 species, 6,000 fish, 200 Whoppers, 120 variants, all 8 transcendent fish. Anything you had already earned before this update stays yours.'],
  ['Challenges','From Lock In, challenge the other captain. Versus: Quick Draw Duel (15 min), The Long Haul (45 min), Treasure Race (first to 100 DMs), Tug of War (lead by 25) and King of the Hill (30 one-minute rounds). Duels can carry a stake of 50, 150 or 400 doubloons each, and the winner takes the pot. Co-op: Short Fuse (no 15-second gap for 20 minutes), Triple Century (300 crew DMs in 45 minutes), Kraken Raid (300 HP in 30 minutes), Boss Rush (60, 90 and 120 HP bosses) and The Last Push. Best results are kept as records, and wins unlock challenge gear.'],
@@ -7564,6 +7566,46 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState!==
 const TVSCAPE={cur:null};
 setInterval(()=>{try{const play=!!(S&&S.sound&&S.screen==='tavern'&&document.visibilityState==='visible');if(!play){if(TVSCAPE.cur){TVSCAPE.cur.stop(1.2);TVSCAPE.cur=null;}return;}
   const ac=getAC();if(!ac)return;const m=scapeMaster(ac);if(m.gain.value<SCAPE_VOL*.99)m.gain.setTargetAtTime(SCAPE_VOL,ac.currentTime,.4);if(!TVSCAPE.cur){TVSCAPE.cur=makeScape(ac,'tavern');TVSCAPE.cur.start(2);}}catch(e){}},500);
+
+/* ============================== 22 Nov: every fish on every trip ==============================
+   Trips that start from FISH_V5_AT on: the trip length no longer picks the spot. Each trip gets a random spot
+   (seeded by its start time, so both captains see the same one), and every fish in the game can bite on any trip.
+   The spot only nudges the odds a little (deeper water: slightly more rare-and-up). Dawn and dusk fish keep their hours.
+   Trips that started earlier keep their old rolls, so nothing already caught changes. */
+const FISH_V5_AT=Date.UTC(2026,10,22,1,0);
+function fishSpotOf(s,durMs){return (s||0)>=FISH_V5_AT?h32('spot'+s)%4:fishDepth(durMs);}
+fishTripsOf=function(sessions,lock){const t=(sessions||[]).filter(x=>isFish(x.mode)).map(x=>({s:x.s,e:x.e||x.s+(x.dur||0),depth:fishSpotOf(x.s,x.cdur||x.planned||x.dur),bait:x.bait||''}));
+  if(lock&&isFish(lock.mode))t.push({s:lock.s,e:Infinity,depth:fishSpotOf(lock.s,lock.cdur||lock.dur),bait:lock.bait||''});return t.sort((a,b)=>a.s-b.s);};
+const _fp5={};
+function fishPool5(ri,tc){const k=ri+'|'+tc;return _fp5[k]||(_fp5[k]=FISH.filter(f=>f.rar===FORDER[ri]&&(!f.time||f.time===tc)));}
+function fishRollV5(id,t,trip,date){const u=k=>h32(id+k)/4294967296;
+  let x=u('tr');const lm=trip.bait==='lure'?BAITS.lure.trans:1;for(const f of FISH_TRANS4){const pr=lm/f.odds;if(x<pr)return f;x-=pr;}
+  if(u('fish')>=.72)return null;const w=fishWeights(trip.depth,trip.bait);let y=u('fr')*w.reduce((a,b)=>a+b,0),ri=0;for(;ri<5;ri++){if(y<w[ri])break;y-=w[ri];}
+  const min=L(t).min,tc=min<540?'dawn':min>=1020?'dusk':'day';const fd=fishOfDay(date).id;
+  for(;ri>=0;ri--){const pool=fishPool5(ri,tc);if(pool.length){let tot=0;for(const f of pool)tot+=f.id===fd?6:1;let z=u('fs')*tot;for(const f of pool){const ww=f.id===fd?6:1;if(z<ww)return f;z-=ww;}return pool[pool.length-1];}}
+  return null;}
+{const _r4=fishRollV2;fishRollV2=function(id,t,trip,date){return trip&&trip.s>=FISH_V5_AT?fishRollV5(id,t,trip,date):_r4(id,t,trip,date);};}
+
+/* odds as a player sees them before setting off: averaged over the four spots, since the spot is a surprise */
+function fishOddsAny(bait,tc){const tt=FISH_TRANS4.reduce((a,f)=>a+1/f.odds,0)*(bait==='lure'?BAITS.lure.trans:1);const pr=FORDER.map(()=>0);
+  for(let d=0;d<4;d++){const w=fishWeights(d,bait),tot=w.reduce((a,b)=>a+b,0);FORDER.forEach((r,i)=>{let j=i;while(j>=0&&!fishPool5(j,tc).length)j--;if(j>=0)pr[j]+=w[i]/tot*.72/4;});}
+  return FORDER.map((r,i)=>({r,p:pr[i]*(1-tt),n:fishPool5(i,tc).length})).concat([{r:'transcendent',p:tt,n:FISH_TRANS4.length,each:FISH_TRANS4.map(f=>f.odds)}]);}
+{const _foF=fishOddsFor;fishOddsFor=function(f,dep,bait=''){if(f.rar==='transcendent')return _foF(f,dep,bait);const ri=FORDER.indexOf(f.rar);let p=0;
+  for(let d=0;d<4;d++){const w=fishWeights(d,bait),tot=w.reduce((a,b)=>a+b,0);p+=w[ri]/tot*.72/4;}const n=FISH.filter(x=>x.rar===f.rar).length||1;return Math.max(1,Math.round(n/p));};}
+
+{const _fp=fishPanelHtml;fishPanelHtml=function(tier){let h=_fp(tier);const bait=S.view.bait||S._bait||'';const min=L().min,tc=min<540?'dawn':min>=1020?'dusk':'day';
+  const head=`<div class="tierHead"><b>Fishing: a surprise spot</b><small>Every trip drops anchor somewhere random: ${FISH_SPOTS.map(s=>s.name).join(', ')}. Every fish can bite on any trip, whatever the length, transcendent ones included. Deeper water nudges the odds a little, and a few fish only bite at dawn or dusk. Every DM is a cast, and about 7 in 10 land a fish.</small></div>`;
+  h=h.replace(/<div class="tierHead">[\s\S]*?<\/small><\/div>/,head).replace(/ \u00b7 bites deeper than this/,'');
+  const rows=fishOddsAny(bait,tc).map(x=>{if(!x.n||!x.p)return `<span class="off"><b class="rtag r-${x.r}">${x.r}</b>not at this hour</span>`;
+    const each=x.each?`each 1 in ${fmtN(Math.min(...x.each))} to ${fmtN(Math.max(...x.each))}`:`each fish 1 in ${fmtN(Math.round(x.n/x.p))}`;
+    return `<span><b class="rtag r-${x.r}">${x.r}</b>any: 1 in ${fmtN(Math.max(1,Math.round(1/x.p)))} \u00b7 ${each}</span>`;}).join('');
+  return h.replace(/<div class="fishOdds">[\s\S]*?<\/div>/,`<div class="fishOdds"><small class="tiny muted" style="flex-basis:100%">Odds per cast (per DM), averaged over the four spots, right now</small>${rows}</div>`);};}
+
+/* fish info: no more "bites at X and deeper" */
+{const _fi=ACT.fishInfo;ACT.fishInfo=function(d){const r=_fi.apply(this,arguments);const m=$('#modal');if(m)m.querySelectorAll('p.muted').forEach(p=>{p.innerHTML=p.innerHTML.replace(/Bites at [^.,]+?(?: and deeper| only)/,'Bites on any trip');});return r;};}
+
+/* the on-screen label follows the trip's own spot */
+{const _df=drawFishing;drawFishing=function(c,t,lk){const s0=fishDepth;fishDepth=()=>fishSpotOf(lk.s,lk.cdur||lk.dur);try{_df(c,t,lk);}finally{fishDepth=s0;}};}
 
 /* ============================== DARK MODE (21 Nov) ==============================
    A sun and moon button next to the sound button switches the whole game between light and dark, the way the Funnal

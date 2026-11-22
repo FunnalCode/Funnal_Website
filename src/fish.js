@@ -58,7 +58,7 @@ function drawFishing(c,t,lk){const bx=196+Math.sin(t/1400)*3,by=128+Math.sin(t/5
   disc(c,bx,by,2.4,'#FFFFFF');c.save();c.beginPath();c.rect(bx-3,by-3,6,3);c.clip();disc(c,bx,by,2.4,'#E0453B');c.restore();R(c,bx-.3,by-4.4,.6,2,'#3F3A30');
   hit(bx-8,by-8,16,14,'Fishing trip','Every DM you log is a cast. Most casts land a fish, rarer ones far less often. Your catches go in the Trophy case under More.');
   const lc=S.lastCatch;if(lc){const a=(performance.now()-lc.at)/(S.focus?2600:1800);if(a<1){const x=bx-6+a*10,y=by-Math.sin(Math.min(1,a*1.4)*Math.PI)*46;for(let i=0;i<6;i++){const an=-Math.PI*(i+.5)/6;disc(c,bx+Math.cos(an)*a*14,by+Math.sin(an)*a*10+a*a*10,1.2*(1-a)+.2,'rgba(255,255,255,.9)');}
-    c.save();c.translate(x,y);c.rotate(-.6+a*1.4);drawFish(c,lc.f,0,0,S.focus?2.1:1.5,t,false,lc.v||'');c.restore();if(a>.15&&a<.9){c.globalAlpha=Math.min(1,(a-.15)*5,(.9-a)*6);rr(c,x-34,y-30,68,13,6,'rgba(255,252,244,.95)');txt(c,lc.f.name,x,y-23.4,FISH_RAR[lc.f.rar].col,7.2,'center');c.globalAlpha=1;}}}}
+    c.save();c.translate(x,y);c.rotate(-.6+a*1.4);drawFish(c,lc.f,0,0,S.focus?2.1:1.5,t,false,lc.v||'');c.restore();if(a>.15&&a<.9){c.globalAlpha=Math.min(1,(a-.15)*5,(.9-a)*6);fishTag(c,lc.f.name,x,y-23.5,FISH_RAR[lc.f.rar].col);c.globalAlpha=1;}}}}
 
 /* toast and animation when a new DM on a fishing trip lands a fish */
 S.fishSeen=S.fishSeen||null;
@@ -103,3 +103,5 @@ function drawPlunder(c,t,lk,dms,vb){const wx=232-((t/40)%40),wy=124;
   if(H){const a=(performance.now()-H.at)/900;if(a<1){for(let i=0;i<7;i++){const q=Math.min(1,a*1.2+i*.04);const x=250-q*150,y=118-Math.sin(q*Math.PI)*(34+i*3)+q*12;disc(c,x,y,1.6,'#F2C462');disc(c,x-.4,y-.4,.6,'#FFF3B8');}
     lamp(c,250,120,14*(1-a),.6*(1-a),'255,214,110');c.globalAlpha=1-a;txt(c,'+3',112,96-a*12,'#C07E0C',9,'center');c.globalAlpha=1;
     if(a<.4)for(let i=0;i<8;i++){const an=-Math.PI*(i+.5)/8;disc(c,252+Math.cos(an)*a*30,124+Math.sin(an)*a*20,1.1,'rgba(255,255,255,.9)');}}}}
+
+function fishTag(c,s,x,cy,col){c.save();const art=typeof isArtLook==='function'&&isArtLook();c.font=art?'600 7.2px Fredoka, Nunito, sans-serif':'7px "Pixelify Sans", monospace';c.textAlign='center';c.textBaseline='middle';const w=Math.max(40,c.measureText(s).width+12);rr(c,x-w/2,cy-6.5,w,13,6,'rgba(255,252,244,.95)');c.fillStyle=col;c.fillText(s,x,cy+.4);c.restore();}
