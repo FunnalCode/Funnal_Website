@@ -1,0 +1,54 @@
+/* ===== dark mode, hand-tuned: one navy family, readable accents, paper stays paper ===== */
+html[data-hc-theme=dark]{color-scheme:dark;
+ --bg:#111823;--dot:#17212D;--card:#1B2532;--card2:#172030;--raised:#243142;--line:#2E3C4F;--shadow:#0A0F16;
+ --ink:#E9EEF4;--muted:#A7B4C4;--soft:#8C9AAC;--track:#2A3749;
+ --r-common:#B8C1CC;--r-uncommon:#5FD39A;--r-rare:#78B6F4;--r-epic:#BF93F6;--r-legendary:#F2BC45;--r-mythic:#F77FA8;--r-transcendent:#D3DEE9;
+ --good:#5ED39E;--bad:#FF7F92;--sam:#F29A5C;--james:#86B4F0;--gold:#E3B05A}
+html[data-hc-theme=dark] body{background:var(--bg);color:var(--ink)}
+html[data-hc-theme=dark].hl-host body{background:#111823}
+html[data-hc-theme=dark] #hl-wrap,html[data-hc-theme=dark] #gate,html[data-hc-theme=dark] #modal,html[data-hc-theme=dark] #toasts{color:var(--ink)}
+html[data-hc-theme=dark] .themeBtn svg{fill:#F2D9A8}
+html[data-hc-theme=dark] .lvlBadge,html[data-hc-theme=dark] .hold,html[data-hc-theme=dark] #tip{background:#0A0F16;color:#fff}
+html[data-hc-theme=dark] .chip.on,html[data-hc-theme=dark] .stQuick button.on{background:#E9EEF4;color:#111823;border-color:#E9EEF4;box-shadow:0 3px 0 #0A0F16}
+html[data-hc-theme=dark] input,html[data-hc-theme=dark] select,html[data-hc-theme=dark] textarea{background:#141D29;color:var(--ink);border-color:var(--line)}
+html[data-hc-theme=dark] .btn:not(.primary){background:var(--raised);color:var(--ink)}
+html[data-hc-theme=dark] .modal,html[data-hc-theme=dark] #modal .box,html[data-hc-theme=dark] .sheet{background:var(--raised)}
+
+/* gold and orange stay on brand; their words go dark so they can be read */
+html[data-hc-theme=dark] .btn.primary,html[data-hc-theme=dark] a.btn.primary:visited{color:#2A1C05;text-shadow:none}
+html[data-hc-theme=dark] .btn.primary svg{fill:#2A1C05}
+html[data-hc-theme=dark] .tstep.next .tl{color:#2A1C05}
+html[data-hc-theme=dark] .tstep.got .tl{color:#0C2A1E}
+html[data-hc-theme=dark] .speech.withName .who2{color:#2A1C05}
+html[data-hc-theme=dark] .remind .name{color:#0E2433}
+
+/* status colours lifted for a dark page */
+html[data-hc-theme=dark] .cRew{color:#5ED39E!important}
+html[data-hc-theme=dark] .up,html[data-hc-theme=dark] i.up,html[data-hc-theme=dark] .twist b,html[data-hc-theme=dark] .done,html[data-hc-theme=dark] .shopItem .done{color:var(--good)}
+html[data-hc-theme=dark] .down,html[data-hc-theme=dark] i.down{color:var(--bad)}
+html[data-hc-theme=dark] .coveRow .cvKind{color:#8CC8C2}html[data-hc-theme=dark] .coveRow.k-landmark .cvKind{color:#F2C06C}html[data-hc-theme=dark] .coveRow.k-build .cvKind{color:#FF9C7A}
+html[data-hc-theme=dark] .recWin{color:#F2C06C}
+html[data-hc-theme=dark] .bossTile.unseen b{color:#D6DEE7}
+
+/* paper stays paper at night: the Herald card and the tavern menu keep their parchment, dimmed a little, with dark ink */
+html[data-hc-theme=dark] .paper,html[data-hc-theme=dark] .heraldCard,html[data-hc-theme=dark] .tvMenu{
+ --ink:#2B2418;--muted:#5E4E36;--soft:#6E5D44;--line:#C9B58C;--card:#EFE3C6;--track:#E2D3AE;filter:brightness(.88) saturate(.92)}
+html[data-hc-theme=dark] .heraldCard{box-shadow:0 4px 0 #0A0F16,inset 0 0 0 1px #E2D3AE}
+
+/* labels that sit over the painted scenes: a dark pill, not a white outline */
+html[data-hc-theme=dark] .sceneTag,html[data-hc-theme=dark] .speech .name{background:rgba(10,15,22,.82);color:#F4F7FA}
+
+/* the circle that grows out of the button when you switch */
+::view-transition-old(root),::view-transition-new(root){animation:none;mix-blend-mode:normal}
+@media (max-width:440px){.hudRight{gap:5px}.mute{width:30px;height:30px}.brand b{font-size:15px}}html .themeBtn svg{width:20px;height:20px;fill:currentColor}
+
+/* last few: the DM button hint, gold ribbons, the podium, the Herald masthead, locked jukebox tracks */
+html[data-hc-theme=dark] .dmLabel small{color:#D2DEE9}
+html[data-hc-theme=dark] .ribbon.gold{color:#3F2E05}
+html[data-hc-theme=dark] .podium>div:first-child{color:#2A1C05!important}
+html[data-hc-theme=dark] .paper{color:#3F3A30}html[data-hc-theme=dark] .paper .btn:not(.primary){background:#E8DCC0;color:#3F3A30}
+html[data-hc-theme=dark] .jbTrack.locked b{color:#C9B49A}
+/* item icons sit on a dark tinted disc instead of a bright mint one; painted portraits are dimmed a touch so they don't glare */
+html[data-hc-theme=dark] canvas.icon{background-color:#203A32}
+html[data-hc-theme=dark] .bossTile canvas,html[data-hc-theme=dark] .fishIco{filter:brightness(.86) saturate(.92)}
+html[data-hc-theme=dark] .bossTile{border-color:var(--line)}

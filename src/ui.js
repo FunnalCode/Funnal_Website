@@ -134,7 +134,7 @@ function awards(ws){const P=G.P;const we=addDays(ws,6);const prev=addDays(ws,-7)
   return AWARDS.map(a=>{const sc=P.map(p=>[p,vals[p][a.m]]);const max=Math.max(...sc.map(x=>x[1]));if(max<=0||max===-1e9)return{...a};const w=sc.filter(x=>x[1]===max);return w.length>1?{...a,tie:true}:{...a,win:w[0][0]};});}
 function comebacksIn(p,a,b){let n=0;for(const d in G.days){if(d<a||d>b||d>=G.today)continue;const D=G.days[d];let r={},min=0;G.P.forEach(x=>r[x]=0);for(const e of D.seq){r[e.pid]++;min=Math.min(min,r[p]-r[other(p)]);}if(min<=-15&&D.p[p].d>D.p[other(p)].d)n++;}return n;}
 function podium(aw){const P=G.P;const wins=P.map(p=>[p,aw.filter(a=>a.win===p).length]).sort((a,b)=>b[1]-a[1]);
-  return `<div class="podium" aria-label="Awards won this week">${wins.map(([p,n],i)=>`<div style="height:${i===0?130:90}px;background:${i===0?'linear-gradient(#F2CF7A,#DDA94D)':'#EFE6D0'};color:${i===0?'#fff':'var(--ink)'}"><span style="font-size:22px">${i===0&&n>wins[1]?.[1]?'♛':''}</span><b>${pname(p)}</b><span>${n} award${n===1?'':'s'}</span></div>`).join('')}</div>`;}
+  return `<div class="podium" aria-label="Awards won this week">${wins.map(([p,n],i)=>`<div style="height:${i===0?130:90}px;background:${i===0?'linear-gradient(#F2CF7A,#DDA94D)':'var(--track)'};color:${i===0?'#fff':'var(--ink)'}"><span style="font-size:22px">${i===0&&n>wins[1]?.[1]?'♛':''}</span><b>${pname(p)}</b><span>${n} award${n===1?'':'s'}</span></div>`).join('')}</div>`;}
 function herald(date){
   const D=G.days[date]||{p:Object.fromEntries(G.P.map(p=>[p,{d:0,r:0,v:0,m:0,c:0,f:0}])),team:0,target:targetFor(date),boss:bossFor(date)};const P=G.P;
   const sorted=[...P].sort((a,b)=>D.p[b].d-D.p[a].d);const top=sorted[0],bottom=sorted[1];const clients=P.reduce((a,p)=>a+D.p[p].c,0);
