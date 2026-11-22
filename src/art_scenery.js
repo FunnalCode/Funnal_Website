@@ -221,7 +221,7 @@ function artTinted(c,bx,by,bw,bh,col,a,draw){let sc=1;try{const m=c.getTransform
 const TOWN_KEYS=[[-30,80],[0,70],[22,58],[64,57],[94,74],[124,70],[152,66],[178,76],[206,88],[240,106]];
 function townHillY(x){const K=TOWN_KEYS;if(x<=K[0][0])return K[0][1];for(let i=1;i<K.length;i++)if(x<=K[i][0]){const [x0,y0]=K[i-1],[x1,y1]=K[i];const u=(x-x0)/(x1-x0),e=(1-Math.cos(u*Math.PI))/2;return y0+(y1-y0)*e;}return 110;}
 const TOWN_WALLS=['#E0915E','#D2605A','#EEDDB4','#6FA8A2','#F0C46A','#A08CC0','#F4E6CC','#C07A50','#7FB8D4','#E88A8A','#B8D48A','#F2A0B4'],TOWN_ROOFS=['#7A3A2E','#5A4A58','#8A4A32','#3E4A5A'];
-let TOWN=null;function townPlan(){if(TOWN)return TOWN;const houses=[];for(let k=-1;k<5;k++){let x=-26+(((k%2)+2)%2)*5;let i=0;while(x<236){const r=h32('th'+k+'_'+i);const w=7+r%5,hh=8+((r>>4)%7)+(k===4?3:0);const base=townHillY(x+w/2)+7+k*8.5;
+let TOWN=null;function townPlan(){if(TOWN)return TOWN;const houses=[];for(let k=-1;k<5;k++){let x=-26+(((k%2)+2)%2)*5;let i=0;while(x<236){const r=h32('th'+k+'_'+i);const w=7+r%5,hh=8+((r>>4)%7)+(k===4?3:0);const base=Math.max(townHillY(x),townHillY(x+w/2),townHillY(x+w))+(k<0?2:7+k*8.5);
       if(base<=105&&!(k>=3&&x+w>98&&x<112)){houses.push({x,w,h:hh,base,k,wall:TOWN_WALLS[(r>>8)%TOWN_WALLS.length],roof:TOWN_ROOFS[(r>>11)%TOWN_ROOFS.length],gable:((r>>13)%3)!==0,win:(r>>15)%3+1,lit:((r>>17)%10)<6,chim:((r>>19)%4)===0});}
       x+=w+((r>>21)%3===0?3:.6);i++;}}
   houses.forEach((hs,i)=>{hs.id=i;hs.pri=(4-hs.k)*48+Math.abs(hs.x+hs.w/2-112)+(h32('tp'+i)%9);});const order=[...houses].sort((a,b)=>a.pri-b.pri);order.forEach((hs,i)=>hs.rank=i);
