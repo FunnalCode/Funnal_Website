@@ -104,3 +104,7 @@ html[data-hc-theme=dark] .s7Off{background:#B83232}
 html[data-hc-theme=dark] .s7TryInfo .rtag{color:color-mix(in srgb,var(--rc) 70%,#fff)}
 
 html[data-hc-theme=dark] .hStop{background:#FFF6DA;color:#2A2218}
+
+/* more + buttons */
+html[data-hc-theme=dark] .mGIco{background:#2A3646}html[data-hc-theme=dark] .mGIco svg{fill:#C9D3DE}
+html[data-hc-theme=dark] .mTile.need{border-color:#B8862B}

@@ -1360,3 +1360,60 @@ html:not([data-hc-theme=dark]) .jbTrack.locked b{color:#CDB79C}
 .hLetter{margin:0 0 6px;font-style:italic;font-size:.95em}
 .townTalk h3{margin:0 0 8px}.ttRow{border-left:3px solid #5E8C88;padding:2px 0 2px 10px;margin:0 0 10px;animation:pPop .45s both;animation-delay:var(--d)}.ttRow p{margin:0;font-size:14px;color:var(--ink)}.ttRow small{color:var(--muted);font-size:11.5px}
 .pQuip{display:block;font-size:12px;opacity:.85;margin-top:2px}
+
+/* ===== 22 Nov: More section ===== */
+.mTitle{margin:2px 4px 10px}
+.moreBanner{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit;margin-bottom:14px}.moreBanner .appIco{width:46px;height:46px;flex:none;border-radius:14px;display:grid;place-items:center}.moreBanner .appIco svg{width:24px;height:24px;fill:#F2C462}.moreBanner b{display:block;font-size:16px}.moreBanner small{color:var(--muted)}.moreBanner .chev{font-size:22px;color:var(--muted)}
+.mGroup{margin:0 0 14px}.mGroup h3{display:flex;align-items:center;gap:8px;margin:0 4px 8px;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.mGIco{width:22px;height:22px;border-radius:7px;background:#EFE6D0;display:grid;place-items:center}.mGIco svg{width:13px;height:13px;fill:#8A6A3A}
+.mGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.mTile{position:relative;display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px;text-decoration:none;color:var(--ink);min-height:62px;animation:pPop .4s cubic-bezier(.3,1.5,.5,1) both;animation-delay:calc(var(--i)*45ms)}
+.mTile .appIco{width:40px;height:40px;flex:none;border-radius:13px;display:grid;place-items:center;box-shadow:0 3px 0 rgba(0,0,0,.12)}.mTile .appIco svg{width:21px;height:21px;fill:#fff}
+.mTxt{min-width:0}.mTxt b{display:block;font-size:14px;line-height:1.2}.mTxt small{display:block;font-size:11.5px;color:var(--muted);line-height:1.25;margin-top:2px;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.mTile.need{border-color:#E2AE45;box-shadow:0 0 0 2px rgba(226,174,69,.25)}.mDot{position:absolute;top:8px;right:8px;width:8px;height:8px;border-radius:50%;background:#C0392B;animation:pBadge 2.4s ease-in-out infinite}
+.mFoot{display:flex;gap:8px;justify-content:center;margin:6px 0 10px}.mSmall{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:7px 14px;color:var(--ink);text-decoration:none;font-weight:700;font-size:13px}.mSmall svg{width:16px;height:16px;fill:var(--muted)}
+.mIco svg{animation:mIdleA 5s ease-in-out infinite;animation-delay:calc(var(--i)*.6s)}
+.mGrid .mTile:nth-child(3n+2) .mIco svg{animation-name:mIdleB}.mGrid .mTile:nth-child(3n) .mIco svg{animation-name:mIdleC}
+@keyframes mIdleA{0%,86%,100%{transform:rotate(0)}90%{transform:rotate(-12deg)}95%{transform:rotate(8deg)}}
+@keyframes mIdleB{0%,84%,100%{transform:translateY(0)}90%{transform:translateY(-3px)}96%{transform:translateY(1px)}}
+@keyframes mIdleC{0%,85%,100%{transform:scale(1)}92%{transform:scale(1.18)}}
+.guideBody>.card:first-child{margin-top:10px}
+/* ===== 22 Nov: button animations ===== */
+.pz{-webkit-tap-highlight-color:transparent}
+.pz.pzGo{animation:pzPress .26s cubic-bezier(.3,1.6,.5,1)}
+@keyframes pzPress{0%{transform:scale(1)}35%{transform:scale(.94,.9)}100%{transform:scale(1)}}
+.pz-dm.pzGo{animation:pzPressBig .3s cubic-bezier(.3,1.6,.5,1)}.pz-dm.pzGo .dmIcon{animation:pzRecoil .3s ease-out}
+@keyframes pzPressBig{0%{transform:scale(1)}30%{transform:scale(.96,.9)}100%{transform:scale(1)}}
+@keyframes pzRecoil{0%{transform:translateX(0) rotate(0)}30%{transform:translateX(-7px) rotate(-12deg)}100%{transform:translateX(0) rotate(0)}}
+.pzRoll{display:inline-block;animation:pzRoll .28s ease-out}@keyframes pzRoll{from{transform:translateY(55%);opacity:0}}
+.pz-log[data-k=r].pzGo svg{animation:pzBubble .3s cubic-bezier(.3,1.8,.5,1)}@keyframes pzBubble{40%{transform:scale(1.35) translateY(-2px)}}
+.pz-log[data-k=v].pzGo svg{animation:pzPulse .3s ease-out}@keyframes pzPulse{0%{transform:scale(1)}30%{transform:scale(.8)}65%{transform:scale(1.22)}100%{transform:scale(1)}}
+.pz-log[data-k=m].pzGo svg{animation:pzFlip .3s ease-in-out}@keyframes pzFlip{0%{transform:perspective(60px) rotateX(0)}50%{transform:perspective(60px) rotateX(-90deg)}100%{transform:perspective(60px) rotateX(0)}}
+.pz-log[data-k=c].pzGo svg{animation:pzSpin .32s cubic-bezier(.3,1.3,.5,1)}@keyframes pzSpin{from{transform:rotate(-200deg) scale(.7)}}
+#tabs a.pzGo svg{animation:pzTabBounce .3s cubic-bezier(.3,1.6,.5,1)}
+#tabs a[data-s=harbour].pzGo svg{animation:pzSweep .3s ease-in-out}@keyframes pzSweep{30%{transform:rotate(-14deg);filter:drop-shadow(0 0 4px #F2C462)}70%{transform:rotate(10deg)}}
+#tabs a[data-s=ship].pzGo svg{animation:pzBob .3s ease-in-out}@keyframes pzBob{30%{transform:translateY(-4px) rotate(-8deg)}70%{transform:translateY(1px) rotate(5deg)}}
+#tabs a[data-s=lockin].pzGo svg{animation:pzTick .3s steps(3)}@keyframes pzTick{to{transform:rotate(90deg)}}
+#tabs a[data-s=quests].pzGo svg{animation:pzPage .3s ease-in-out}@keyframes pzPage{50%{transform:perspective(50px) rotateY(-70deg)}}
+#tabs a[data-s=shop].pzGo svg{animation:pzBag .3s cubic-bezier(.3,1.8,.5,1)}@keyframes pzBag{40%{transform:translateY(-6px) scale(1.08,.94)}}
+#tabs a[data-s=more].pzGo svg{animation:pzShuffle .3s ease-in-out}@keyframes pzShuffle{25%{transform:translateX(-3px)}50%{transform:translateX(3px)}75%{transform:translateX(-2px)}}
+@keyframes pzTabBounce{40%{transform:translateY(-3px) scale(1.1)}}
+.pz-claim{position:relative;overflow:hidden}.pz-claim.pzGo::before{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 25%,rgba(255,255,255,.75) 50%,transparent 75%);animation:pzShine .4s ease-out forwards;pointer-events:none}
+@keyframes pzShine{from{transform:translateX(-110%)}to{transform:translateX(110%)}}
+.pz-buy.pzGo{animation:pzShake .3s ease-in-out}@keyframes pzShake{20%{transform:rotate(-5deg) scale(.96)}45%{transform:rotate(4deg)}70%{transform:rotate(-2deg)}100%{transform:rotate(0)}}
+.pz-toggle.pzGo{animation:pzSlide .24s cubic-bezier(.3,1.6,.5,1)}@keyframes pzSlide{35%{transform:scale(.92) translateY(1px)}}
+.pz-picture.pzGo{animation:pzTilt .32s cubic-bezier(.3,1.5,.5,1)}.pz-picture.pzGo canvas{filter:brightness(1.12) saturate(1.15)}@keyframes pzTilt{35%{transform:perspective(500px) rotateX(9deg) scale(.97)}}
+.pz-tile.pzGo .appIco{animation:pzTileTap .34s cubic-bezier(.3,1.7,.5,1)}@keyframes pzTileTap{40%{transform:scale(1.22) rotate(-10deg)}}
+.pz-close.pzGo svg,.pz-close.pzGo .x{animation:pzQuarter .25s ease-out}@keyframes pzQuarter{to{transform:rotate(90deg)}}
+.pzGhost{animation:pzSlideOut .25s ease-in forwards}@keyframes pzSlideOut{to{transform:translateY(40px) scale(.96);opacity:0}}
+.pz-danger.pzGo{animation:pzWobble .3s ease-in-out}@keyframes pzWobble{20%{transform:translateX(-4px) rotate(-2deg)}40%{transform:translateX(4px) rotate(2deg)}60%{transform:translateX(-3px)}80%{transform:translateX(2px)}}
+.pz-sound.pzGo{animation:pzRipple .4s ease-out}@keyframes pzRipple{from{box-shadow:0 0 0 0 rgba(62,141,219,.5)}to{box-shadow:0 0 0 12px rgba(62,141,219,0)}}
+.pz-theme.pzGo svg{animation:pzSunset .35s ease-in-out}@keyframes pzSunset{50%{transform:translateY(5px) rotate(-90deg) scale(.7);opacity:.4}}
+.pzCoin{position:fixed;z-index:9600;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#FFF1B8,#F2C462 45%,#C9962A);box-shadow:inset 0 0 0 1px rgba(138,90,18,.5);pointer-events:none;animation:pzCoinFly .7s cubic-bezier(.2,.7,.4,1) forwards}
+.pzCoin.drop{animation:pzCoinDrop .45s ease-in forwards}
+@keyframes pzCoinFly{to{transform:translate(var(--dx),var(--dy)) rotate(260deg);opacity:0}}@keyframes pzCoinDrop{0%{transform:translateY(-16px);opacity:0}30%{opacity:1}100%{transform:translateY(var(--dy)) scale(.6);opacity:0}}
+.pzPuff{position:fixed;z-index:9600;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:rgba(220,226,232,.85);pointer-events:none;animation:pzPuffUp .7s ease-out forwards}@keyframes pzPuffUp{to{transform:translate(var(--dx),-26px) scale(2.6);opacity:0}}
+@media (prefers-reduced-motion:reduce){.pz.pzGo,.pz.pzGo *,.pz.pzGo::before{animation:pzFade .2s!important}.mIco svg,.mTile,.mDot{animation:none!important}.pzGhost{animation:pzFadeOut .2s forwards!important}}
+@keyframes pzFade{50%{opacity:.65}}@keyframes pzFadeOut{to{opacity:0}}
+
+html:not([data-hc-theme=dark]) small.cvKind{filter:brightness(.7) saturate(1.1)}

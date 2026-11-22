@@ -872,3 +872,13 @@ pipe:{
  overdue:["Gary has started pecking the calendar.","The follow-ups will not send themselves. We asked them nicely.","A prospect left on read is a prospect left at sea.","Fortune favours the captain who nudges.","Even the kraken replies eventually. Usually.","Barnaby says the ink is drying on these.","Bill's put the follow-ups on the board. Under 'overdue'. Next to your tab.","Miss Pike says homework's due. The homework is follow-ups.","Crab says do it sideways if you must, but do it.","The schedule's looking at you. Gary's looking at you. Everyone's looking at you."]
 }
 };
+
+/* ---- 22 Nov: What's new for Round 3 ---- */
+window.HL_CONTENT.version=18;
+window.HL_CONTENT.whatsNew[18]={title:"Round 3: a pipeline, 1,000 levels, a new shop and a lot more talking",lines:[
+ "<b>Client pipeline:</b> your whole prospect sheet now lives in the game, shared with each other. Harbour, Pipeline. Swipe a card to move it, tap it to edit, and check the Schedule for who's due a follow-up.",
+ "<b>Levels to 1,000:</b> after level 100 come Distinctions I to IX. Every level unlocks something, and every hundredth unlocks a curse that changes how your captain looks. Your catch-up chest is waiting.",
+ "<b>A new shop:</b> about 190 new things, including hair, accessories, cannons and lanterns. Try anything on before you buy, heart things for your wishlist, and grab a themed set.",
+ "<b>Quests and Events:</b> Quests are now pinned notes on a sea chart. Events have their own side with the Christmas pass and the advent calendar. Challenges have gone.",
+ "<b>Everyone's talking:</b> 1,600 new lines. Gary remembers things now. Bill has stories, Crab is owed a chip, and the town has opinions.",
+ "<b>Dark mode</b> is properly readable, <b>More</b> is grouped, and every button has its own little animation."]};

@@ -4,7 +4,7 @@
    layer that reads THEME, so Christmas, storms or night glow never need to patch a scene.
    Layer slots, back to front: sky (after the base sky), sea (after the base sea),
    world (after the scene's own art, before speech), fx (particles, weather), overlay (tints). */
-const HL_VERSION=17;
+const HL_VERSION=18;
 const isArtLook=()=>THEME.look==='art';
 const THEME={season:'autumn',festive:null,weather:'clear',phase:'day',reduced:false,scene:null,snow:false,preview:null,date:''};
 const PAL_BASE={
