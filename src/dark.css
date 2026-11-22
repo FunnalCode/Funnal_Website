@@ -197,6 +197,12 @@ html[data-hc-theme=dark] .pActRow img{background:var(--track,#161E2A)}
 html[data-hc-theme=dark] .pGoBtn small b.pGoDue{color:#D7C3C1}
 html[data-hc-theme=dark] .lvRowBtn.on{box-shadow:inset 0 0 0 2px rgba(15,20,23,0.5)}
 html[data-hc-theme=dark] .lvFrame.on{box-shadow:inset 0 0 0 2px rgba(15,20,23,0.5)}
+html[data-hc-theme=dark] .s7Heart{color:#D7C3C1}
+html[data-hc-theme=dark] .s7Lock{background:var(--card2,#202B3B)}
+html[data-hc-theme=dark] .s7SetItem{background:var(--card2,#202B3B)}
+html[data-hc-theme=dark] .s7SetItem.own{box-shadow:inset 0 0 0 2px rgba(15,20,23,0.5)}
+html[data-hc-theme=dark] .s7TryStage{border:2px solid var(--rc,#344051)}
+html[data-hc-theme=dark] .s7WishBtn.on{color:#D7C3C1}
 /* ===== dark mode, hand-tuned: one navy family, readable accents, paper stays paper ===== */
 html[data-hc-theme=dark]{color-scheme:dark;
  --bg:#111823;--dot:#17212D;--card:#1B2532;--card2:#172030;--raised:#243142;--line:#2E3C4F;--shadow:#0A0F16;
@@ -291,3 +297,13 @@ html[data-hc-theme=dark] .pGoBadge{background:#B83232}
 html[data-hc-theme=dark] .lvChestCard{background:linear-gradient(120deg,#3A2F17,#4A3B16);border-color:#7A6326}html[data-hc-theme=dark] .lvChestCard small{color:#E6D3A0}
 html[data-hc-theme=dark] .lvCell{background:var(--raised)}html[data-hc-theme=dark] .lvCell.got{background:color-mix(in srgb,#5DBE9C 16%,var(--raised))}
 html[data-hc-theme=dark] .lvTierBtn.done b::after{color:#7FE0B2}html[data-hc-theme=dark] .lvRowBtn small{color:#7FE0B2}
+
+/* shop */
+html[data-hc-theme=dark] .s7Deal{background:linear-gradient(170deg,#2E2A1E,var(--card))}
+html[data-hc-theme=dark] .s7Sec span{background:#2A3646}html[data-hc-theme=dark] .s7Sec svg{fill:#C9D3DE}html[data-hc-theme=dark] .s7Sec.on{border-color:#9FB4CC;box-shadow:inset 0 0 0 1.5px #9FB4CC}html[data-hc-theme=dark] .s7Sec.on span{background:#F2C462}html[data-hc-theme=dark] .s7Sec.on svg{fill:#2A1C05}
+html[data-hc-theme=dark] .s7Tg.on{background:#F2C462;color:#2A1C05;border-color:#F2C462}
+html[data-hc-theme=dark] .s7Price{background:rgba(255,255,255,.08)}html[data-hc-theme=dark] .s7State{background:rgba(94,211,158,.14);color:#7FE0B2}
+html[data-hc-theme=dark] .s7Tag{background:rgba(94,211,158,.14);color:#7FE0B2}html[data-hc-theme=dark] .s7Tag.off{background:#B83232;color:#fff}
+html[data-hc-theme=dark] .s7Lock,html[data-hc-theme=dark] .s7SetItem{background:var(--raised)}html[data-hc-theme=dark] .s7WishCard.can{background:linear-gradient(120deg,#1E3A2E,var(--card));border-color:#2F6B4F}
+html[data-hc-theme=dark] .s7Off{background:#B83232}
+html[data-hc-theme=dark] .s7TryInfo .rtag{color:color-mix(in srgb,var(--rc) 70%,#fff)}

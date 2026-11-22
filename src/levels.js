@@ -120,7 +120,7 @@ const LV_REW=[];// LV_REW[L] = [reward,...]
 const LV_OF={};LV_REW.forEach((r,L)=>{if(r)r.forEach(x=>{if(x.id)LV_OF[x.id]=L;});});
 Object.keys(LVX).forEach(id=>{if(LVX[id].kind!=='curse'&&LV_OF[id]==null)delete LVX[id];});
 CURSES.forEach(c=>{LV_OF['curse_'+c.id]=c.lv;});
-const lvHas=(pid,id)=>{const me=G&&G.players[pid];return !!me&&LV_OF[id]!=null&&me.maxLevel>=LV_OF[id];};
+const lvHas=(pid,id)=>{const me=G&&G.players[pid];if(!me)return false;if(LV_OF[id]!=null)return me.maxLevel>=LV_OF[id];return !!(LVX[id]&&LVX[id].shop&&me.owned[id]);};
 
 /* ---------- applying it all after each derive ---------- */
 const LV_CHEST_POOL=()=>ITEMS.filter(i=>i.price>0&&!i.track&&!i.earn&&!i.merchantOnly&&!i.free&&!i.xmas&&!i.bm&&!i.setBanner&&i.cat!=='shield'&&CAT_ORDER.includes(i.cat));
@@ -128,7 +128,7 @@ const LV_CHEST_POOL=()=>ITEMS.filter(i=>i.price>0&&!i.track&&!i.earn&&!i.merchan
     let extra=0,shields=0;const bait={glow:0,squid:0,lure:0};for(let L=101;L<=ml;L++)extra+=lvGold(L)-levelGold(L);
     for(let L=2;L<=ml;L++)(LV_REW[L]||[]).forEach(x=>{if(x.kind==='gold')extra+=x.g;else if(x.kind==='shield')shields++;else if(x.kind==='bait')bait[x.b]+=x.n;});
     me.balance+=extra;me.earned+=extra;me.lvlGold+=extra;me.shields+=shields;me.shieldsEarned+=shields;
-    Object.keys(bait).forEach(b=>{bait[b]-=me.owned['baitfree_'+b]||0;});me.baitCred=bait;
+    [['glow',3],['squid',3],['lure',2]].forEach(([b,n])=>{bait[b]+=(me.owned['s7_sup_'+b]||0)*n;});Object.keys(bait).forEach(b=>{bait[b]-=me.owned['baitfree_'+b]||0;});me.baitCred=bait;
     me.lvChests={};(me.bonus||[]).forEach(b=>{if(String(b.key).startsWith('lvc_')){me.lvChests[+b.key.slice(4)]=b.item||1;if(b.item&&ALL_ITEMS[b.item])me.owned[b.item]=me.owned[b.item]||1;}});
     me.lvPending=[];for(let L=2;L<=ml;L++)if((LV_REW[L]||[]).some(x=>x.kind==='chest')&&!me.lvChests[L])me.lvPending.push(L);
     const d=lvDist(me.li.level);if(d!==me.dist){me.dist=d;if(me.m)me.m.dist=d;['prest1','prest3','prest5'].forEach(id=>{const a=ACH_BY_ID[id];if(a&&d>=a.target&&!me.unlocked[id]){me.unlocked[id]=true;const gg=RARITY_GLOW[a.rar]||0;me.balance+=gg;me.earned+=gg;}});}
@@ -203,7 +203,7 @@ function lvCurseDraw(c,cu,inner,t,opts,pid){const m=c.getTransform();const box=[
   c.save();behind.forEach(f=>{c.save();f(c);c.restore();});c.setTransform(1,0,0,1,0,0);c.globalAlpha*=alpha;c.drawImage(off,0,0,W,H,x0,y0,W,H);c.restore();front.forEach(f=>{c.save();f(c);c.restore();});}
 
 /* ---------- golden curse coins and DM effects on the DM button ---------- */
-function lvBurst(btn,fxId){const fx=LVX[fxId];if(!fx||!btn||!btn.getBoundingClientRect)return;const r=btn.getBoundingClientRect();const T=LV_TIERS[fx.t-1];const cols=[T.col,T.col2,T.acc,LVX[`dye_${fx.t}_${(fx.t*3)%10}`].col];
+function lvBurst(btn,fxId){const fx=LVX[fxId];if(!fx||!btn||!btn.getBoundingClientRect)return;const r=btn.getBoundingClientRect();const T=LV_TIERS[fx.t-1];const dy=LVX[`dye_${fx.t}_${(fx.t*3)%10}`]||LVX[`dye_${fx.t}_1`];const cols=fx.cols||[T.col,T.col2,T.acc,dy?dy.col:T.col];
   const box=$('#fx')||document.body;const n=fx.shape==='burst'?18:14;for(let i=0;i<n;i++){const el=document.createElement('i');el.className='lvp '+fx.shape;const a=(i/n)*Math.PI*2+Math.random()*.4;const d=40+Math.random()*50;
     el.style.left=(r.left+r.width/2)+'px';el.style.top=(r.top+r.height/2)+'px';el.style.setProperty('--dx',Math.cos(a)*d+'px');el.style.setProperty('--dy',(Math.sin(a)*d-(fx.shape==='bubble'?40:fx.shape==='comet'?20:0))+'px');el.style.setProperty('--c',cols[i%cols.length]);el.style.setProperty('--r',(Math.random()*360|0)+'deg');el.style.animationDelay=(Math.random()*80|0)+'ms';box.appendChild(el);setTimeout(()=>el.remove(),1100);}}
 {const _cel=celebrate;celebrate=function(k,btn){_cel.apply(this,arguments);try{if(k!=='d'||!S.me)return;const pl=S.players[S.me]||{};if(typeof THEME!=='undefined'&&THEME.reduced)return;
@@ -217,13 +217,13 @@ function lvBurst(btn,fxId){const fx=LVX[fxId];if(!fx||!btn||!btn.getBoundingClie
 
 /* ---------- records in the jukebox: the ones you've unlocked, and the next one ---------- */
 {const _jb=jukeboxHtml;jukeboxHtml=function(){const me=G&&G.players[S.me];const ml=me?me.maxLevel:1;for(let i=SONGS.length-1;i>=0;i--)if(SONGS[i].lvrec)SONGS.splice(i,1);
-  const recs=Object.values(LVX).filter(x=>x.kind==='rec').sort((a,b)=>LV_OF[a.id]-LV_OF[b.id]);let nextAdded=false;recs.forEach(r=>{const L=LV_OF[r.id];if(L<=ml)SONGS.push({...SONG_BY[r.song],lv:L});else if(!nextAdded){SONGS.push({...SONG_BY[r.song],lv:L});nextAdded=true;}});
+  const recs=Object.values(LVX).filter(x=>x.kind==='rec').sort((a,b)=>LV_OF[a.id]-LV_OF[b.id]);let nextAdded=false;recs.forEach(r=>{const L=LV_OF[r.id];if(L==null)return;if(L<=ml)SONGS.push({...SONG_BY[r.song],lv:L});else if(!nextAdded){SONGS.push({...SONG_BY[r.song],lv:L});nextAdded=true;}});Object.values(LVX).filter(x=>x.kind==='rec'&&x.shop&&me&&me.owned[x.id]).forEach(r=>SONGS.push({...SONG_BY[r.song],lv:0,shop:true}));
   return _jb.apply(this,arguments);};}
-{const _su=songUnlocked;songUnlocked=function(s){if(s&&s.lvrec){const me=G&&G.players[S.me];return !!me&&me.maxLevel>=(s.lv||LV_OF[s.lvrec]);}return _su.apply(this,arguments);};}
+{const _su=songUnlocked;songUnlocked=function(s){if(s&&s.shop)return true;if(s&&s.lvrec){const me=G&&G.players[S.me];return !!me&&me.maxLevel>=(s.lv||LV_OF[s.lvrec]);}return _su.apply(this,arguments);};}
 {const _sh=songHint;songHint=function(s){if(s&&s.lvrec)return `Level ${s.lv||LV_OF[s.lvrec]}`;return _sh.apply(this,arguments);};}
 
 /* ---------- hideout pieces: ten families, coloured by tier ---------- */
-function lvDecorDraw(fam,t,c,x,y,tm){const T=LV_TIERS[t-1];const a=T.col,b=T.col2,k=T.acc;const sym=['skull','fish','kraken','snowflake','star','diamond','skull','skull','star','crown'][t-1];
+function lvDecorDraw(fam,t,c,x,y,tm){const T=typeof t==='object'?t:LV_TIERS[t-1];const a=T.col,b=T.col2,k=T.acc;const sym=T.sym||['skull','fish','kraken','snowflake','star','diamond','skull','skull','star','crown'][T.t-1];
   if(fam==='banner'){line(c,x-5,y,x-5,y-18,'#6B4A2E',1.2);const w=Math.sin(tm/500)*.6;poly(c,[[x-5,y-17],[x+6,y-17+w],[x+6,y-8+w],[x+.5,y-10],[x-5,y-8]],a);drawSymbol(c,sym,x+.6,y-13,.5,b);}
   else if(fam==='lantern'){line(c,x,y,x,y-14,'#4A3A2A',1);rr(c,x-3,y-20,6,7,1.5,k);glowAt(c,x,y-16.5,7,'255,220,140',.35+Math.sin(tm/400)*.1);rr(c,x-2,y-19,4,5,1,b);}
   else if(fam==='painting'){rr(c,x-8,y-17,16,12,1,'#8A5A2A');rr(c,x-6.6,y-15.6,13.2,9.2,.5,a);c.fillStyle=b;c.fillRect(x-6.6,y-10,13.2,3.6);disc(c,x+3,y-13,1.6,b);}
@@ -235,7 +235,7 @@ function lvDecorDraw(fam,t,c,x,y,tm){const T=LV_TIERS[t-1];const a=T.col,b=T.col
   else if(fam==='trophy'){rr(c,x-4,y-3,8,3,1,'#6B4A2E');rr(c,x-1,y-7,2,4,.5,a);c.beginPath();c.moveTo(x-5,y-15);c.quadraticCurveTo(x,y-4,x+5,y-15);c.closePath();c.fillStyle=a;c.fill();ell(c,x,y-15,5,1.3,b);}
   else if(fam==='shrine'){rr(c,x-7,y-3,14,3,1,'#8C8680');rr(c,x-6,y-14,12,11,1,k);poly(c,[[x-8,y-14],[x,y-19],[x+8,y-14]],a);disc(c,x,y-8.5,2.4,b);glowAt(c,x,y-8.5,5,'255,240,200',.25);}
   else if(fam==='idol'){rr(c,x-6,y-4,12,4,1,'#7A746C');glowAt(c,x,y-12,10,'255,240,200',.3+Math.sin(tm/500)*.1);ell(c,x,y-10,4.6,6.4,a);disc(c,x,y-17.5,3.4,a);disc(c,x-1.2,y-18,.7,b);disc(c,x+1.2,y-18,.7,b);ell(c,x,y-9,2.4,3.4,b);}}
-ITEMS.filter(i=>i.fam).forEach(i=>{DECOR[i.id]=(c,x,y,t)=>lvDecorDraw(i.fam,i.tier,c,x,y,t);});
+ITEMS.filter(i=>i.fam&&i.tier).forEach(i=>{DECOR[i.id]=(c,x,y,t)=>lvDecorDraw(i.fam,i.tier,c,x,y,t);});
 for(let t=2;t<=10;t++)DECOR[`lvd_idol_${t}`]=(c,x,y,tm)=>lvDecorDraw('idol',t,c,x,y,tm);
 /* ---------- wakes and cannonballs for the sets ---------- */
 {const _dw=drawWake;drawWake=function(c,x,y,st,t,s=1){if(!st||!/^lv\d+$/.test(st))return _dw.apply(this,arguments);const T=LV_TIERS[+st.slice(2)-1];
@@ -252,7 +252,7 @@ function lvIcon(cv,key,size=120){cv.width=size;cv.height=size;const c=cv.getCont
   const bgc=getComputedStyle(document.documentElement).getPropertyValue('--card').trim()||'#FBF6EA';
   if(kind==='dye'){disc(c,20,22,12,x.col);ell(c,16,17,4,3,'rgba(255,255,255,.35)');poly(c,[[20,4],[26,14],[14,14]],x.col);}
   else if(kind==='rec'){disc(c,20,20,15,'#1E1A22');[12,9.5,7].forEach(r=>{c.strokeStyle='rgba(255,255,255,.08)';c.lineWidth=.6;c.beginPath();c.arc(20,20,r,0,TAU);c.stroke();});disc(c,20,20,5.4,T.col);disc(c,20,20,1.2,'#1E1A22');}
-  else if(kind==='fx'){for(let i=0;i<8;i++){const an=i/8*TAU;const cc=[T.col,T.col2,T.acc][i%3];if(x.shape==='star'||x.shape==='spark')drawSymbol(c,'star',20+Math.cos(an)*11,20+Math.sin(an)*11,.55,cc);else if(x.shape==='ring'){c.strokeStyle=cc;c.lineWidth=1.4;c.beginPath();c.arc(20+Math.cos(an)*11,20+Math.sin(an)*11,2.2,0,TAU);c.stroke();}else disc(c,20+Math.cos(an)*11,20+Math.sin(an)*11,x.shape==='bubble'?2.6:2,cc);}disc(c,20,20,4,T.col2);}
+  else if(kind==='fx'){const fc=x.cols||[T.col,T.col2,T.acc];for(let i=0;i<8;i++){const an=i/8*TAU;const cc=fc[i%fc.length];if(x.shape==='star'||x.shape==='spark')drawSymbol(c,'star',20+Math.cos(an)*11,20+Math.sin(an)*11,.55,cc);else if(x.shape==='ring'){c.strokeStyle=cc;c.lineWidth=1.4;c.beginPath();c.arc(20+Math.cos(an)*11,20+Math.sin(an)*11,2.2,0,TAU);c.stroke();}else disc(c,20+Math.cos(an)*11,20+Math.sin(an)*11,x.shape==='bubble'?2.6:2,cc);}disc(c,20,20,4,fc[1]||T.col2);}
   else if(kind==='title'){rr(c,8,12,24,16,2,'#F2E3C0');c.fillStyle=T.col;c.fillRect(8,12,24,3);c.fillRect(8,25,24,3);c.fillStyle='#6B4A2E';for(let i=0;i<3;i++)c.fillRect(12,17.5+i*2.2,16-i*4,.9);}
   else if(kind==='frame'){c.strokeStyle=T.acc;c.lineWidth=5;c.beginPath();c.arc(20,20,12,0,TAU);c.stroke();c.strokeStyle=T.col;c.lineWidth=3;c.stroke();disc(c,20,20,8,bgc);}
   else if(kind==='curse'){disc(c,20,20,18,T.acc);const cu=CURSE_BY[x.curse];c.save();c.beginPath();c.arc(20,20,18,0,TAU);c.clip();try{lvBust(c,20,21,30,S.me||G.P[0],S.players[S.me]||{},1000,{curse:cu.id});}catch(e){}c.restore();}
@@ -334,7 +334,7 @@ const LV_WCATS=[['curse','Curses'],['dye','Dyes'],['title','Titles'],['frame','F
   if(ours){h=h.replace(/<div class="slots">[\s\S]*?<\/div>/,'');h=h.replace(/<div class="wardrobe">[\s\S]*?<\/div><\/div>/,`${lvWardHtml(wc)}</div>`);}
   const own=lvTitleOf(pid);if(own)h=h.replace(/(<div class="card hero"><div class="row between"><div><small>)[^<]*(<\/small>)/,`$1${esc(own)}$2`);
   return h;};}
-function lvWardHtml(wc){const me=G.players[S.me];const pl=S.players[S.me]||{};const ml=me.maxLevel;const all=Object.values(LVX).filter(x=>x.kind===(wc==='dmfx'?'fx':wc)&&LV_OF[x.id]!=null).sort((a,b)=>LV_OF[a.id]-LV_OF[b.id]);const own=all.filter(x=>lvHas(S.me,x.id));const nxt=all.find(x=>!lvHas(S.me,x.id));
+function lvWardHtml(wc){const me=G.players[S.me];const pl=S.players[S.me]||{};const ml=me.maxLevel;const all=Object.values(LVX).filter(x=>x.kind===(wc==='dmfx'?'fx':wc)&&(LV_OF[x.id]!=null||(x.shop&&me.owned[x.id]))).sort((a,b)=>(LV_OF[a.id]||0)-(LV_OF[b.id]||0));const own=all.filter(x=>lvHas(S.me,x.id));const nxt=all.find(x=>!lvHas(S.me,x.id));
   const nextLine=nxt?`<p class="tiny muted lvWNext">Next: ${esc(nxt.name)} at level ${LV_OF[nxt.id]}.</p>`:'';
   if(wc==='curse')return `<div class="lvCurses">${CURSES.map(cu=>{const has=ml>=cu.lv;const on=pl.curse===cu.id;return `<button class="lvCurse ${has?'':'locked'} ${on?'on':''}" data-act="${has?'lvCurseToggle':'lvCurseLook'}" data-c="${cu.id}"><canvas data-lvi="lv:curse|curse_${cu.id}" data-sz="120"></canvas><b>${esc(cu.name)}</b><small>${has?(on?'Wearing':'Tap to wear'):`Level ${cu.lv}`}</small></button>`;}).join('')}</div><p class="tiny muted">One curse at a time. James sees it too. Tap a locked one to preview it.</p>`;
   if(!own.length&&wc==='dye')return `<p class="muted tiny" style="margin:6px 0">No dyes yet.</p>${nextLine}`;
@@ -358,3 +358,5 @@ Object.assign(CAT_NAMES,{curse:'Curses',dye:'Dyes',title:'Titles',frame:'Frames'
 /* ---------- How to play ---------- */
 {const i=HELP.findIndex(h=>h[0]==='Levels and Distinction');const txt=['Levels and Distinction','XP raises your level from 1 to 1,000. Levels 1 to 100 take about a year. After that come Distinctions I to IX, 100 levels each, at roughly a level a day, so each Distinction takes two to three months. Every level pays doubloons and unlocks something: a piece of that tier\'s exclusive set every ten levels, titles and portrait frames, dyes, jukebox records, DM button effects, hideout pieces, reward chests, bait packs, streak shields and doubloon hauls. Every hundredth level unlocks a curse that changes how your captain looks everywhere: Ghost at 100, then Coral, Ink, Frost, Ember, Storm, Shadow, Bone, Star, and Golden at 1,000. Wear one curse at a time from the Wardrobe. The Captain\'s Log shows all 1,000 levels.'];if(i>=0)HELP[i]=txt;else HELP.push(txt);}
 function lvShade(hex,k){const n=parseInt(hex.slice(1),16);let r=n>>16,g=n>>8&255,b=n&255;const f=v=>Math.max(0,Math.min(255,Math.round(k<0?v*(1+k):v+(255-v)*k)));return '#'+[f(r),f(g),f(b)].map(v=>v.toString(16).padStart(2,'0')).join('');}
+
+if(typeof s7Register==='function')s7Register();
