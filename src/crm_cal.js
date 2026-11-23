@@ -1,6 +1,6 @@
 /* ============================== 23 Nov: calendar, payments, packages and settings for the pipeline ============================== */
 const CRM_ACT={};
-CRM.cal={m:null,sel:null,mode:'month',fu:true};
+CRM.cal={m:null,sel:null,mode:(()=>{try{return localStorage.getItem('hl_cal_mode')||'month';}catch(e){return 'month';}})(),fu:true,dvKey:null};
 CRM.sheet=null;
 const cMonthName=ym=>new Date(ym+'-15T12:00:00Z').toLocaleDateString('en-GB',{month:'long',year:'numeric',timeZone:'UTC'});
 const cDayName=d=>new Date(d+'T12:00:00Z').toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',timeZone:'UTC'});
@@ -11,9 +11,10 @@ Object.assign(cIcon,{cal:'M4 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6
   sync:'M20 11a8 8 0 0 0-14.8-4M4 4v4h4M4 13a8 8 0 0 0 14.8 4M20 20v-4h-4',pound:'M17 19H7c2-1.5 2.5-3.5 2.5-6V9a3.5 3.5 0 0 1 6.3-2.1M7 13h7',g:'M20.5 12.2c0-.6-.1-1.2-.2-1.8H12v3.4h4.8a4.1 4.1 0 0 1-1.8 2.7v2.2h2.9c1.7-1.6 2.6-3.9 2.6-6.5zM12 21c2.4 0 4.5-.8 6-2.2l-2.9-2.2c-.8.5-1.8.9-3.1.9-2.4 0-4.4-1.6-5.1-3.8H3.9v2.3A9 9 0 0 0 12 21zM6.9 13.7a5.4 5.4 0 0 1 0-3.4V8H3.9a9 9 0 0 0 0 8zM12 6.5c1.3 0 2.5.5 3.5 1.4l2.6-2.6A9 9 0 0 0 3.9 8l3 2.3C7.6 8.1 9.6 6.5 12 6.5z',link:'M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1',copy:'M9 9h10v10H9zM5 15V5h10',pin:'M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21zM12 7.5a2 2 0 1 0 0 4 2 2 0 0 0 0-4z'});
 
 /* ---------- what lands on a day ---------- */
-function calItems(from,to,rows){const ow=CRM.owner;const out=[];
+function calItems(from,to,rows){const ow=CRM.calOwner||'all';const out=[];
   evLive().forEach(e=>{const d=evDay(e);if(d<from||d>to)return;if(ow!=='all'&&e.owner&&e.owner!==ow)return;const pr=e.prospect_id&&PIPE.rows.find(r=>r.id===e.prospect_id);
-    out.push({t:'ev',d,id:e.id,sort:e.all_day?'00:00':evTime(e),time:evTime(e),title:e.title||'(No title)',sub:[pr&&pr.business,e.location].filter(Boolean).join(' · '),col:(EV_KIND[e.kind]||EV_KIND.other).c,kind:(EV_KIND[e.kind]||EV_KIND.other).n,g:!!e.gcal_id});});
+    const sdt=new Date(e.starts_at),edt=e.ends_at?new Date(e.ends_at):new Date(sdt.getTime()+3600e3);const sm=sdt.getHours()*60+sdt.getMinutes();let em=evDay({starts_at:edt.toISOString()})>d?1440:edt.getHours()*60+edt.getMinutes();if(em<=sm)em=Math.min(1440,sm+30);
+    out.push({t:'ev',allDay:!!e.all_day,sm,em,endTime:e.all_day?'':edt.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}),d,id:e.id,sort:e.all_day?'00:00':evTime(e),time:evTime(e),title:e.title||'(No title)',sub:[pr&&pr.business,e.location].filter(Boolean).join(' · '),col:(EV_KIND[e.kind]||EV_KIND.other).c,kind:(EV_KIND[e.kind]||EV_KIND.other).n,g:!!e.gcal_id});});
   rows.filter(r=>r.stage==='client').forEach(r=>payDates(r,from,to).forEach(d=>{const paid=payPaid(r,d);out.push({t:'pay',d,id:r.id,sort:'00:01',time:'Payment',title:`${r.business}: ${pMoney(r.deal_value)}`,sub:paid?'Paid':d<G.today?'Late':P_PERIOD[r.deal_period],col:'#C7A1A1',kind:'Payment',paid:!!paid,late:!paid&&d<G.today});}));
   if(CRM.cal.fu)rows.forEach(r=>{const dd=pDueDate(r);if(!dd||dd<from||dd>to||r.stage==='meeting')return;if(dd<G.today)return;out.push({t:'fu',d:dd,id:r.id,sort:'00:02',time:'Follow up',title:r.business||'Unnamed',sub:(PIPE_BY[r.stage]||{}).name||'',col:CRM_STAGE_COL[r.stage]||'#6B6B6B',kind:'Follow-up'});});
   return out.sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:a.sort<b.sort?-1:1);}
@@ -29,9 +30,9 @@ function crmCal(rows){const c=CRM.cal;if(!c.m)c.m=G.today.slice(0,7);if(!c.sel)c
   const items=calItems(days[0],days[41],rows);const by={};items.forEach(x=>(by[x.d]=by[x.d]||[]).push(x));
   const monthN=items.filter(x=>x.t==='ev'&&x.d.slice(0,7)===c.m).length;const sel=by[c.sel]||[];
   const owed=payOwed(rows).length;
-  const head=`<div ${cIn(0,'cHello')}><div><h1>${cEsc(cMonthName(c.m))}</h1><p>${monthN} event${monthN===1?'':'s'} this month${owed?` · <em class="bad">${owed} payment${owed===1?'':'s'} to chase</em>`:''}</p></div>
-    <div class="cCalTools">${crmWhoM()}<div class="cTabs cCalMode" data-pill="calMode"><button class="${c.mode==='month'?'on':''}" data-c="calMode" data-m="month">Month</button><button class="${c.mode==='agenda'?'on':''}" data-c="calMode" data-m="agenda">Agenda</button></div>
-     <span class="cCalNav"><button class="cIconBtn" data-c="calMove" data-n="-1" aria-label="Previous month">${cSvg('back')}</button><button class="cPillBtn" data-c="calToday">Today</button><button class="cIconBtn" data-c="calMove" data-n="1" aria-label="Next month">${cSvg('back','fwd')}</button></span>
+  const head=`<div ${cIn(0,'cHello')}><div><h1>${c.mode==='day'?cEsc(cDayName(c.sel)):cEsc(cMonthName(c.m))}</h1><p>${c.mode==='day'?(()=>{const n=(by[c.sel]||[]).filter(x=>x.t==='ev').length;return `${n} event${n===1?'':'s'}${c.sel===G.today?' today':''}`;})():`${monthN} event${monthN===1?'':'s'} this month`}${owed?` · <em class="bad">${owed} payment${owed===1?'':'s'} to chase</em>`:''}</p></div>
+    <div class="cCalTools">${crmWhoM()}<div class="cTabs cCalMode" data-pill="calMode"><button class="${c.mode==='day'?'on':''}" data-c="calMode" data-m="day">Day</button><button class="${c.mode==='month'?'on':''}" data-c="calMode" data-m="month">Month</button><button class="${c.mode==='agenda'?'on':''}" data-c="calMode" data-m="agenda">Agenda</button></div>
+     <span class="cCalNav"><button class="cIconBtn" data-c="calMove" data-n="-1" aria-label="${c.mode==='day'?'Previous day':'Previous month'}">${cSvg('back')}</button><button class="cPillBtn" data-c="calToday">Today</button><button class="cIconBtn" data-c="calMove" data-n="1" aria-label="${c.mode==='day'?'Next day':'Next month'}">${cSvg('back','fwd')}</button></span>
      <button class="crmPrimary cEvNewBtn" data-c="evNew" data-d="${c.sel}">${cSvg('plus')}<span>New event</span></button></div></div>`;
   const chip=x=>`<span class="cChip t-${x.t} ${x.paid?'paid':''} ${x.late?'late':''}" style="--ec:${x.col}">${x.t==='ev'&&x.time!=='All day'?`<i>${cEsc(x.time)}</i>`:''}${cEsc(x.title)}</span>`;
   const grid=`<section ${cIn(1,'cPanel cMonth')}><div class="cWk">${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(d=>`<span>${d}</span>`).join('')}</div>
@@ -39,9 +40,10 @@ function crmCal(rows){const c=CRM.cal;if(!c.m)c.m=G.today.slice(0,7);if(!c.sel)c
      return `<button class="cDay ${cls}" data-c="calDay" data-d="${d}" style="--i:${i}"><b>${+d.slice(8)}</b><span class="cDayChips">${l.slice(0,3).map(chip).join('')}${l.length>3?`<span class="cMoreN">+${l.length-3} more</span>`:''}</span><span class="cDDots">${l.slice(0,4).map(x=>`<i style="--ec:${x.col}"></i>`).join('')}</span></button>`;}).join('')}</div></section>`;
   const row=x=>{const act=x.t==='pay'?`<button class="cPillBtn ${x.paid?'':'dark'}" data-c="payToggle" data-id="${x.id}" data-d="${x.d}">${x.paid?'Paid':'Mark paid'}</button>`:'';
     return `<div class="cAgItem t-${x.t} ${x.paid?'paid':''} ${x.late?'late':''}" data-c="${x.t==='ev'?'evOpen':'open'}" data-id="${x.id}" tabindex="0" style="--ec:${x.col}"><span class="cAgT">${cEsc(x.time)}</span><span class="cAgBar"></span><span class="cAgM"><b>${cEsc(x.title)}</b><small>${cEsc([x.kind,x.sub].filter(Boolean).join(' · '))}${x.g?' · <span class="cGTag">Google</span>':''}</small></span>${act}</div>`;};
-  const dayPanel=`<section ${cIn(2,'cPanel cDayPanel')}><header class="cPanelH"><div><h3>${cEsc(cDayName(c.sel))}</h3><p>${sel.length?`${sel.length} thing${sel.length===1?'':'s'}`:'Nothing booked'}</p></div><button class="cIconBtn sm" data-c="evNew" data-d="${c.sel}" aria-label="Add an event on this day">${cSvg('plus')}</button></header>
+  const dayPanel=`<section ${cIn(2,'cPanel cDayPanel')}><header class="cPanelH"><div><h3>${cEsc(cDayName(c.sel))}</h3><p>${sel.length?`${sel.length} thing${sel.length===1?'':'s'}`:'Nothing booked'}</p></div><span class="cDPBtns"><button class="cPillBtn" data-c="calMode" data-m="day">By hour</button><button class="cIconBtn sm" data-c="evNew" data-d="${c.sel}" aria-label="Add an event on this day">${cSvg('plus')}</button></span></header>
     <div class="cAgList">${sel.length?sel.map(row).join(''):`<div class="crmEmpty sm"><span class="cEmptyIc">${cSvg('cal')}</span><b>A clear day.</b><button class="crmGhost" data-c="evNew" data-d="${c.sel}">${cSvg('plus')}Add an event</button></div>`}</div>
     <label class="cFuTog"><input type="checkbox" data-c="calFu" ${c.fu?'checked':''}><span class="cTog"></span><span>Show follow-ups on the calendar</span></label></section>`;
+  if(c.mode==='day')return `<div class="cPage">${head}${crmGBar()}${crmCalDay(rows,by[c.sel]||[],row)}</div>`;
   if(c.mode==='agenda'){const ag=calItems(G.today,addDays(G.today,60),rows);const g={};ag.forEach(x=>(g[x.d]=g[x.d]||[]).push(x));
     return `<div class="cPage">${head}${crmGBar()}<section ${cIn(1,'cPanel cAgenda')}>${Object.keys(g).length?Object.keys(g).map((d,i)=>`<div class="cAgDay" style="--i:${Math.min(i,12)}"><h4>${d===G.today?'Today':d===addDays(G.today,1)?'Tomorrow':cEsc(cDayName(d))}</h4><div class="cAgList">${g[d].map(row).join('')}</div></div>`).join(''):`<div class="crmEmpty"><span class="cEmptyIc">${cSvg('cal')}</span><b>Nothing in the next 60 days.</b><button class="crmGhost" data-c="evNew" data-d="${G.today}">${cSvg('plus')}Add an event</button></div>`}</section></div>`;}
   return `<div class="cPage">${head}${crmGBar()}<div class="cCalWrap">${grid}${dayPanel}</div></div>`;}
@@ -58,13 +60,13 @@ function crmEvHtml(){const s=CRM.sheet;const e=s.ev;const pr=PIPE.rows.slice().s
     <label class="cF cCheck"><input type="checkbox" id="ce_all" ${e.all_day?'checked':''}><span class="cTog"></span><span>All day</span></label>
     <label class="cF cTimeF"><span>Starts</span><input id="ce_start" type="time" value="${st}" ${e.all_day?'disabled':''}></label><label class="cF cTimeF"><span>Ends</span><input id="ce_end" type="time" value="${en}" ${e.all_day?'disabled':''}></label>
     <label class="cF wide"><span>Prospect or client</span><select id="ce_pr"><option value="">None</option>${pr.map(r=>`<option value="${r.id}" ${r.id===e.prospect_id?'selected':''}>${cEsc(r.business||'Unnamed')}</option>`).join('')}</select></label>
-    <label class="cF"><span>Who</span><select id="ce_owner">${['sam','james'].map(p=>`<option value="${p}" ${p===(e.owner||S.me)?'selected':''}>${cEsc(pnameRaw(p))}</option>`).join('')}<option value="" ${e.owner===''?'selected':''}>Both</option></select></label>
+    <label class="cF"><span>Who</span><select id="ce_owner">${['sam','james'].map(p=>`<option value="${p}" ${p===(e.owner||S.me)?'selected':''}>${cEsc(cName(p))}</option>`).join('')}<option value="" ${e.owner===''?'selected':''}>Both</option></select></label>
     <label class="cF"><span>Where or link</span><input id="ce_loc" value="${cEsc(e.location||'')}" placeholder="Zoom, Meet or address"></label>
     <label class="cF wide"><span>Notes</span><textarea id="ce_notes" rows="3" placeholder="Agenda, what to bring">${cEsc(e.notes||'')}</textarea></label></div>
    <div class="crmAddFoot">${e.id?`<button class="crmGhost danger" data-c="evDel"><span>Delete</span></button><span class="grow"></span>`:''}<button class="crmGhost" data-c="sheetClose">Cancel</button><button class="crmPrimary" data-c="evSave">${e.id?'Save':'Add to calendar'}${cSvg('arrow')}</button></div></div>`;}
 const addMinT=(t,m)=>{const [h,mi]=t.split(':').map(Number);const x=h*60+mi+m;return `${String(Math.floor(x/60)%24).padStart(2,'0')}:${String(x%60).padStart(2,'0')}`;};
-function crmEvNew(o){const d=o.d||CRM.cal.sel||G.today;const pr=o.pid&&PIPE.rows.find(r=>r.id===o.pid);
-  CRM.sheet={type:'event',key:'ev'+Date.now(),ev:{title:pr?`Meeting: ${pr.business}`:'',kind:'meeting',starts_at:localISO(d,'10:00'),ends_at:localISO(d,'11:00'),all_day:false,prospect_id:pr?pr.id:null,owner:pr?pr.owner:S.me,location:'',notes:''}};crmRender();}
+function crmEvNew(o){const d=o.d||CRM.cal.sel||G.today;const t0=o.t||'10:00',t1=addMinT(t0,60);const pr=o.pid&&PIPE.rows.find(r=>r.id===o.pid);
+  CRM.sheet={type:'event',key:'ev'+Date.now(),ev:{title:pr?`Meeting: ${pr.business}`:'',kind:'meeting',starts_at:localISO(d,t0),ends_at:localISO(d,t1),all_day:false,prospect_id:pr?pr.id:null,owner:pr?pr.owner:S.me,location:'',notes:''}};crmRender();}
 
 /* ---------- settings: prices and Google ---------- */
 function crmSettingsHtml(){const s=CRM.sheet;const t=s.tab||'prices';
@@ -74,7 +76,7 @@ function crmSettingsHtml(){const s=CRM.sheet;const t=s.tab||'prices';
   const st=gcalState();const cal=gcalCal();
   const google=`<div class="cSetGroup"><h4>Client ID</h4><p class="cSetP">From Google Cloud: <b>APIs &amp; Services → Credentials → OAuth client ID</b> (Web application) with <code>https://www.funnal.co.uk</code> and <code>https://funnal.co.uk</code> as authorised JavaScript origins. It is not a secret.</p>
      <div class="cCatRow one"><input id="cs_gid" value="${cEsc(gcalClient()||'')}" placeholder="1234-abc.apps.googleusercontent.com" autocomplete="off"><button class="crmPrimary" data-c="gcalSave">Save</button></div></div>
-    <div class="cSetGroup"><h4>Your connection</h4>${st==='off'?'<p class="cSetP">Save a Client ID first.</p>':st==='idle'?`<p class="cSetP">${GCAL.err?cEsc(GCAL.err)+'. ':''}Each of you connects on your own device. Google asks once, then remembers.</p><button class="crmPrimary" data-c="gcalGo">${cSvg('g')}Connect Google Calendar</button>`:`<p class="cSetP">Connected as ${cEsc(gcalEmail()||pnameRaw(S.me))}. Last sync ${cAgo(GCAL.last)}.${GCAL.err?` <em class="bad">${cEsc(GCAL.err)}</em>`:''}</p><div class="cRowBtns"><button class="crmGhost" data-c="gcalSync">${cSvg('sync')}Sync now</button><button class="crmGhost danger" data-c="gcalOff"><span>Disconnect</span></button></div>`}</div>
+    <div class="cSetGroup"><h4>Your connection</h4>${st==='off'?'<p class="cSetP">Save a Client ID first.</p>':st==='idle'?`<p class="cSetP">${GCAL.err?cEsc(GCAL.err)+'. ':''}Each of you connects on your own device. Google asks once, then remembers.</p><button class="crmPrimary" data-c="gcalGo">${cSvg('g')}Connect Google Calendar</button>`:`<p class="cSetP">Connected as ${cEsc(gcalEmail()||cName(S.me))}. Last sync ${cAgo(GCAL.last)}.${GCAL.err?` <em class="bad">${cEsc(GCAL.err)}</em>`:''}</p><div class="cRowBtns"><button class="crmGhost" data-c="gcalSync">${cSvg('sync')}Sync now</button><button class="crmGhost danger" data-c="gcalOff"><span>Disconnect</span></button></div>`}</div>
     ${st==='on'?`<div class="cSetGroup"><h4>Calendar to sync</h4><p class="cSetP">Shared by both of you. A calendar called Funnal, shared with James, works best.</p><select id="cs_gcal" class="cSetSel">${(GCAL.cals||[]).map(c=>`<option value="${cEsc(c.id)}" ${c.id===cal?'selected':''}>${cEsc(c.name)}${c.primary?' (main)':''}</option>`).join('')}</select></div>`:''}`;
   return `<div class="crmScrim add" data-c="sheetClose"></div><div class="crmAdd cSheet wide" role="dialog" aria-label="Settings">
    <div class="crmAddHead"><span class="cEvIc">${cSvg('cog')}</span><div><h3>Settings</h3><p>Shared by Sam and James. Changes save as you go.</p></div><button class="cIconBtn sm" data-c="sheetClose" aria-label="Close">${cSvg('x')}</button></div>
@@ -108,10 +110,12 @@ function crmDiaryPanel(rows,i){const t=G.today,t1=addDays(t,1);const l=calItems(
 
 /* ---------- actions ---------- */
 Object.assign(CRM_ACT,{
+  calOwner:b=>{CRM.calOwner=b.dataset.o;crmRender();},
   calDay:b=>{CRM.cal.sel=b.dataset.d;if(b.dataset.d.slice(0,7)!==CRM.cal.m)CRM.cal.m=b.dataset.d.slice(0,7);crmRender();const p=document.querySelector('#crm .cDayPanel');if(p&&matchMedia('(max-width:899px)').matches)p.scrollIntoView({behavior:'smooth',block:'start'});},
-  calMove:b=>{CRM.cal.m=cYm(CRM.cal.m,+b.dataset.n);CRM.anim=true;crmRender();},
+  calMove:b=>{const c=CRM.cal;if(c.mode==='day'){c.sel=addDays(c.sel,+b.dataset.n);c.m=c.sel.slice(0,7);crmRender();const v=document.querySelector('#crm .cDayView');if(v){v.classList.remove('slideL','slideR');void v.offsetWidth;v.classList.add(+b.dataset.n>0?'slideL':'slideR');}return;}c.m=cYm(c.m,+b.dataset.n);CRM.anim=true;crmRender();},
   calToday:()=>{CRM.cal.m=G.today.slice(0,7);CRM.cal.sel=G.today;crmRender();},
-  calMode:b=>{CRM.cal.mode=b.dataset.m;CRM.anim=true;crmRender();},
+  calMode:b=>{CRM.cal.mode=b.dataset.m;try{localStorage.setItem('hl_cal_mode',b.dataset.m);}catch(e){}CRM.anim=true;crmRender();const m=document.querySelector('#crm .crmMain');if(m)m.scrollTop=0;},
+  evNewAt:b=>crmEvNew({d:b.dataset.d,t:b.dataset.t}),
   calFu:b=>{CRM.cal.fu=b.checked;crmRender();},
   evNew:b=>crmEvNew({d:b.dataset.d,pid:b.dataset.pid}),
   evOpen:b=>{const e=CDB.ev.find(x=>x.id===b.dataset.id);if(!e)return;CRM.sheet={type:'event',key:'ev'+e.id+Date.now(),ev:{...e}};crmRender();},
@@ -137,3 +141,25 @@ Object.assign(CRM_ACT,{
 function crmSetBind(el){el.addEventListener('change',e=>{const c=e.target.closest('[data-cat]');if(c){const k=c.dataset.k;let v=c.value;if(k==='price')v=v===''?null:+v;else v=v.trim()||null;if(k==='name'&&!v)return;cdbUpdate('cat',c.dataset.cat,{[k]:v,updated_by:S.me});return;}
     if(e.target.id==='cs_gcal'){cfgSet('gcal_cal',e.target.value);gcalSoon();return;}
     if(e.target.id==='ce_all'){['ce_start','ce_end'].forEach(i=>{const x=document.getElementById(i);if(x)x.disabled=e.target.checked;});}});}
+
+/* ---------- the day, hour by hour ---------- */
+function crmCalDay(rows,items,row){const c=CRM.cal,d=c.sel;const timed=items.filter(x=>x.t==='ev'&&!x.allDay).sort((a,b)=>a.sm-b.sm||b.em-a.em);const other=items.filter(x=>!(x.t==='ev'&&!x.allDay));
+  const now=new Date(),nowM=now.getHours()*60+now.getMinutes(),isToday=d===G.today;
+  let h0=7,h1=21;timed.forEach(x=>{h0=Math.min(h0,Math.floor(x.sm/60));h1=Math.max(h1,Math.ceil(x.em/60));});if(isToday){h0=Math.min(h0,Math.floor(nowM/60));h1=Math.max(h1,Math.ceil((nowM+1)/60));}h1=Math.min(24,h1);
+  // side-by-side lanes for events that overlap
+  const lanes=[];let group=[],gEnd=-1;const done=[];
+  const flush=()=>{const n=Math.max(1,...group.map(x=>x.lane+1));group.forEach(x=>x.n=n);done.push(...group);group=[];lanes.length=0;};
+  timed.forEach(x=>{if(x.sm>=gEnd&&group.length)flush();let l=lanes.findIndex(e=>e<=x.sm);if(l<0){l=lanes.length;lanes.push(0);}lanes[l]=x.em;x.lane=l;group.push(x);gEnd=Math.max(gEnd,x.em);});if(group.length)flush();
+  const lab=h=>h===0?'12am':h<12?h+'am':h===12?'12pm':(h-12)+'pm';const hrs=[];for(let h=h0;h<h1;h++)hrs.push(h);
+  const ev=done.map((x,i)=>{const top=(x.sm-h0*60)/60,ht=Math.max(.42,(x.em-x.sm)/60);const short=ht<.75;
+    return `<button class="cDVEv ${short?'short':''} ${x.g?'g':''}" data-c="evOpen" data-id="${x.id}" style="--ec:${x.col};--t:${top};--h:${ht};--l:${x.lane};--n:${x.n};--i:${i}"><b>${cEsc(x.title)}</b><small>${cEsc(x.time)}–${cEsc(x.endTime)}${x.sub?' · '+cEsc(x.sub):''}</small></button>`;}).join('');
+  if(c.dvKey!==d){c.dvKey=d;setTimeout(()=>{const v=document.querySelector('#crm [data-scroll=dayv]');if(!v)return;const hh=v.querySelector('.cDVRow')?v.querySelector('.cDVRow').offsetHeight:60;const target=isToday?nowM-90:(timed[0]?timed[0].sm-60:9*60);v.scrollTo({top:Math.max(0,(target-h0*60)/60*hh),behavior:CRM_REDUCED()?'auto':'smooth'});},60);}
+  const side=`<section ${cIn(2,'cPanel cDayPanel')}><header class="cPanelH"><div><h3>All day and reminders</h3><p>${other.length?`${other.length} thing${other.length===1?'':'s'}`:'Nothing else on'}</p></div><button class="cIconBtn sm" data-c="evNew" data-d="${d}" aria-label="Add an event on this day">${cSvg('plus')}</button></header>
+    <div class="cAgList">${other.length?other.map(row).join(''):`<p class="cSetP" style="margin:4px 0 0">Payments, follow-ups and all-day events for this day show here.</p>`}</div>
+    <label class="cFuTog"><input type="checkbox" data-c="calFu" ${c.fu?'checked':''}><span class="cTog"></span><span>Show follow-ups on the calendar</span></label></section>`;
+  return `<div class="cCalWrap"><section ${cIn(1,'cPanel cDayView')}><div class="cDV" data-scroll="dayv"><div class="cDVIn" style="--rows:${hrs.length}">
+    ${hrs.map(h=>`<div class="cDVRow"><span class="cDVH">${lab(h)}</span><button class="cDVSlot" data-c="evNewAt" data-d="${d}" data-t="${String(h).padStart(2,'0')}:00" aria-label="New event at ${lab(h)}"></button><button class="cDVSlot half" data-c="evNewAt" data-d="${d}" data-t="${String(h).padStart(2,'0')}:30" aria-label="New event at ${lab(h)} 30"></button></div>`).join('')}
+    <div class="cDVEvs" style="--h0:${h0}">${ev}</div>
+    ${isToday&&nowM>=h0*60&&nowM<=h1*60?`<div class="cDVNow" style="--t:${(nowM-h0*60)/60}"><i></i><span>${now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</span></div>`:''}
+    ${!timed.length?`<div class="cDVEmpty"><b>Nothing booked.</b><span>Tap any hour to add something.</span></div>`:''}
+   </div></div></section>${side}</div>`;}

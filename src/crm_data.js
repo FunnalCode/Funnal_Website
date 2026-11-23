@@ -1,8 +1,8 @@
 /* ============================== 23 Nov: pipeline data beyond prospects ==============================
    Packages and prices, payments, calendar events and quotes. Shared through Supabase (crew only, live updates),
    or kept in this browser when there is no Supabase (tests and offline). Google Calendar sync lives in crm_google.js. */
-const CDB={cat:[],pay:[],ev:[],quo:[],ready:false,src:null};
-const CDB_T={cat:['hl_catalogue','hl_cat_v1','sort'],pay:['hl_payments','hl_pay_v1','due'],ev:['hl_events','hl_ev_v1','starts_at'],quo:['hl_quotes','hl_quo_v1','created_at']};
+const CDB={cat:[],pay:[],ev:[],quo:[],qev:[],ready:false,src:null};
+const CDB_T={cat:['hl_catalogue','hl_cat_v1','sort'],pay:['hl_payments','hl_pay_v1','due'],ev:['hl_events','hl_ev_v1','starts_at'],quo:['hl_quotes','hl_quo_v1','created_at'],qev:['hl_quote_events','hl_qev_v1','at']};
 const CAT_SEED=[
  ['pkg_classic','Classic package','package',895,'monthly',null,'Social on Facebook and Instagram, monthly email/SMS campaign, simple automations, lite branding, monthly review, small ad campaigns'],
  ['pkg_executive','Executive package','package',1395,'monthly',null,'Up to three social platforms, two email/SMS campaigns a month, automations, Google or Meta ads managed, creative bundle, monthly strategy call, website build included (hosting separate)'],
@@ -21,10 +21,10 @@ function cdbSort(k){const f=CDB_T[k][2];CDB[k].sort((a,b)=>(a[f]>b[f]?1:a[f]<b[f
 function cdbChanged(){if(typeof pipeRefresh==='function')pipeRefresh();}
 function cdbStart(){if(CDB.src)return;
   if(S.sb){CDB.src='supa';cdbLoadAll();try{const ch=S.sb.channel('hl-crm-extra');Object.keys(CDB_T).forEach(k=>ch.on('postgres_changes',{event:'*',schema:'public',table:CDB_T[k][0]},p=>{
-      if(p.eventType==='DELETE'){CDB[k]=CDB[k].filter(r=>r.id!==(p.old&&p.old.id));}else if(p.new){const i=CDB[k].findIndex(r=>r.id===p.new.id);if(i>=0)CDB[k][i]=p.new;else CDB[k].push(p.new);cdbSort(k);}cdbChanged();if(k==='ev'&&typeof gcalSoon==='function')gcalSoon();}));ch.subscribe();}catch(e){console.warn('crm sub',e);}
+      if(p.eventType==='DELETE'){CDB[k]=CDB[k].filter(r=>r.id!==(p.old&&p.old.id));}else if(p.new){if(k==='qev'&&p.eventType==='INSERT')qevAlert(p.new);const i=CDB[k].findIndex(r=>r.id===p.new.id);if(i>=0)CDB[k][i]=p.new;else CDB[k].push(p.new);cdbSort(k);}cdbChanged();if(k==='ev'&&typeof gcalSoon==='function')gcalSoon();}));ch.subscribe();}catch(e){console.warn('crm sub',e);}
     document.addEventListener('visibilitychange',()=>{if(!document.hidden)cdbLoadAll();});}
   else{CDB.src='local';Object.keys(CDB_T).forEach(k=>{CDB[k]=cdbLocal(k).get()||(k==='cat'?CAT_SEED.slice():[]);cdbSort(k);});CDB.ready=true;}}
-async function cdbLoadAll(){await Promise.all(Object.keys(CDB_T).map(async k=>{try{let q=S.sb.from(CDB_T[k][0]).select('*').order(CDB_T[k][2],{ascending:true}).limit(5000);if(k==='ev')q=q.gte('starts_at',new Date(Date.now()-400*864e5).toISOString());const {data,error}=await q;if(error)throw error;CDB[k]=data||[];}catch(e){console.warn('crm load',k,e);}}));CDB.ready=true;cdbChanged();}
+async function cdbLoadAll(){await Promise.all(Object.keys(CDB_T).map(async k=>{try{let q=S.sb.from(CDB_T[k][0]).select('*').order(CDB_T[k][2],{ascending:true}).limit(5000);if(k==='ev')q=q.gte('starts_at',new Date(Date.now()-400*864e5).toISOString());if(k==='qev')q=q.gte('at',new Date(Date.now()-200*864e5).toISOString());const {data,error}=await q;if(error)throw error;CDB[k]=data||[];}catch(e){console.warn('crm load',k,e);}}));CDB.ready=true;cdbChanged();}
 function cdbSave(k){if(CDB.src==='local')cdbLocal(k).set(CDB[k]);}
 async function cdbInsert(k,o){const r=Object.assign({id:cdbUid(),created_at:new Date().toISOString()},o);CDB[k].push(r);cdbSort(k);cdbSave(k);cdbChanged();
   if(CDB.src==='supa'){const {error}=await S.sb.from(CDB_T[k][0]).insert(r);if(error){CDB[k]=CDB[k].filter(x=>x.id!==r.id);cdbChanged();toast(`<b>Couldn't save.</b> ${esc(error.message||'')}`,'joke');return null;}}return r;}
@@ -79,3 +79,19 @@ async function quoteEncrypt(obj,pw){const enc=new TextEncoder();const salt=crypt
   const ct=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},key,enc.encode(JSON.stringify(obj))));const all=new Uint8Array(28+ct.length);all.set(salt,0);all.set(iv,16);all.set(ct,28);
   let s='';for(let i=0;i<all.length;i+=8192)s+=String.fromCharCode.apply(null,all.subarray(i,i+8192));return btoa(s);}
 const quotesFor=id=>CDB.quo.filter(q=>q.prospect_id===id).sort((a,b)=>a.created_at<b.created_at?1:-1);
+
+/* ---------- what clients do with their quote ---------- */
+const qevFor=qid=>CDB.qev.filter(e=>e.quote_id===qid);
+function qevSum(qid){const l=qevFor(qid);const opens=l.filter(e=>e.kind==='open');const visits=new Set(opens.map(e=>e.visit)).size;
+  const secs=l.filter(e=>e.kind==='time').reduce((a,e)=>a+(+(e.detail&&e.detail.s)||0),0);const last=l.length?l[l.length-1].at:null;
+  const pk={};l.filter(e=>e.kind==='package').forEach(e=>{const n=e.detail&&e.detail.name;if(n)pk[n]=(pk[n]||0)+1;});
+  const ad={};l.filter(e=>e.kind==='addon'&&e.detail&&e.detail.on).forEach(e=>{const n=e.detail.name;if(n)ad[n]=(ad[n]||0)+1;});
+  const dev=[...new Set(opens.map(e=>e.detail&&e.detail.dev).filter(Boolean))];const has=k=>l.some(e=>e.kind===k);
+  return {n:l.length,visits,secs,last,pk,ad,dev,print:has('print'),pdf:has('pdf'),copy:has('copy'),terms:has('terms'),breakdown:has('breakdown'),accept:l.find(e=>e.kind==='accept'),l};}
+const cMins=s=>s<60?`${s}s`:s<3600?`${Math.round(s/60)} min`:`${(s/3600).toFixed(1)} h`;
+const cAgoT=t=>{if(!t)return '';const s=Math.round((Date.now()-new Date(t).getTime())/1000);return s<60?'just now':s<3600?Math.round(s/60)+' min ago':s<86400?Math.round(s/3600)+' h ago':Math.round(s/86400)+' days ago';};
+function qevAlert(e){const q=CDB.quo.find(x=>x.id===e.quote_id);if(!q)return;const r=PIPE.rows.find(x=>x.id===q.prospect_id);const who=r?r.business:(q.data&&q.data.business)||'A client';
+  if(e.kind==='open'&&!qevFor(q.id).some(x=>x.kind==='open'&&x.visit===e.visit&&x!==e))toast(`<b>${esc(who)}</b> just opened your quote.${r?` <button class="tLink" data-act="crmOpenP" data-id="${r.id}">Open</button>`:''}`,'good',7000);
+  setTimeout(()=>{if(typeof CRM!=='undefined'&&CRM.sheet&&CRM.sheet.type==='quote'&&CRM.sheet.qid===q.id){const sh=document.querySelector('#crm .cSheet');if(!sh||!sh.contains(document.activeElement))qtRefresh();}},50);
+  if(e.kind==='accept')toast(`<b>${esc(who)}</b> accepted your quote: ${esc((e.detail&&e.detail.choice)||'')}.${r?` <button class="tLink" data-act="crmOpenP" data-id="${r.id}">Open</button>`:''}`,'good',10000);}
+ACT.crmOpenP=({id})=>{if(typeof CRM==='undefined')return;CRM.open=id;if(S.screen!=='pipeline'){location.hash='#pipeline';}setTimeout(()=>crmRender(true),300);};

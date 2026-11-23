@@ -14,12 +14,12 @@ const QT_ADDON={
   web_care:{g:'Grow',d:'Hosting, updates and security for your website.',li:['Fast, secure hosting','Updates and backups','Small changes each month']}};
 function qtNew(r){const pk=r.package&&catBy(r.package);const first=(r.contact||'').split(/\s+/)[0];
   const p0=pk?{name:pk.name.replace(/ package$/i,''),price:pk.price||0,period:pk.period,care:0,careName:'',tag:'',rec:false,cat:pk.id}:{name:'Classic',price:0,period:'one_off',care:0,careName:'Hosting and care',tag:'',rec:false};
-  return {v:1,business:r.business||'',greet:first||r.contact||'',short:(r.business||'').replace(/^the\s+/i,'').split(/\s+/)[0]||'',from:r.owner||S.me,
+  return {v:1,business:r.business||'',greet:first||r.contact||'',short:(r.business||'').replace(/^the\s+/i,'').split(/\s+/)[0]||'',from:S.me==='james'?'james':'sam',
     kicker:`Your plan for ${r.business||'your business'}.`,lede:'Pick a package, add any monthly services, and your total updates as you go. When you’re happy, print it as a PDF or accept it here.',
     pkgTitle:'',pkgNote:'',packages:[p0],items:pk&&pk.note?pk.note.split(/,\s*/).filter(Boolean).map(n=>({n:n.charAt(0).toUpperCase()+n.slice(1),s:'',m:'',from:0})):[],
     addonsTitle:'Add monthly services',addonsNote:'No set-up fees with your package. Hover or tap the i for details.',noSetup:true,addons:[],
     spread:'',payplanTitle:'',payplan:'',receiptNote:'',letterThanks:'Thank you for your time, it was lovely to meet you.',intro:'Following on from our conversation, please find your quote below.',
-    payment:'One-off fees are 50% to start and 50% at launch. Monthly services are paid up front for the month ahead.',terms:QT_TERMS.slice(),thanksTitle:'',thanks:'If anything here raises a question, just give me a call or drop me an email.',pw:''};}
+    payment:'One-off fees are 50% to start and 50% at launch. Monthly services are paid up front for the month ahead.',terms:QT_TERMS.slice(),validUntil:addDays(G.today,30),thanksTitle:'',thanks:'If anything here raises a question, just give me a call or drop me an email.',pw:''};}
 function qtOpen(pid,qid){const r=PIPE.rows.find(x=>x.id===pid);if(!r)return;const q=qid&&CDB.quo.find(x=>x.id===qid);
   CRM.sheet={type:'quote',key:'qt'+Date.now(),pid,qid:q?q.id:null,Q:q&&q.data?JSON.parse(JSON.stringify(q.data)):qtNew(r)};crmRender();}
 const qtGet=(o,p)=>p.split('.').reduce((a,k)=>a==null?a:a[k],o);
@@ -38,13 +38,14 @@ function crmQuoteHtml(){const s=CRM.sheet,Q=s.Q,r=PIPE.rows.find(x=>x.id===s.pid
   const avail=catItems().filter(c=>c.kind!=='package'&&c.period!=='one_off');
   const addons=avail.map(c=>{const i=Q.addons.findIndex(a=>a.cat===c.id);const on=i>=0;return `<div class="cQAdd ${on?'on':''}"><button class="cQAddT" data-c="qtAdd" data-id="${c.id}"><span class="cQTick">${on?cSvg('check'):''}</span><b>${cEsc(c.name)}</b><small>${c.price!=null?pMoney(c.price)+' a month':'Price on request'}</small></button>${on?`<div class="cGrid">${fld('Price (£ a month)',inp(`addons.${i}.m`,'0','','number'))}${fld('Group',inp(`addons.${i}.g`,'Grow'))}${fld('One line',inp(`addons.${i}.d`,''),1)}${fld('What they get (one per line)',`<textarea data-q="addons.${i}.li" data-lines="1" rows="3">${cEsc((Q.addons[i].li||[]).join('\n'))}</textarea>`,1)}</div>`:''}</div>`;}).join('');
   const link=q&&q.status!=='draft'?QUOTE_URL(q.token):'';
-  const st=q?{draft:'Draft',sent:'Sent, not opened yet',viewed:`Opened ${q.view_count||1} time${(q.view_count||1)===1?'':'s'}`,accepted:`Accepted: ${q.accepted_choice||''}`}[q.status]:'Not saved yet';
+  const qs=q?qevSum(q.id):null,vc=Math.max(q?q.view_count||0:0,qs?qs.visits:0);
+  const st=q?(q.status==='accepted'?`Accepted: ${q.accepted_choice||''}`:q.status==='draft'?'Draft':vc?`Opened ${vc} time${vc===1?'':'s'}`:'Sent, not opened yet'):'Not saved yet';
   return `<div class="crmScrim add" data-c="sheetClose"></div><div class="crmAdd cSheet wide tall cQuote" role="dialog" aria-label="Quote">
    <div class="crmAddHead"><span class="cEvIc">${cSvg('doc')}</span><div><h3>Quote for ${cEsc(r.business||Q.business||'')}</h3><p>${cEsc(st)}${q&&q.has_pw?' · password protected':''}</p></div><button class="cIconBtn sm" data-c="sheetClose" aria-label="Close">${cSvg('x')}</button></div>
    <div class="cSetBody" data-scroll="quote">
+    ${q?qtUsageHtml(q):''}
     ${link?`<div class="cQLink">${cSvg('link')}<input readonly value="${cEsc(link)}" aria-label="Quote link"><button class="cPillBtn" data-c="qtCopy">${cSvg('copy')}Copy</button><a class="cPillBtn" href="${cEsc(link)}&peek=1" target="_blank" rel="noopener">Open</a></div>`:''}
-    <div class="cSetGroup"><h4>Who it's for</h4><div class="cGrid">${fld('Greeting names',inp('greet','Helen and Bella'))}${fld('Business',inp('business','Nest Interiors'))}${fld('Short name (for "Recommended for …")',inp('short','Nest'))}
-      ${fld('From',`<div class="cSegO" data-pill="qtFrom">${['sam','james'].map(p=>`<button class="${Q.from===p?'on':''}" data-c="qtFrom" data-p="${p}">${cEsc(pnameRaw(p))}</button>`).join('')}</div>`)}</div></div>
+    <div class="cSetGroup"><h4>Who it's for</h4><div class="cGrid">${fld('Greeting names',inp('greet','Helen and Bella'))}${fld('Business',inp('business','Nest Interiors'))}${fld('Short name (for "Recommended for …")',inp('short','Nest'))}${fld('Valid until',inp('validUntil','','','date'))}</div></div>
     <div class="cSetGroup"><h4>Top of the page</h4><div class="cGrid">${fld('Big line',inp('kicker','Three ways to launch Nest Interiors.'),1)}${fld('Intro',ta('lede','',2),1)}</div></div>
     <div class="cSetGroup"><h4>Packages <em>· 1 to 3, the switcher shows them side by side</em></h4>${pk}${Q.packages.length<3?`<button class="cMore" data-c="qtPkAdd">${cSvg('plus')} Add a package</button>`:''}</div>
     <div class="cSetGroup"><h4>What's included <em>· each line shows from its package upwards</em></h4>${items}<button class="cMore" data-c="qtItemAdd">${cSvg('plus')} Add a line</button></div>
@@ -57,7 +58,7 @@ function crmQuoteHtml(){const s=CRM.sheet,Q=s.Q,r=PIPE.rows.find(x=>x.id===s.pid
    </div>
    <div class="crmAddFoot cQFoot"><span class="cQSum">${cEsc(qtTotalHint(Q))}</span><span class="grow"></span><button class="crmGhost" data-c="qtSave" data-pub="0">Save draft</button><button class="crmPrimary" data-c="qtSave" data-pub="1">${q&&q.status!=='draft'?'Update the live quote':'Create the link'}${cSvg('arrow')}</button></div></div>`;}
 function crmQuotesHtml(r){const l=quotesFor(r.id);const lab={draft:'Draft',sent:'Sent',viewed:'Opened',accepted:'Accepted'};
-  return `<div class="cQList">${l.map(q=>`<button class="cQRow ${q.status}" data-c="qtOpen" data-id="${q.id}"><span class="cQIc">${cSvg('doc')}</span><span><b>${cEsc(q.title||'Quote')}</b><small>${lab[q.status]||q.status}${q.status==='viewed'?` · ${q.view_count} view${q.view_count===1?'':'s'}`:''}${q.status==='accepted'?` · ${cEsc(q.accepted_choice||'')}`:''} · ${pShortD((q.updated_at||q.created_at||'').slice(0,10))}</small></span>${q.status!=='draft'?`<span class="cQCopy" data-c="qtCopyRow" data-id="${q.id}" role="button" title="Copy link">${cSvg('copy')}</span>`:''}</button>`).join('')}
+  return `<div class="cQList">${l.map(q=>`<button class="cQRow ${q.status}" data-c="qtOpen" data-id="${q.id}"><span class="cQIc">${cSvg('doc')}</span><span><b>${cEsc(q.title||'Quote')}</b><small>${lab[q.status]||q.status}${(()=>{const u=qevSum(q.id);return u.visits?` · opened ${u.visits}×${u.secs?' · '+cMins(u.secs):''} · ${cAgoT(u.last)}`:q.status==='viewed'?` · ${q.view_count} view${q.view_count===1?'':'s'}`:'';})()}${q.valid_until&&q.status!=='accepted'?(q.valid_until<G.today?' · ended':` · until ${pShortD(q.valid_until)}`):''}${q.status==='accepted'?` · ${cEsc(q.accepted_choice||'')}`:''} · ${pShortD((q.updated_at||q.created_at||'').slice(0,10))}</small></span>${q.status!=='draft'?`<span class="cQCopy" data-c="qtCopyRow" data-id="${q.id}" role="button" title="Copy link">${cSvg('copy')}</span>`:''}</button>`).join('')}
    <button class="cMore" data-c="qtNew">${cSvg('plus')} Make a quote</button></div>`;}
 function qtRefresh(){const s=CRM.sheet;if(!s||s.type!=='quote')return;s.key='qt'+Date.now();crmRender();}
 async function qtSave(pub){const s=CRM.sheet;const Q=s.Q;const r=PIPE.rows.find(x=>x.id===s.pid);if(!r)return;
@@ -67,7 +68,7 @@ async function qtSave(pub){const s=CRM.sheet;const Q=s.Q;const r=PIPE.rows.find(
   const q=s.qid&&CDB.quo.find(x=>x.id===s.qid);const status=pub?(q&&q.status!=='draft'?q.status:'sent'):(q?q.status:'draft');
   crmSaved&&crmSaved('Saving…');
   let enc=null;if(has_pw&&pub){try{const pub_={...Q};delete pub_.pw;enc=await quoteEncrypt(pub_,pw);}catch(e){toast('<b>Couldn\'t lock it.</b> This browser can\'t encrypt.','joke');return;}}
-  const row={title,data:Q,enc,has_pw,status,prospect_id:r.id,updated_at:new Date().toISOString()};
+  const row={title,data:Q,enc,has_pw,status,prospect_id:r.id,valid_until:Q.validUntil||null,updated_at:new Date().toISOString()};
   let saved;if(q){await cdbUpdate('quo',q.id,row);saved=CDB.quo.find(x=>x.id===q.id);}else{saved=await cdbInsert('quo',{...row,token:quoteTok(),created_by:S.me,view_count:0});}
   if(!saved)return;s.qid=saved.id;
   if(pub){const p=Q.packages.find(x=>x.rec)||Q.packages[0];const patch={quote_url:QUOTE_URL(saved.token),quote_value:p.price||null};crmSet(r.id,patch);pipeLog(r.id,'quote',{title});
@@ -98,3 +99,14 @@ function crmQuoteBind(el){
   el.addEventListener('change',e=>{const t=e.target;if(!t.closest('.cQuote'))return;if(t.dataset.qc==='cat'){const c=catBy(t.value);const p=CRM.sheet.Q.packages[+t.dataset.i];if(c){const i=+t.dataset.i;Object.assign(p,{cat:c.id,name:c.name.replace(/ package$/i,''),price:c.price||0,period:c.period});if(!p.tag&&c.note&&c.note.length<90)p.tag=c.note;
       const Q=CRM.sheet.Q;if(c.kind==='package'&&c.note){const have=new Set(Q.items.map(x=>(x.n||'').toLowerCase()));c.note.split(/,\s*/).filter(Boolean).forEach(n=>{const nm=n.charAt(0).toUpperCase()+n.slice(1);if(!have.has(nm.toLowerCase()))Q.items.push({n:nm,s:'',m:'',from:i});});}}qtRefresh();return;}
     upd(t);if(/^packages\.\d+\.(period|name)$/.test(t.dataset.q||''))qtRefresh();});}
+
+function qtUsageHtml(q){const u=qevSum(q.id);const exp=q.valid_until&&q.status!=='accepted'&&q.valid_until<G.today;
+  if(!u.n)return `<div class="cQUse empty">${cSvg('trend')}<span><b>${q.status==='draft'?'Not sent yet':'Not opened yet'}</b><small>${q.status==='draft'?'Create the link to share it.':'You\'ll see here when they open it, what they look at and for how long.'}${q.valid_until?` Valid until ${pShortD(q.valid_until)}${exp?' (ended)':''}.`:''}</small></span></div>`;
+  const chips=o=>Object.entries(o).sort((a,b)=>b[1]-a[1]).map(([n,c])=>`<span class="cQChip">${cEsc(n)}<i>${c}</i></span>`).join('')||'<span class="cSetP" style="margin:0">None yet</span>';
+  const lab={open:'Opened the quote',package:'Looked at',addon:'Added',breakdown:'Opened the breakdown',terms:'Read the terms',print:'Printed it',pdf:'Downloaded the PDF',copy:'Copied the plan',time:'Spent',email:'Copied your email',accept:'Accepted'};
+  const line=e=>{const d=e.detail||{};const what=e.kind==='package'?`${lab.package} ${d.name}`:e.kind==='addon'?`${d.on?'Added':'Removed'} ${d.name}`:e.kind==='time'?`Spent ${cMins(+d.s||0)}${d.scroll?` · scrolled ${d.scroll}%`:''}`:e.kind==='open'?`${lab.open}${d.dev?' on a '+d.dev:''}${d.back?' again':''}`:e.kind==='accept'?`Accepted: ${d.choice||''}`:(lab[e.kind]||e.kind);return `<li><span class="cQDot k-${e.kind}"></span><div>${cEsc(what)}<small>${cEsc(cAgoT(e.at))}</small></div></li>`;};
+  return `<div class="cQUse">
+   <div class="cQUseTop"><div><small>Visits</small><b>${u.visits}</b></div><div><small>Time on it</small><b>${cMins(u.secs)}</b></div><div><small>Last seen</small><b>${cEsc(cAgoT(u.last))}</b></div><div><small>Device</small><b>${cEsc(u.dev.join(', ')||'–')}</b></div></div>
+   <div class="cQUseRow"><small>Packages they looked at</small><div>${chips(u.pk)}</div></div><div class="cQUseRow"><small>Services they tried</small><div>${chips(u.ad)}</div></div>
+   <div class="cQUseFlags">${[['print','Printed'],['pdf','Downloaded PDF'],['breakdown','Opened breakdown'],['terms','Read terms']].map(([k,n])=>`<span class="${u[k]?'on':''}">${u[k]?cSvg('check'):''}${n}</span>`).join('')}${q.valid_until?`<span class="${exp?'bad':''}">${exp?'Ended':'Valid until'} ${pShortD(q.valid_until)}</span>`:''}</div>
+   <details class="cQUseLog"><summary>Everything they did</summary><ol>${u.l.slice().reverse().slice(0,40).map(line).join('')}</ol></details></div>`;}
