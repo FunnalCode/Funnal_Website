@@ -42,7 +42,7 @@ function drawQChart(cv,t){let data;try{data=JSON.parse(cv.dataset.qchart);}catch
     // the ship, at your progress
     const f=Math.min(1,d.p/d.t),sx=x0+f*(x1-x0-8),sy=yy+Math.sin(sx/22+i)*2.2+Math.sin(t/420+i)*1.1;c.save();c.translate(sx,sy);c.rotate(Math.sin(t/520+i)*.06);
     poly(c,[[-7,-1],[7,-1],[5,3],[-5,3]],'#7A4A2C');line(c,0,-1,0,-12,'#4A3020',1);poly(c,[[.6,-11.5],[6.5,-3],[.6,-3]],'#FBF6EA');poly(c,[[-.6,-10],[-5,-3],[-.6,-3]],'#F1E8D6');poly(c,[[0,-12],[3,-11],[0,-10]],'#C0392B');c.restore();});}
-(function qChartLoop(){const run=()=>{const l=document.querySelectorAll('canvas[data-qchart]');if(l.length){const t=performance.now();l.forEach(cv=>{try{drawQChart(cv,t);}catch(e){}});}requestAnimationFrame(run);};requestAnimationFrame(run);})();
+(function qChartLoop(){const run=()=>{const l=document.querySelectorAll('canvas[data-qchart]');if(l.length){const t=performance.now();l.forEach(cv=>{try{drawQChart(cv,t);}catch(e){}});}hlRAF(run);};hlRAF(run);})();
 
 /* ---------- coins that fly to the purse ---------- */
 function coinFly(fromEl,n=9){try{if(!fromEl||matchMedia('(prefers-reduced-motion: reduce)').matches)return;const to=$('#glowNum');if(!to)return;const a=fromEl.getBoundingClientRect(),b=to.getBoundingClientRect();
@@ -116,7 +116,7 @@ function eventsSideHtml(){const today=G.today;const now=seasonAt(today);const nx
     for(let i=0;i<22;i++){const x=(i*31+t/40+Math.sin(t/900+i)*6)%W2,y=(i*19+t/26)%H2;disc(c,x,y,.6+((i%3)*.25),'rgba(255,255,255,.85)');}}};}
 
 /* the hero art is the Events painting, drawn large */
-(function evArtLoop(){const run=()=>{const l=document.querySelectorAll('canvas[data-evart]');if(l.length){const t=performance.now();l.forEach(cv=>{try{const k=cv.dataset.liart;cv.dataset.liart='events';drawLiArt(cv,t);if(k)cv.dataset.liart=k;else delete cv.dataset.liart;}catch(e){}});}requestAnimationFrame(run);};requestAnimationFrame(run);})();
+(function evArtLoop(){const run=()=>{const l=document.querySelectorAll('canvas[data-evart]');if(l.length){const t=performance.now();l.forEach(cv=>{try{const k=cv.dataset.liart;cv.dataset.liart='events';drawLiArt(cv,t);if(k)cv.dataset.liart=k;else delete cv.dataset.liart;}catch(e){}});}hlRAF(run);};hlRAF(run);})();
 
 /* ---------- the screen ---------- */
 SCREENS.quests=()=>{const tab=S.view.qtab==='season'?'events':(S.view.qtab||'quests');const q=questState(S.me);

@@ -280,3 +280,6 @@ function sightingFor(date){
 }
 function sightingState(p,sg,now=Date.now()){if(!sg)return null;const n=G?G.evs.filter(e=>e.pid===p&&e.k==='d'&&e.t>=sg.start&&e.t<=sg.end).length:0;const claimed=G?.players[p]?.claimed.has('pet_'+sg.date);
   return{...sg,n,claimed,owned:!!G?.players[p]?.pets?.[sg.pet.id],phase:now<sg.start?'soon':now<=sg.end?'live':'over',ok:n>=sg.need};}
+
+/* 23 Nov: background art loops slow right down while the pipeline covers the game, or the tab is hidden */
+function hlRAF(f){const d=document.documentElement;if(d.classList.contains('crmCover')||document.hidden)return setTimeout(()=>f(performance.now()),500);return requestAnimationFrame(f);}

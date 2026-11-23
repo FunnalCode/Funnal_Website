@@ -95,4 +95,4 @@ function drawLiArt(cv,t){const k=cv.dataset.liart;const c=cv.getContext('2d');c.
     const a=((t/1300)%1),bx=46+a*52,by=42-Math.sin(a*Math.PI)*22;disc(c,bx,by,1.6,'#2A2A2A');for(let i=1;i<5;i++){const q=Math.max(0,a-i*.04);disc(c,46+q*52,42-Math.sin(q*Math.PI)*22,1.2-i*.2,`rgba(255,220,150,${.5-i*.1})`);}
     if(a<.15){disc(c,47,42,3*(1-a/.15)+1,'rgba(255,240,200,.8)');}
     R(c,0,52,W2,18,'rgba(20,30,60,.25)');}}
-(function liArtLoop(){const run=()=>{const l=document.querySelectorAll('canvas[data-liart]');if(l.length){const t=performance.now();l.forEach(cv=>{try{drawLiArt(cv,t);}catch(e){}});}requestAnimationFrame(run);};requestAnimationFrame(run);})();
+(function liArtLoop(){const run=()=>{const l=document.querySelectorAll('canvas[data-liart]');if(l.length){const t=performance.now();l.forEach(cv=>{try{drawLiArt(cv,t);}catch(e){}});}hlRAF(run);};hlRAF(run);})();

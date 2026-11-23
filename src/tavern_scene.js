@@ -159,7 +159,7 @@ function drawGameIco(cv,t){const k=cv.dataset.game;const c=cv.getContext('2d');c
   else{const card=(x,y,a,txt,red)=>{c.save();c.translate(x,y);c.rotate(a);rr(c,-9,-13,18,26,2,'#F4EFE4');c.fillStyle=red?'#C8102E':'#22201C';c.font='700 9px Georgia, serif';c.textAlign='center';c.fillText(txt,0,4);c.restore();};card(40,36,-.18,'A♠',false);card(56,34,.16,'K♥',true);
     c.fillStyle='#F2C462';c.font='800 13px Fredoka, Nunito, sans-serif';c.textAlign='center';c.fillText('21',80,26);}}
 function drawMenuGlass(cv){const d=DRINK_BY[cv.dataset.drink];if(!d)return;const c=cv.getContext('2d');c.setTransform(cv.width/20,0,0,cv.width/20,0,0);c.clearRect(0,0,20,24);c.save();c.translate(10,22.5);c.scale(2.25,2.25);drawDrink(c,d,0,0,performance.now());c.restore();}
-(function tvIcoLoop(){const run=()=>{if(S&&S.screen==='tavern'){const t=performance.now();document.querySelectorAll('canvas[data-game]').forEach(cv=>{try{drawGameIco(cv,t);}catch(e){}});document.querySelectorAll('canvas[data-drink]').forEach(cv=>{try{drawMenuGlass(cv);}catch(e){}});}requestAnimationFrame(run);};requestAnimationFrame(run);})();
+(function tvIcoLoop(){const run=()=>{if(S&&S.screen==='tavern'){const t=performance.now();document.querySelectorAll('canvas[data-game]').forEach(cv=>{try{drawGameIco(cv,t);}catch(e){}});document.querySelectorAll('canvas[data-drink]').forEach(cv=>{try{drawMenuGlass(cv);}catch(e){}});}hlRAF(run);};hlRAF(run);})();
 
 function tvStakedToday(){return tvSpends(S.me).filter(x=>x.item==='tv_bet'&&x.date===G.today).reduce((a,x)=>a+(x.cost||0),0);}
 {let was=false;const _rdTV=render;render=function(){_rdTV.apply(this,arguments);try{const on=S.screen==='tavern';if(on&&!was){tvJoin();tvEnter();}

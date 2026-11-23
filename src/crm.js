@@ -34,11 +34,15 @@ const cNum=(n,fmt='int')=>{const txt=fmt==='money'?pMoney(n):fmt==='pct'?n+'%':S
 
 /* ---------- sliding pills: the leading edge goes first, the trailing edge catches up ---------- */
 const CRM_PILL={};
-function cPills(root,animate=true){root.querySelectorAll('[data-pill]').forEach(g=>{const key=g.dataset.pill;let p=g.querySelector(':scope>.cPill');if(!p){p=document.createElement('i');p.className='cPill';p.setAttribute('aria-hidden','true');g.prepend(p);}
-  const on=g.querySelector(':scope>.on');if(!on||!g.offsetWidth){p.style.opacity='0';return;}p.style.opacity='1';
-  const gr=g.getBoundingClientRect(),r=on.getBoundingClientRect();const cl=g.clientLeft,ct=g.clientTop;
-  const to=[r.top-gr.top-ct,gr.width-g.clientLeft*2-(r.left-gr.left-cl+r.width),gr.height-ct*2-(r.top-gr.top-ct+r.height),r.left-gr.left-cl];
-  const rad=parseFloat(getComputedStyle(on).borderTopLeftRadius)||12;const from=CRM_PILL[key];CRM_PILL[key]=to;
+function cPills(root,animate=true){
+  /* 23 Nov: read every size first, then write, so the browser lays the page out once rather than once per pill group */
+  const gs=[...root.querySelectorAll('[data-pill]')];
+  gs.forEach(g=>{if(!g.querySelector(':scope>.cPill')){const p=document.createElement('i');p.className='cPill';p.setAttribute('aria-hidden','true');g.prepend(p);}});
+  const ms=gs.map(g=>{const on=g.querySelector(':scope>.on');if(!on||!g.offsetWidth)return null;
+    const gr=g.getBoundingClientRect(),r=on.getBoundingClientRect();const cl=g.clientLeft,ct=g.clientTop;
+    return {to:[r.top-gr.top-ct,gr.width-cl*2-(r.left-gr.left-cl+r.width),gr.height-ct*2-(r.top-gr.top-ct+r.height),r.left-gr.left-cl],rad:parseFloat(getComputedStyle(on).borderTopLeftRadius)||12};});
+  gs.forEach((g,gi)=>{const p=g.querySelector(':scope>.cPill');const m=ms[gi];if(!m){p.style.opacity='0';return;}p.style.opacity='1';
+  const key=g.dataset.pill;const to=m.to,rad=m.rad;const from=CRM_PILL[key];CRM_PILL[key]=to;
   const paint=v=>{p.style.clipPath=`inset(${v[0]}px ${v[1]}px ${v[2]}px ${v[3]}px round ${rad}px)`;};
   cancelAnimationFrame(p._raf);
   if(!animate||!from||CRM_REDUCED()||from.every((x,i)=>Math.abs(x-to[i])<.5)){paint(to);return;}
@@ -54,8 +58,8 @@ function cCount(root){if(CRM_REDUCED())return;root.querySelectorAll('.cNum').for
 /* ---------- open and close ---------- */
 SCREENS.pipeline=()=>'<div class="pad crmHold"></div>';
 function crmShow(){document.querySelectorAll('#toasts .toast').forEach(t=>{if(t.querySelector('[data-act=pGoSched]'))t.remove();});let el=document.getElementById('crm');if(!el){el=document.createElement('div');el.id='crm';el.setAttribute('role','application');el.setAttribute('aria-label','Pipeline');el.innerHTML='<div class="crmApp"></div><div class="crmScrim" data-c="close"></div><aside class="crmDrawer" aria-label="Prospect details"></aside><div class="crmAddWrap"></div><div class="crmSheetWrap"></div>';document.body.appendChild(el);crmBind(el);crmSetBind(el);crmQuoteBind(el);}
-  if(!el.classList.contains('on')){el.classList.add('on');document.documentElement.classList.add('crmOpen');pipeStart();cdbStart();gcalRestore();gcalPrepare();gcalTick();if(gcalState()==='on')setTimeout(gcalSync,800);if(typeof pEvStart==='function')pEvStart();CRM.anim=true;crmRender(true);}}
-function crmHide(){const el=document.getElementById('crm');if(el&&el.classList.contains('on')){el.classList.remove('on');document.documentElement.classList.remove('crmOpen','crmDr');CRM.open=null;}}
+  if(!el.classList.contains('on')){el.classList.add('on');document.documentElement.classList.add('crmOpen');clearTimeout(CRM.coverT);CRM.coverT=setTimeout(()=>{if(el.classList.contains('on'))document.documentElement.classList.add('crmCover');},420);pipeStart();cdbStart();gcalRestore();gcalPrepare();gcalTick();if(gcalState()==='on')setTimeout(gcalSync,800);if(typeof pEvStart==='function')pEvStart();CRM.anim=true;crmRender(true);}}
+function crmHide(){const el=document.getElementById('crm');if(el&&el.classList.contains('on')){el.classList.remove('on');clearTimeout(CRM.coverT);document.documentElement.classList.remove('crmOpen','crmDr','crmCover');CRM.open=null;}}
 let CRM_PREV='harbour';
 {const _dv=decorateView;decorateView=function(){_dv.apply(this,arguments);try{if(S.screen==='pipeline'){if(S.view.ptab){CRM.view=S.view.ptab==='schedule'?'today':S.view.ptab==='clients'?'clients':S.view.ptab==='board'?'board':CRM.view;if(S.view.pstage){CRM.stage=S.view.pstage;CRM.view='board';}S.view.ptab=null;S.view.pstage=null;}CRM.from=CRM_PREV;crmShow();}else{CRM_PREV=S.screen||'harbour';crmHide();}}catch(e){console.warn('crm',e);}};}
 let CRM_RAF=0;
@@ -74,7 +78,7 @@ function crmRender(first){const root=document.getElementById('crm');if(!root)ret
   const crumbs={today:'Today',board:'Board',calendar:'Calendar',clients:'Clients',analytics:'Analytics'};const dark=typeof hcTheme==='function'&&hcTheme()==='dark';
   const mrr=Math.round(PIPE.rows.filter(r=>r.stage==='client').reduce((a,r)=>a+pMonthly(r),0));const goal=pGoal();const gp=Math.min(100,Math.round(mrr/goal*100));
   root.classList.toggle('rail',CRM.rail);
-  el.innerHTML=`
+  const P={side:`
    <aside class="cSide" aria-label="Pipeline navigation">
     <div class="cBrand">${cMark()}<span class="cBrandTxt"><b>Funnal</b><small>Pipeline</small></span><button class="cIconBtn cRailBtn" data-c="rail" aria-label="${CRM.rail?'Expand sidebar':'Collapse sidebar'}" title="${CRM.rail?'Expand':'Collapse'}">${cSvg('rail')}</button></div>
     <button class="cBackBtn" data-c="back">${cSvg('back')}<span>Back to the game</span></button>
@@ -83,9 +87,7 @@ function crmRender(first){const root=document.getElementById('crm');if(!root)ret
     <div class="cGrow"></div>
     <button class="cGoalCard" data-c="goalNav" title="Monthly retainers"><span class="cGoalTop"><span>Retainers</span>${cSvg('up')}</span><b>${pMoney(mrr)}<small>/${pMoney(goal)}</small></b><span class="cDots">${Array.from({length:20},(_,i)=>`<i class="${i<Math.round(gp/5)?'on':''}"></i>`).join('')}</span><small class="cGoalFoot">${gp}% of the monthly goal</small></button>
     <div class="cMe">${cAv(S.me,'lg')}<span class="cNavTxt"><b>${cEsc(cName(S.me))}</b><small>Signed in</small></span><button class="cIconBtn" data-c="settings" aria-label="Settings" title="Settings">${cSvg('cog')}</button><button class="cIconBtn cMeTheme" data-c="theme" aria-label="${dark?'Switch to light mode':'Switch to dark mode'}">${cSvg(dark?'sun':'moon')}</button></div>
-   </aside>
-   <div class="cMainCol">
-    <header class="cTop">
+   </aside>`,top:`<header class="cTop">
      <div class="cTopL"><button class="cIconBtn cBackTop" data-c="back" aria-label="Back to the game">${cSvg('back')}</button>${cMark()}<div class="cCrumb"><span>Pipeline</span>${cSvg('back','flip')}<b>${crumbs[CRM.view]}</b></div></div>
      <div class="cTopR">
       <label class="cSearch ${CRM.search||CRM.q?'show':''}">${cSvg('search')}<input data-crm-q type="search" placeholder="Search prospects" value="${cEsc(CRM.q)}" aria-label="Search prospects"><kbd>/</kbd></label>
@@ -93,11 +95,14 @@ function crmRender(first){const root=document.getElementById('crm');if(!root)ret
       <button class="cIconBtn cSetTop" data-c="settings" aria-label="Settings">${cSvg('cog')}</button><button class="cIconBtn cThemeTop" data-c="theme" aria-label="${dark?'Switch to light mode':'Switch to dark mode'}">${cSvg(dark?'sun':'moon')}</button>
       <button class="crmPrimary crmAddBtn" data-c="add">${cSvg('plus')}<span>New prospect</span></button>
      </div>
-    </header>
-    ${PIPE.err?`<div class="crmErr">${cEsc(PIPE.err)} <button data-c="reload">Try again</button></div>`:''}
-    ${!PIPE.ready?'<div class="crmLoading"><i></i><i></i><i></i></div>':`<main class="crmMain view-${CRM.view} ${CRM.anim?'enter':''}" data-scroll="main">${CRM.view==='board'?crmBoard(rows):CRM.view==='clients'?crmClients(rows):CRM.view==='calendar'?crmCal(rows):CRM.view==='analytics'?crmAnalytics(rows):crmToday(rows,items)}</main>`}
-   </div>
-   <button class="crmFab" data-c="add" aria-label="New prospect">${cSvg('plus')}</button>`;
+    </header>`,err:`${PIPE.err?`<div class="crmErr">${cEsc(PIPE.err)} <button data-c="reload">Try again</button></div>`:''}`,main:`${!PIPE.ready?'<div class="crmLoading"><i></i><i></i><i></i></div>':`<main class="crmMain view-${CRM.view} ${CRM.anim?'enter':''}" data-scroll="main">${CRM.view==='board'?crmBoard(rows):CRM.view==='clients'?crmClients(rows):CRM.view==='calendar'?crmCal(rows):CRM.view==='analytics'?crmAnalytics(rows):crmToday(rows,items)}</main>`}`};
+  P.topK=P.top.replace(/value="[^"]*" aria-label="Search prospects"/,'');const prevP=el.__p;let swapped=false;
+  const col=el.querySelector(':scope>.cMainCol');
+  if(!prevP||!col){el.innerHTML=P.side+`<div class="cMainCol">${P.top}${P.err}${P.main}</div><button class="crmFab" data-c="add" aria-label="New prospect">${cSvg('plus')}</button>`;swapped=true;}
+  else{if(prevP.side!==P.side){el.querySelector(':scope>.cSide').outerHTML=P.side;}
+    if(prevP.err!==P.err||!col.lastElementChild){col.innerHTML=P.top+P.err+P.main;swapped=true;}
+    else{if(prevP.topK!==P.topK)col.querySelector(':scope>.cTop').outerHTML=P.top;if(CRM.anim||prevP.main!==P.main){col.lastElementChild.outerHTML=P.main;swapped=true;}}}
+  el.__p=P;
   root.classList.toggle('drawerOn',!!CRM.open);document.documentElement.classList.toggle('crmDr',!!CRM.open);const dr=root.querySelector('.crmDrawer');dr.setAttribute('aria-hidden',String(!CRM.open));
   const sw=root.querySelector('.crmSheetWrap');if(CRM.sheet){if(sw.dataset.k!==CRM.sheet.key||(CRM.sheet.type==='settings'&&!sw.contains(document.activeElement))){const top=sw.querySelector('.cSetBody');const st=top&&sw.dataset.t===CRM.sheet.type?top.scrollTop:0;sw.innerHTML=CRM.sheet.type==='event'?crmEvHtml():CRM.sheet.type==='quote'?crmQuoteHtml():crmSettingsHtml();sw.dataset.k=CRM.sheet.key;sw.dataset.t=CRM.sheet.type;const t2=sw.querySelector('.cSetBody');if(t2)t2.scrollTop=st;cPills(sw,false);if(CRM.sheet.type==='event'&&!CRM.sheet.ev.id)setTimeout(()=>{const i=document.getElementById('ce_title');if(i)i.focus();},40);}}else if(sw.firstChild){sw.innerHTML='';sw.dataset.k='';}
   const aw=root.querySelector('.crmAddWrap');if(CRM.adding&&!aw.firstChild)aw.innerHTML=crmAddHtml();else if(!CRM.adding&&aw.firstChild)aw.innerHTML='';
@@ -242,7 +247,7 @@ async function crmAddGo(){const i=document.getElementById('crmAddIn');const o=pP
 
 /* ---------- events ---------- */
 function crmBind(el){
-  el.addEventListener('click',async e=>{const b=e.target.closest('[data-c]');if(!b||!el.contains(b))return;const c=b.dataset.c,id=b.dataset.id;
+  el.addEventListener('click',async e=>{const b=e.target.closest('[data-c]');if(!b||!el.contains(b))return;const c=b.dataset.c,id=b.dataset.id;csndClick(c,b);
     if(c!=='open'&&c!=='close')e.stopPropagation();
     if(CRM_ACT[c]){CRM_ACT[c](b,e,el);return;}
     if(c==='back'){location.hash='#'+(CRM.from&&CRM.from!=='pipeline'?CRM.from:'harbour');return;}
@@ -287,12 +292,12 @@ function crmBind(el){
     if(e.key==='Enter'&&e.target.id==='crmAddIn'){e.preventDefault();crmAddGo();return;}
     if(e.key==='Enter'&&e.target.matches('[data-c="open"]')){CRM.open=e.target.dataset.id;crmRender(true);}});
   // drag and drop between columns (desktop)
-  el.addEventListener('dragstart',e=>{const c=e.target.closest('.cCard');if(!c)return;CRM.drag=c.dataset.id;c.classList.add('cDragging');try{e.dataTransfer.setData('text/plain',c.dataset.id);e.dataTransfer.effectAllowed='move';}catch(x){}});
+  el.addEventListener('dragstart',e=>{const c=e.target.closest('.cCard');if(!c)return;try{CSND.lift();}catch(x){}CRM.drag=c.dataset.id;c.classList.add('cDragging');try{e.dataTransfer.setData('text/plain',c.dataset.id);e.dataTransfer.effectAllowed='move';}catch(x){}});
   el.addEventListener('dragend',()=>{CRM.drag=null;el.querySelectorAll('.cDragging,.cOver').forEach(x=>x.classList.remove('cDragging','cOver'));});
   el.addEventListener('dragover',e=>{const col=e.target.closest('.cCol');if(!col||!CRM.drag)return;e.preventDefault();el.querySelectorAll('.cOver').forEach(x=>x!==col&&x.classList.remove('cOver'));col.classList.add('cOver');});
   el.addEventListener('drop',e=>{const col=e.target.closest('.cCol');if(!col||!CRM.drag)return;e.preventDefault();const id=CRM.drag;CRM.drag=null;col.classList.remove('cOver');const r=PIPE.rows.find(x=>x.id===id);if(r&&r.stage!==col.dataset.stage)pMove(id,col.dataset.stage);});}
 document.addEventListener('keydown',e=>{if(!document.documentElement.classList.contains('crmOpen'))return;
-  if(e.key==='Escape'){const m=document.getElementById('modal');if(m&&!m.hidden)return;if(CRM.sheet){CRM.sheet=null;crmRender();}else if(CRM.adding){CRM.adding=false;crmRender();}else if(CRM.open){CRM.open=null;crmRender();}else if(CRM.search||CRM.q){CRM.search=false;CRM.q='';crmRender();}return;}
+  if(e.key==='Escape'){try{if(CRM.open||CRM.sheet||CRM.adding)CSND.close();}catch(x){}const m=document.getElementById('modal');if(m&&!m.hidden)return;if(CRM.sheet){CRM.sheet=null;crmRender();}else if(CRM.adding){CRM.adding=false;crmRender();}else if(CRM.open){CRM.open=null;crmRender();}else if(CRM.search||CRM.q){CRM.search=false;CRM.q='';crmRender();}return;}
   if(e.target.matches('input,textarea,select'))return;
   if(e.key==='/'||(e.key==='k'&&(e.metaKey||e.ctrlKey))){e.preventDefault();CRM.search=true;const i=document.querySelector('#crm [data-crm-q]');if(i){i.closest('.cSearch')?.classList.add('show');i.focus();}}else if(e.key==='n'&&!e.metaKey&&!e.ctrlKey){e.preventDefault();CRM.adding=true;crmRender();}});
 // buttons inside the pipeline keep its own calm style, not the game's bouncy one

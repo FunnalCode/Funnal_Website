@@ -46,7 +46,7 @@ function drawRecord(cv,t){const c=cv.getContext('2d');const s=cv.width/60;c.setT
   c.save();c.translate(30,30);c.rotate(a);c.fillStyle='rgba(255,255,255,.12)';c.beginPath();c.moveTo(0,0);c.arc(0,0,27,-.5,-.2);c.closePath();c.fill();c.beginPath();c.moveTo(0,0);c.arc(0,0,27,2.6,2.9);c.closePath();c.fill();
   disc(c,0,0,9,on?'#C91E36':'#7A4E30');c.fillStyle='#F2C462';c.font='700 3.4px Fredoka, Nunito, sans-serif';c.textAlign='center';c.fillText('RUSTY',0,-1.6);c.fillText('ANCHOR',0,2.6);disc(c,0,0,1,'#151317');c.restore();
   c.save();c.translate(52,8);c.rotate(on?.55:.2);R(c,-1,0,2,26,'#C9CDD4');rr(c,-2.4,24,4.8,5,1,'#8A8F98');c.restore();disc(c,52,8,3,'#8A8F98');}
-(function jbLoop(){const run=()=>{if(S&&S.screen==='tavern')document.querySelectorAll('canvas[data-jb]').forEach(cv=>{try{drawRecord(cv,performance.now());}catch(e){}});requestAnimationFrame(run);};requestAnimationFrame(run);})();
+(function jbLoop(){const run=()=>{if(S&&S.screen==='tavern')document.querySelectorAll('canvas[data-jb]').forEach(cv=>{try{drawRecord(cv,performance.now());}catch(e){}});hlRAF(run);};hlRAF(run);})();
 // resume background music after the first tap (browsers need a gesture before sound)
 document.addEventListener('pointerdown',function jbg(){document.removeEventListener('pointerdown',jbg);setTimeout(()=>{try{const id=localStorage.getItem('hl_jukebg');if(id&&!JUKE.on&&G&&SONG_BY[id]&&songUnlocked(SONG_BY[id]))jukePlay(id,{bg:true});}catch(e){}},400);});
 

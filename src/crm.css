@@ -252,7 +252,7 @@ html[data-hc-theme=dark] #crm .cBizAv{color:color-mix(in srgb,var(--sc) 45%,var(
 #crm .cShake{animation:cShake .35s}@keyframes cShake{20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
 /* motion: things rise in one after another */
 @keyframes cUp{from{opacity:0;transform:translateY(14px) scale(.985)}}
-@keyframes cGrow{from{width:0}}
+@keyframes cGrow{from{transform:scaleX(0)}}
 @keyframes cRingIn{from{stroke-dashoffset:113.1}}
 @keyframes cPop{from{transform:scale(0)}}
 #crm .enter .cIn{animation:cUp .65s var(--c-spring) both;animation-delay:calc(var(--i) * 60ms)}
@@ -261,7 +261,7 @@ html[data-hc-theme=dark] #crm .cBizAv{color:color-mix(in srgb,var(--sc) 45%,var(
 #crm .enter .cCol{animation:cUp .6s var(--c-spring) both;animation-delay:calc(var(--i) * 55ms + 80ms)}
 #crm .enter .cCard{animation:cUp .55s var(--c-spring) both;animation-delay:calc(var(--i) * 35ms + 200ms)}
 #crm .enter .crmTr:not(.th){animation:cUp .5s var(--c-spring) both;animation-delay:calc(var(--i) * 30ms + 300ms)}
-#crm .enter .cFunBar i,#crm .enter .cMiniBar i{animation:cGrow 1.1s var(--c-spring) both .35s}
+#crm .enter .cFunBar i,#crm .enter .cMiniBar i{transform-origin:left;animation:cGrow 1.1s var(--c-spring) both .35s}
 #crm .enter .cRing .v{animation:cRingIn 1.2s var(--c-spring) both .3s}
 #crm .enter .cDots i.on{animation:cPop .4s var(--c-spring) both;animation-delay:calc(var(--d,0) * 22ms + 350ms)}
 /* toasts while the pipeline is open: above it, in its own quieter style */
@@ -486,7 +486,7 @@ html[data-hc-theme=dark] #crm .crmMark{color:#E4EAEE}
 #crm .cFunStep,#crm .cHBar{display:grid;grid-template-columns:92px minmax(0,1fr) 38px 38px;align-items:center;gap:10px;font-size:13px}
 #crm .cFunLab{color:var(--c-ink2);white-space:nowrap}#crm .cFunStep b,#crm .cHBar b{text-align:right;font-variant-numeric:tabular-nums}#crm .cFunStep small{font-size:11.5px;color:var(--c-muted);text-align:right}
 #crm .cFunTrack{height:12px;border-radius:6px;background:var(--c-sunk);overflow:hidden}#crm .cFunTrack i{display:block;height:100%;width:var(--w);min-width:3px;border-radius:6px;background:var(--c,var(--c-ch1))}
-#crm .enter .cFunTrack i{animation:cGrow 1s var(--c-spring) both;animation-delay:calc(var(--i) * 60ms + 350ms)}
+#crm .enter .cFunTrack i{transform-origin:left;animation:cGrow 1s var(--c-spring) both;animation-delay:calc(var(--i) * 60ms + 350ms)}
 #crm .cHBars{display:flex;flex-direction:column;gap:10px;margin-top:16px}#crm .cHBar{grid-template-columns:minmax(0,180px) minmax(0,1fr) 72px;outline:none}#crm .cHBar>span:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--c-ink2)}
 #crm .cKV{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}#crm .cKV>div{background:var(--c-sunk);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:2px}
 #crm .cKV small{font-size:12px;color:var(--c-muted)}#crm .cKV b{font-size:24px;font-weight:600;letter-spacing:-.03em;font-variant-numeric:tabular-nums}#crm .cKV em{font-style:normal;font-size:12px;color:var(--c-ink2)}
@@ -511,3 +511,10 @@ html[data-hc-theme=dark] #crm .cTip{background:#2A343B;border:1px solid #3A464F}
 @media (max-width:899px){#crm .cQUseTop{grid-template-columns:1fr 1fr}}
 
 #crm .cEvDot{flex:none;width:8px;height:8px;border-radius:50%;background:var(--c-ch1);margin:7px 9px 0 4px}
+
+/* 23 Nov: speed. Once the pipeline covers the screen, the game underneath stops painting and animating. */
+html.crmCover #app{visibility:hidden}
+html.crmCover #app *,html.crmCover #app *::before,html.crmCover #app *::after,html.crmCover #app{animation-play-state:paused!important}
+html.crmCover #fx{display:none}
+#crm .cSndDemo{display:flex;flex-wrap:wrap;gap:8px}#crm .cSndDemo .cPillBtn[disabled]{opacity:.45;pointer-events:none}
+@media (max-width:899px),(pointer:coarse){#crm .crmScrim{-webkit-backdrop-filter:none;backdrop-filter:none;background:rgba(11,14,17,.4)}}

@@ -80,8 +80,8 @@ function crmSettingsHtml(){const s=CRM.sheet;const t=s.tab||'prices';
     ${st==='on'?`<div class="cSetGroup"><h4>Calendar to sync</h4><p class="cSetP">Shared by both of you. A calendar called Funnal, shared with James, works best.</p><select id="cs_gcal" class="cSetSel">${(GCAL.cals||[]).map(c=>`<option value="${cEsc(c.id)}" ${c.id===cal?'selected':''}>${cEsc(c.name)}${c.primary?' (main)':''}</option>`).join('')}</select></div>`:''}`;
   return `<div class="crmScrim add" data-c="sheetClose"></div><div class="crmAdd cSheet wide" role="dialog" aria-label="Settings">
    <div class="crmAddHead"><span class="cEvIc">${cSvg('cog')}</span><div><h3>Settings</h3><p>Shared by Sam and James. Changes save as you go.</p></div><button class="cIconBtn sm" data-c="sheetClose" aria-label="Close">${cSvg('x')}</button></div>
-   <div class="cTabs" data-pill="setTabs"><button class="${t==='prices'?'on':''}" data-c="setTab" data-t="prices">Packages and prices</button><button class="${t==='google'?'on':''}" data-c="setTab" data-t="google">Google Calendar</button></div>
-   <div class="cSetBody" data-scroll="settings">${t==='prices'?prices:google}</div></div>`;}
+   <div class="cTabs" data-pill="setTabs"><button class="${t==='prices'?'on':''}" data-c="setTab" data-t="prices">Prices</button><button class="${t==='google'?'on':''}" data-c="setTab" data-t="google">Calendar sync</button><button class="${t==='sound'?'on':''}" data-c="setTab" data-t="sound">Sounds</button></div>
+   <div class="cSetBody" data-scroll="settings">${t==='prices'?prices:t==='sound'?crmSoundHtml():google}</div></div>`;}
 
 /* ---------- details panel extras ---------- */
 function crmDealHtml(r){const cat=catItems();const grp=k=>cat.filter(c=>c.kind===k);const pk=r.package&&catBy(r.package);
@@ -163,3 +163,13 @@ function crmCalDay(rows,items,row){const c=CRM.cal,d=c.sel;const timed=items.fil
     ${isToday&&nowM>=h0*60&&nowM<=h1*60?`<div class="cDVNow" style="--t:${(nowM-h0*60)/60}"><i></i><span>${now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</span></div>`:''}
     ${!timed.length?`<div class="cDVEmpty"><b>Nothing booked.</b><span>Tap any hour to add something.</span></div>`:''}
    </div></div></section>${side}</div>`;}
+
+/* ---------- sounds ---------- */
+function crmSoundHtml(){const on=S.sound!==false;const demo=[['tap','Tap'],['open','Open'],['move','Move a prospect'],['done','Save'],['paid','Payment in'],['notify','Quote opened'],['won','New client']];
+  return `<div class="cSetGroup"><h4>Sounds</h4><p class="cSetP">Soft sounds when you move prospects, save, get paid or win a client. This is the same switch as the sound button in the game.</p>
+   <label class="cFuTog"><input type="checkbox" data-c="sndToggle" ${on?'checked':''}><span class="cTog"></span><span>Play sounds</span></label></div>
+   <div class="cSetGroup"><h4>Have a listen</h4><div class="cSndDemo">${demo.map(([k,n])=>`<button class="cPillBtn" data-c="sndTry" data-k="${k}" ${on?'':'disabled'}>${cSvg('play')}${n}</button>`).join('')}</div></div>`;}
+Object.assign(CRM_ACT,{
+  sndToggle:b=>{S.sound=!!b.checked;try{localStorage.setItem('hl_sound',S.sound?'1':'0');}catch(e){}const m=document.getElementById('mute');if(m)m.classList.toggle('off',!S.sound);if(S.sound)CSND.toggle(true);
+    document.querySelectorAll('#crm [data-c=sndTry]').forEach(x=>x.disabled=!S.sound);},
+  sndTry:b=>{const k=b.dataset.k;if(CSND[k])CSND[k]();}});
