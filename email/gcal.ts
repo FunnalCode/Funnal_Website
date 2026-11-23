@@ -9,7 +9,7 @@ const CREW: Record<string, string> = { "sam@funnal.co.uk": "sam", "james@funnal.
 const FN = `${SB}/functions/v1/gcal`;
 const REDIRECT = `${FN}/callback`;
 const SCOPE = "https://www.googleapis.com/auth/calendar";
-const cors = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type", "Access-Control-Allow-Methods": "GET, POST, OPTIONS" };
+const cors = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-hl-user", "Access-Control-Allow-Methods": "GET, POST, OPTIONS" };
 const J = (o: unknown, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { ...cors, "Content-Type": "application/json" } });
 
 async function rest(path: string, init: RequestInit = {}) {
