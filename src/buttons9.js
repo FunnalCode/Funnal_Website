@@ -28,7 +28,7 @@ function pzCoins(el,n,drop){const r=el.getBoundingClientRect();for(let i=0;i<n;i
 function pzPuff(el){const ic=el.querySelector('.dmIcon')||el;const r=ic.getBoundingClientRect();for(let i=0;i<3;i++){const p=document.createElement('i');p.className='pzPuff';p.style.left=(r.left+r.width*.75)+'px';p.style.top=(r.top+r.height*.3)+'px';p.style.setProperty('--dx',(10+i*8)+'px');p.style.animationDelay=(i*50)+'ms';document.body.appendChild(p);setTimeout(()=>p.remove(),800);}
   const n=document.querySelector('.dmRow .num, #dmToday, .dmCount');if(n){n.classList.remove('pzRoll');void n.offsetWidth;n.classList.add('pzRoll');}}
 let PZ_CLICK=0;
-document.addEventListener('pointerdown',e=>{const el=e.target.closest&&e.target.closest(PZ_SEL);if(!el||el.disabled)return;if(!el.dataset.pz){el.dataset.pz=pzKind(el);el.classList.add('pz','pz-'+el.dataset.pz);}pzPlay(el);
+document.addEventListener('pointerdown',e=>{const el=e.target.closest&&e.target.closest(PZ_SEL);if(!el||el.disabled||el.closest('#crm'))return;if(!el.dataset.pz){el.dataset.pz=pzKind(el);el.classList.add('pz','pz-'+el.dataset.pz);}pzPlay(el);
   const now=Date.now();if(now-PZ_CLICK>60&&['toggle','tab','tile','close','base','picture'].includes(el.dataset.pz)&&!el.dataset.act){PZ_CLICK=now;try{SND.tick&&SND.tick();}catch(e){}}},{passive:true});
 // keyboard presses get the same motion
 document.addEventListener('keydown',e=>{if(e.key!=='Enter'&&e.key!==' ')return;const el=document.activeElement&&document.activeElement.closest&&document.activeElement.closest(PZ_SEL);if(el)pzPlay(el);});

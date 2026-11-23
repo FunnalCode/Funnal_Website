@@ -158,9 +158,14 @@ function drawDart(hitPt,u){const cv=document.getElementById('dartCv');if(!cv)ret
   const cx=120,cy=86;disc(c,cx,cy,62,'#1E1A16');for(let i=0;i<20;i++){c.fillStyle=i%2?'#F2E6C8':'#22201C';c.beginPath();c.moveTo(cx,cy);c.arc(cx,cy,52,i*Math.PI/10-Math.PI/20,(i+1)*Math.PI/10-Math.PI/20);c.fill();}
   c.lineWidth=5;for(let i=0;i<20;i++){c.strokeStyle=i%2?'#2F8F4E':'#C8102E';c.beginPath();c.arc(cx,cy,49,i*Math.PI/10-Math.PI/20,(i+1)*Math.PI/10-Math.PI/20);c.stroke();c.beginPath();c.arc(cx,cy,30,i*Math.PI/10-Math.PI/20,(i+1)*Math.PI/10-Math.PI/20);c.stroke();}
   disc(c,cx,cy,7,'#2F8F4E');disc(c,cx,cy,3.4,'#C8102E');
-  if(hitPt){const x=240+(hitPt[0]-240)*u,y=hitPt[1]-(1-u)*30-Math.sin(u*Math.PI)*20;c.save();c.translate(x,y);c.rotate(-.5);R(c,0,-1,14,2,'#C9CDD4');poly(c,[[14,-3],[19,0],[14,3]],'#C8102E');c.restore();}}
+  if(hitPt){const x=240+(hitPt[0]-240)*u,y=hitPt[1]-(1-u)*30-Math.sin(u*Math.PI)*20;
+    // 23 Nov: the dart is drawn with its tip exactly on the point that was scored (it used to be drawn 19px off, tail first)
+    if(u>=1){c.fillStyle='rgba(0,0,0,.35)';c.beginPath();c.arc(hitPt[0],hitPt[1],1.6,0,Math.PI*2);c.fill();}
+    c.save();c.translate(x,y);c.rotate(-.5);R(c,5,-1,14,2,'#C9CDD4');poly(c,[[16,-3],[22,-3.6],[22,3.6],[16,3]],'#C8102E');poly(c,[[5,-1.6],[0,0],[5,1.6]],'#8A9099');c.restore();}}
 ACT.tvThrow=async()=>{const key='tv_dart_'+G.today;if(G.players[S.me].claimed.has(key))return;const r=Math.random();const res=r<.08?'bull':r<.38?'ring':'miss';
-  const a=Math.random()*Math.PI*2;const rad=res==='bull'?Math.random()*3:res==='ring'?40+Math.random()*9:res==='miss'?(Math.random()<.5?66+Math.random()*30:20+Math.random()*8):0;
+  const a=Math.random()*Math.PI*2;
+  // where it lands always matches what it pays: bull = the green and red centre (r<=7), ring = the outer red/green double ring (r 46.5 to 51.5), miss = the plain board or off it
+  const rad=res==='bull'?Math.random()*5.5:res==='ring'?47.3+Math.random()*3.4:(Math.random()<.45?64+Math.random()*14:9+Math.random()*35);
   const pt=[120+Math.cos(a)*rad,86+Math.sin(a)*rad];const t0=performance.now();const g=res==='bull'?50:res==='ring'?10:0;
   try{await writeDay(S.me,G.today,{bonus:{[key]:{xp:0,g,ts:Date.now(),darts:res}}});}catch(e){return writeFail(e);}
   const step=()=>{const u=Math.min(1,(performance.now()-t0)/450);drawDart(pt,u);if(u<1)requestAnimationFrame(step);else{SND.pop();const D=TV().darts||{};const m=document.getElementById('dartMsg');if(m)m.innerHTML=`<b>${res==='bull'?'+50 '+CN:res==='ring'?'+10 '+CN:'Nothing.'}</b> ${esc(res==='miss'?tvPick(D.miss):D[res]||'')}`;document.querySelector('[data-act="tvThrow"]')?.setAttribute('disabled','');}};step();};

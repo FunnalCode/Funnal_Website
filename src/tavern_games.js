@@ -1,6 +1,6 @@
 /* ============================== THE RUSTY ANCHOR: TABLE GAMES (Stage 5) ==============================
    The stake is paid as a spend when the hand is dealt; winnings come back as a claim when it's settled.
-   A combined 500-doubloon stake cap per captain per day across all games. */
+   No stake or daily limits since 23 Nov. */
 const SUITS=['♠','♥','♦','♣'],RANKS={11:'J',12:'Q',13:'K',14:'A'};
 const rk=r=>RANKS[r]||String(r);
 function newDeck(){const d=[];for(let s=0;s<4;s++)for(let r=2;r<=14;r++)d.push({r,s});for(let i=d.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[d[i],d[j]]=[d[j],d[i]];}return d;}

@@ -32,6 +32,29 @@ SCREENS.guide=()=>{const t=S.view.gtab||'play';let body='';try{body=(t==='earn'?
   body=body.replace(/^\s*<div class="pad">/,'').replace(/<\/div>\s*$/,'');
   return `<div class="pad guidePage"><h2 class="mTitle">Guide</h2>${pillNav('gTabs',[['play','How to play'],['earn','How to earn everything']],t,'gTab')}<div class="guideBody">${body}</div></div>`;};
 ACT.gTab=d=>{S.view.gtab=d.t;render();};
+/* 23 Nov: the How to play tab was 44 accordions stacked edge to edge with no grouping. Now grouped into sections,
+   with a search box, room between cards and the opened card easy to read. */
+const GUIDE_GROUPS=[
+ ['Getting started',['The goal','The five buttons','What each one pays','Follow-ups','Days off','Honesty','Reviews','Forfeits']],
+ ['Levels and rewards',['Levels and Distinction','Emissary flag','Golden Tide','How rewards work','Loot sets and trophies','Relics and treasure maps','Crew goals']],
+ ['Bosses and battles',['Boss of the Day','Weekly boss','Monster hunts','Legendary hunts','Raids','Ship damage','Storms and live events','Christmas bosses']],
+ ['Voyages and fishing',['Lock In voyages','Crew trips','Fishing trips','Sizes, variants and bait','Fishing rewards','Full screen and sea sounds']],
+ ['Pets and crew',['Pet sightings',"Ship's parrot","Gary's nest"]],
+ ['Your ship and home',['Your hideout','Rigging your ship','Decorating','The shop','The Black Market','Funnal Cove']],
+ ['Tavern and seasons',['The Rusty Anchor','The Christmas Event and seasons','Christmas']],
+ ['Pipeline and settings',['Pipeline','Pipeline: Overview, Schedule, Growth','Game feel settings']]];
+function guidePlayHtml(){const q=(S.view.gq||'').trim().toLowerCase();const used=new Set();const by=Object.fromEntries(HELP.map(h=>[h[0],h]));
+  const groups=GUIDE_GROUPS.map(([g,ts])=>[g,ts.map(t=>by[t]).filter(Boolean)]);groups.forEach(([,l])=>l.forEach(h=>used.add(h[0])));
+  const rest=HELP.filter(h=>!used.has(h[0]));if(rest.length)groups.push(['Everything else',rest]);
+  const hit=h=>!q||(h[0]+' '+h[1]).toLowerCase().includes(q);
+  const sec=groups.map(([g,l])=>{const m=l.filter(hit);if(!m.length)return '';return `<section class="gSec"><h3 class="gSecH">${esc(g)}<small>${m.length}</small></h3><div class="gList">${m.map(h=>`<details class="gItem" ${q?'open':''}><summary><b>${esc(h[0])}</b></summary><p>${h[1]}</p></details>`).join('')}</div></section>`;}).join('');
+  return `<div class="card hero gHero"><h2>How Hundred Cannons works</h2><p class="muted">The short version: send a personalised DM, tap DM sent. Together you aim for 100 a day. Everything else (levels, pets, ships, battles) grows out of that.</p><button class="btn primary" data-act="tour">Play the 30-second tour</button></div>
+   <label class="gSearch"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 16l4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input id="gSearchIn" type="search" placeholder="Search the guide" value="${esc(S.view.gq||'')}" autocomplete="off"></label>
+   ${sec||'<p class="muted gNone">Nothing matches that. Try another word.</p>'}`;}
+{const _g=SCREENS.guide;SCREENS.guide=function(){const t=S.view.gtab||'play';if(t!=='play')return _g.apply(this,arguments);
+  return `<div class="pad guidePage"><h2 class="mTitle">Guide</h2>${pillNav('gTabs',[['play','How to play'],['earn','How to earn everything']],t,'gTab')}<div class="guideBody gPlay">${guidePlayHtml()}</div></div>`;};}
+document.addEventListener('input',e=>{if(e.target&&e.target.id==='gSearchIn'){S.view.gq=e.target.value;const b=document.querySelector('.guideBody.gPlay');if(b){const pos=e.target.selectionStart;b.innerHTML=guidePlayHtml();const i=document.getElementById('gSearchIn');if(i){i.focus();try{i.setSelectionRange(pos,pos);}catch(_){}}}}});
+
 // keep the old links working
 {const _r=SCREENS.help;SCREENS.help=function(){return _r.apply(this,arguments);};}
 // Captain's Log and Funnal Cove now live in More, so the Quests tab drops its links to them

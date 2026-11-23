@@ -6,13 +6,13 @@
 const PIPE_STAGES=[
   {id:'video_needed',name:'Video needed',col:'#C0392B',hint:'Record a video for these'},
   {id:'video_made',name:'Video made',col:'#8E5BD0',hint:'Video ready, not sent yet'},
-  {id:'messaged',name:'Messaged',col:'#3E8DDB',hint:'DM or email sent'},
+  {id:'messaged',name:'Video sent',col:'#3E8DDB',hint:'Video sent to them'},
   {id:'followed_up',name:'Followed up',col:'#2E8C88',hint:'Nudged at least once'},
   {id:'talking',name:'Talking',col:'#2F9A63',hint:'They replied'},
   {id:'meeting',name:'Meeting',col:'#D9902B',hint:'Booked or held'},
   {id:'quote_sent',name:'Quote sent',col:'#B8642A',hint:'Waiting on a yes'},
   {id:'client',name:'Client',col:'#A9781C',hint:'Won'}];
-const PIPE_EXITS=[{id:'not_now',name:'Not now',col:'#7A8794',hint:'Comes back on a set date'},{id:'no_response',name:'No response',col:'#5E6A76',hint:'Kept for later'}];
+const PIPE_EXITS=[{id:'not_now',name:'Not now',col:'#7A8794',hint:'Comes back on a set date'},{id:'no_response',name:'No response',col:'#5E6A76',hint:'Kept for later'},{id:'archived',name:'Archived',col:'#A3ACB5',hint:'No longer relevant'}];
 const PIPE_ALL=[...PIPE_STAGES,...PIPE_EXITS];const PIPE_BY=Object.fromEntries(PIPE_ALL.map(s=>[s.id,s]));
 const PIPE_PRODUCTS=['Websites','Full Package','Social Media Management','Branding','Email & SMS','Paid Adverts'];
 const PIPE_RAG={likely:{n:'Likely',c:'#2F9A63'},maybe:{n:'Maybe',c:'#D9902B'},unlikely:{n:'Unlikely',c:'#C0392B'}};
@@ -49,7 +49,7 @@ const pMoney=n=>n==null||n===''?'':'£'+fmtN(Math.round(+n));
 const pVal=r=>r.deal_value!=null?+r.deal_value:r.quote_value!=null?+r.quote_value:null;
 // when a prospect is next due: the date you set, else a sensible gap after the last contact (so the imported sheet has dates too)
 const P_GAP={messaged:5,followed_up:5,talking:3,quote_sent:4};
-function pDueDate(r){if(r.stage==='not_now')return r.return_on||null;if(r.stage==='client'||r.stage==='no_response')return null;if(r.stage==='meeting'&&!r.meeting_held&&r.meeting_at)return r.meeting_at;if(r.next_due)return r.next_due;const g=P_GAP[r.stage];return g&&r.last_contact?addDays(r.last_contact,g):null;}
+function pDueDate(r){if(r.stage==='archived')return null;if(r.stage==='not_now')return r.return_on||null;if(r.stage==='client'||r.stage==='no_response')return null;if(r.stage==='meeting'&&!r.meeting_held&&r.meeting_at)return r.meeting_at;if(r.next_due)return r.next_due;const g=P_GAP[r.stage];return g&&r.last_contact?addDays(r.last_contact,g):null;}
 function pDue(r){const d=pDueDate(r);if(!d)return null;const t=G.today;return{d,cls:d<addDays(t,-30)?'stale':d<t?'over':d===t?'today':'later'};}
 function pDueN(rows){return (rows||PIPE.rows).filter(r=>{const d=pDue(r);return d&&(d.cls==='over'||d.cls==='today');}).length;}
 const pShortD=d=>{try{return new Date(d+'T12:00:00Z').toLocaleDateString('en-GB',{day:'numeric',month:'short'});}catch(e){return d;}};

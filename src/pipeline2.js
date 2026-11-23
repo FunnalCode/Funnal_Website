@@ -9,7 +9,7 @@ const pAgo=at=>{const m=Math.max(0,Math.round((Date.now()-Date.parse(at))/60000)
 const pRnd=a=>a[Math.floor(Math.random()*a.length)];
 function pOwnSeg(){const ow=S.view.powner||'all';return `<div class="seg mini pOwn">${[['all','Everyone'],['sam',pnameRaw('sam')],['james',pnameRaw('james')]].map(([k,n])=>`<button class="${ow===k?'on':''}" data-act="pOwner" data-o="${k}">${esc(n)}</button>`).join('')}</div>`;}
 // how far a prospect has ever got (exits keep the credit for what happened before they left)
-function pReach(r){let i=r.stage in P_IDX?P_IDX[r.stage]:(r.follow_ups?P_IDX.followed_up:P_IDX.messaged);if(r.meeting_held)i=Math.max(i,P_IDX.meeting);if(r.quote_url)i=Math.max(i,P_IDX.quote_sent);if(r.stage==='video_needed'||r.stage==='video_made')i=P_IDX[r.stage];return i;}
+function pReach(r){let i=r.stage in P_IDX?P_IDX[r.stage]:(r.follow_ups?P_IDX.followed_up:P_IDX.messaged);if(r.meeting_held)i=Math.max(i,P_IDX.meeting);if(r.quote_url)i=Math.max(i,P_IDX.quote_sent);if(r.stage==='video_needed'||r.stage==='video_made')i=P_IDX[r.stage];if(r.stage==='archived'&&!r.last_contact&&!r.follow_ups)i=P_IDX.video_needed;return i;}
 
 /* ---------- everyone's recent activity (for Overview and Growth) ---------- */
 function pEvStart(){if(PIPE.allEv||PIPE.evLoading)return;PIPE.evLoading=true;

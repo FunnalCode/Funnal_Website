@@ -56,7 +56,7 @@ function crmAnalytics(rows){anLoad();const p=CRM.an.p;const r=anRange(p),pr=anPr
   // activity
   const bk=anBuckets(p);const ev=CRM_AN.ev||[];const cnt=(k,b)=>ev.filter(e=>e.kind==='stage'&&e.detail&&e.detail.to===k&&anDay(e.at)>=b.a&&anDay(e.at)<=b.b).length;
   const meetIn=b=>evLive().filter(e=>(e.kind==='meeting'||e.kind==='call')&&evDay(e)>=b.a&&evDay(e)<=b.b).length;
-  const act=anBars('act',bk.map(b=>({...b,tip:`${p==='30'||p==='90'?'Week of ':''}${b.lab}`})),[{n:'First messages',c:C[0],v:bk.map(b=>cnt('messaged',b))},{n:'Follow-ups',c:C[1],v:bk.map(b=>cnt('followed_up',b))},{n:'Meetings and calls',c:C[2],v:bk.map(meetIn)}]);
+  const act=anBars('act',bk.map(b=>({...b,tip:`${p==='30'||p==='90'?'Week of ':''}${b.lab}`})),[{n:'Videos sent',c:C[0],v:bk.map(b=>cnt('messaged',b))},{n:'Follow-ups',c:C[1],v:bk.map(b=>cnt('followed_up',b))},{n:'Meetings and calls',c:C[2],v:bk.map(meetIn)}]);
   // money: 9 months back, this month, 2 ahead
   const mk=[];for(let i=-8;i<=3;i++){const ym=cYm(G.today.slice(0,7),i);mk.push({ym,a:ym+'-01',b:addDays(cYm(ym,1)+'-01',-1),lab:new Date(ym+'-15T12:00:00Z').toLocaleDateString('en-GB',{month:'short',timeZone:'UTC'}),fut:ym>G.today.slice(0,7)});}
   const got=mk.map(m=>CDB.pay.filter(x=>anDay(x.paid_at)>=m.a&&anDay(x.paid_at)<=m.b).reduce((a,x)=>a+(+x.amount||0),0));
@@ -64,7 +64,7 @@ function crmAnalytics(rows){anLoad();const p=CRM.an.p;const r=anRange(p),pr=anPr
   const money=anBars('money',mk.map(m=>({...m,tip:new Date(m.ym+'-15T12:00:00Z').toLocaleDateString('en-GB',{month:'long',year:'numeric',timeZone:'UTC'})})),[{n:'Paid',c:C[0],v:got},{n:'Still to come',c:C[0],v:due,cls:'ghost'}],{money:true,legend:true});
   // funnel for prospects added in the period
   const coh=PIPE.rows.filter(x=>p==='all'||inR(anDay(x.created_at),r));const reach=k=>coh.filter(x=>pReach(x)>=P_IDX[k]||(x.stage==='client'&&k)).length;
-  const fst=[['Added',coh.length],['Messaged',reach('messaged')],['Followed up',reach('followed_up')],['Talking',reach('talking')],['Meeting',reach('meeting')],['Quote sent',reach('quote_sent')],['Client',coh.filter(x=>x.stage==='client').length]];
+  const fst=[['Added',coh.length],['Video sent',reach('messaged')],['Followed up',reach('followed_up')],['Talking',reach('talking')],['Meeting',reach('meeting')],['Quote sent',reach('quote_sent')],['Client',coh.filter(x=>x.stage==='client').length]];
   const fmax=Math.max(1,fst[0][1]);
   const funnel=`<div class="cFun">${fst.map(([n,v],i)=>`<div class="cFunStep" style="--i:${i}"><span class="cFunLab">${n}</span><span class="cFunTrack"><i style="--w:${v/fmax*100}%"></i></span><b>${v}</b><small>${i&&fst[i-1][1]?Math.round(v/fst[i-1][1]*100)+'%':''}</small></div>`).join('')}</div>`;
   // quotes
@@ -78,7 +78,7 @@ function crmAnalytics(rows){anLoad();const p=CRM.an.p;const r=anRange(p),pr=anPr
   const reply=[];Object.values(byP).forEach(l=>{const m=l.find(e=>e.detail&&e.detail.to==='messaged');const t=m&&l.find(e=>e.detail&&e.detail.to==='talking'&&e.at>m.at);if(t&&(p==='all'||inR(anDay(t.at),r)))reply.push(days(anDay(m.at),anDay(t.at)));});
   const talkers=PIPE.rows.filter(x=>pReach(x)>=P_IDX.talking);const fuAvg=talkers.length?(talkers.reduce((a,x)=>a+(x.follow_ups||0),0)/talkers.length):null;
   const lost={nn:PIPE.rows.filter(x=>x.stage==='not_now').length,nr:PIPE.rows.filter(x=>x.stage==='no_response').length};
-  const speed=`<div class="cKV">${[['Days to win a client',close==null?'–':close,''],['Days from first message to a reply',reply.length?Math.round(reply.reduce((a,b)=>a+b,0)/reply.length):'–',''],['Follow-ups before they talk',fuAvg==null?'–':fuAvg.toFixed(1),''],['Parked',lost.nn+lost.nr,lost.nn+lost.nr?`${lost.nn} not now · ${lost.nr} no reply`:'']].map(([k,v,s])=>`<div><small>${k}</small><b>${v}</b>${s?`<em>${s}</em>`:''}</div>`).join('')}</div>`;
+  const speed=`<div class="cKV">${[['Days to win a client',close==null?'–':close,''],['Days from video to a reply',reply.length?Math.round(reply.reduce((a,b)=>a+b,0)/reply.length):'–',''],['Follow-ups before they talk',fuAvg==null?'–':fuAvg.toFixed(1),''],['Parked',lost.nn+lost.nr,lost.nn+lost.nr?`${lost.nn} not now · ${lost.nr} no reply`:'']].map(([k,v,s])=>`<div><small>${k}</small><b>${v}</b>${s?`<em>${s}</em>`:''}</div>`).join('')}</div>`;
   // income by package or service
   const inc={};cl.forEach(x=>{const k=(x.package&&catBy(x.package)&&catBy(x.package).name)||(x.products||[])[0]||'Other';inc[k]=(inc[k]||0)+pMonthly(x);});const incL=Object.entries(inc).filter(e=>e[1]>0).sort((a,b)=>b[1]-a[1]).slice(0,6);const imax=Math.max(1,...incL.map(e=>e[1]));
   const income=incL.length?`<div class="cHBars">${incL.map(([n,v],i)=>`<div class="cHBar" style="--i:${i}" data-tip="${cEsc(`<b>${cEsc(n)}</b><span>${pMoney(v)} a month</span>`)}" tabindex="0"><span>${cEsc(n)}</span><span class="cFunTrack"><i style="--w:${v/imax*100}%;--c:${C[0]}"></i></span><b>${pMoney(v)}</b></div>`).join('')}</div>`:`<p class="cSetP">Retainer clients show here once they have billing set.</p>`;
@@ -90,7 +90,7 @@ function crmAnalytics(rows){anLoad();const p=CRM.an.p;const r=anRange(p),pr=anPr
   return `<div class="cPage cAnalytics">
    <div ${cIn(0,'cHello')}><div><h1>Analytics</h1><p>${empty?'Numbers fill in as you use the pipeline.':`How outreach is turning into clients${p==='all'?'':', over the last '+(p==='365'?'12 months':p+' days')}.`}</p></div>
     <div class="cTabs" data-pill="anP">${periods.map(([k,n])=>`<button class="${p===k?'on':''}" data-c="anP" data-p="${k}">${n}</button>`).join('')}</div></div>
-   <div class="cStats">${tile(1,'layers','New prospects',cur.added,'int',pv('added'),'')}${tile(2,'arrow','First messages',cur.msg,'int',pv('msg'),cur.fu?`${cur.fu} follow-ups`:'')}${tile(3,'cal','Meetings and calls',cur.meet,'int',pv('meet'),'')}${tile(4,'doc','Quotes sent',cur.quotes,'int',pv('quotes'),cur.accepted?`${cur.accepted} accepted`:'')}</div>
+   <div class="cStats">${tile(1,'layers','New prospects',cur.added,'int',pv('added'),'')}${tile(2,'arrow','Videos sent',cur.msg,'int',pv('msg'),cur.fu?`${cur.fu} follow-ups`:'')}${tile(3,'cal','Meetings and calls',cur.meet,'int',pv('meet'),'')}${tile(4,'doc','Quotes sent',cur.quotes,'int',pv('quotes'),cur.accepted?`${cur.accepted} accepted`:'')}</div>
    <div class="cStats">${tile(5,'star','Clients won',cur.won,'int',pv('won'),'','tint')}${tile(6,'money','Money in',cur.cash,'money',pv('cash'),'')}${tile(7,'trend','Monthly income now',mrr,'money',`<span class="cMiniBar"><i style="--w:${Math.min(100,Math.round(mrr/goal*100))}%"></i></span>${Math.min(999,Math.round(mrr/goal*100))}% of ${pMoney(goal)}`,'','ink')}${tile(8,'target','Messages to a client',cur.won?Math.round(cur.msg/cur.won):0,'int',cur.won?'first messages per client won':'needs a win in this period','')}</div>
    ${vs?`<p class="cVs">Arrows compare with the ${p==='365'?'12 months':p+' days'} before.</p>`:''}
    <div class="cAnGrid">

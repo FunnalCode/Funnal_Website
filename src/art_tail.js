@@ -164,6 +164,34 @@ function drawIslet(c,t,pid){
   if(fx==='fx_snow')for(let i=0;i<60;i++)disc(c,(i*53+t/40)%W,(i*29+t/25)%H,.8,'#FFFFFF');
 }
 /* ---------- Lock In voyage: open ocean, encounters, monster, treasure island ---------- */
+/* 23 Nov: the whale, turtle and mermaid were a few loose ellipses that read as random blobs. Drawn properly now. */
+function encWhale(c,ex,ey,p,t){const bp=Math.sin(Math.min(1,p*1.6)*Math.PI);const y=ey+6-bp*20,ang=-.55+Math.min(1,p*1.6)*1.1;
+  if(bp>.05){c.save();c.globalAlpha=.75*bp;for(let k=0;k<7;k++){const a=-Math.PI*(.15+k*.12);disc(c,ex+Math.cos(a)*(10+bp*6),ey+4+Math.sin(a)*(4+bp*7),1.4+bp*1.6,'#FFFFFF');}c.restore();}
+  c.save();c.translate(ex,y);c.rotate(ang);
+  c.fillStyle='#35577E';c.beginPath();c.moveTo(-20,0);c.bezierCurveTo(-16,-9,10,-10,19,-3);c.bezierCurveTo(22,0,20,4,15,5);c.bezierCurveTo(4,8,-12,6,-20,1);c.closePath();c.fill();
+  c.fillStyle='#D8E6F2';c.beginPath();c.moveTo(-14,3);c.bezierCurveTo(-4,7,10,7,17,3.5);c.bezierCurveTo(10,5.5,-2,6,-14,3);c.closePath();c.fill();
+  c.strokeStyle='rgba(53,87,126,.55)';c.lineWidth=.45;for(let k=0;k<4;k++){c.beginPath();c.moveTo(4+k*2.6,4.2);c.lineTo(8+k*2.6,5.6);c.stroke();}
+  c.fillStyle='#35577E';c.beginPath();c.moveTo(-19,0);c.quadraticCurveTo(-24,-2,-28,-7);c.quadraticCurveTo(-25,-1,-29,3);c.quadraticCurveTo(-24,1.5,-19,2);c.closePath();c.fill();
+  c.beginPath();c.moveTo(2,4);c.quadraticCurveTo(0,10,-5,11);c.quadraticCurveTo(-1,7,-2,4);c.closePath();c.fill();
+  disc(c,13,-.6,1,'#FFFFFF');disc(c,13.3,-.6,.55,'#1B2A3A');c.restore();
+  if(p>.55){const q=Math.min(1,(p-.55)/.3);c.save();c.globalAlpha=1-q;for(let k=0;k<3;k++)ell(c,ex,ey+6,8+q*16+k*4,2+q*3+k,'rgba(255,255,255,0)');c.strokeStyle='rgba(255,255,255,.8)';c.lineWidth=.8;c.beginPath();c.ellipse(ex,ey+6,8+q*18,2+q*3.5,0,0,Math.PI*2);c.stroke();c.restore();}}
+function encTurtle(c,ex,ey,t){const bob=Math.sin(t/500)*1;const y=ey+5+bob,f=Math.sin(t/260);c.save();c.translate(ex,y);c.scale(1.5,1.5);
+  c.strokeStyle='rgba(255,255,255,.6)';c.lineWidth=.5;c.beginPath();c.ellipse(0,3.2,11,2,0,0,Math.PI*2);c.stroke();
+  c.fillStyle='#7CC39A';c.beginPath();c.ellipse(-6,2+f*.6,3.2,1.2,-.5-f*.3,0,Math.PI*2);c.fill();c.beginPath();c.ellipse(5,2.4-f*.6,3.4,1.3,.5+f*.3,0,Math.PI*2);c.fill();
+  c.beginPath();c.ellipse(9.4,-.6,2.6,2,-.2,0,Math.PI*2);c.fill();disc(c,10.6,-1.2,.55,'#1B2A2A');
+  c.fillStyle='#3F7A52';c.beginPath();c.ellipse(0,0,7.6,4.6,0,Math.PI,0);c.lineTo(7.6,1.2);c.lineTo(-7.6,1.2);c.closePath();c.fill();
+  c.fillStyle='#5E9F6A';[[-3.6,-1.8],[0,-2.8],[3.6,-1.8]].forEach(([x,yy])=>{c.beginPath();c.ellipse(x,yy,2,1.4,0,0,Math.PI*2);c.fill();});
+  c.fillStyle='#C9B67A';c.fillRect(-7.6,.8,15.2,.9);c.restore();}
+function encMermaid(c,ex,ey,t){const sw=Math.sin(t/420);c.save();c.translate(ex,ey+2);c.scale(1.6,1.6);
+  c.fillStyle='#6E6A70';c.beginPath();c.moveTo(-9,5);c.quadraticCurveTo(-7,-2,0,-1);c.quadraticCurveTo(7,-2,9,5);c.closePath();c.fill();c.fillStyle='#8A868C';c.beginPath();c.moveTo(-6,0);c.quadraticCurveTo(0,-2.5,5,0);c.lineTo(0,1);c.closePath();c.fill();
+  c.strokeStyle='rgba(255,255,255,.7)';c.lineWidth=.5;c.beginPath();c.ellipse(0,5,11,1.6,0,0,Math.PI*2);c.stroke();
+  c.fillStyle='#2FA38E';c.beginPath();c.moveTo(-1,-2);c.quadraticCurveTo(5,-1,7,1.5);c.quadraticCurveTo(9,3,10.5,2+sw);c.lineTo(10,1.2);c.quadraticCurveTo(8,1.6,6.5,.4);c.quadraticCurveTo(4,-2,-1.5,-4);c.closePath();c.fill();
+  c.beginPath();c.moveTo(10,1.6+sw);c.lineTo(13.5,-1+sw*1.4);c.lineTo(12.2,2.2+sw);c.lineTo(13.6,4.6+sw*1.2);c.closePath();c.fill();
+  c.fillStyle='#F2C9A8';c.beginPath();c.moveTo(-2.2,-4);c.quadraticCurveTo(-2.8,-7,-1.2,-9);c.lineTo(1,-9);c.quadraticCurveTo(1.6,-7,.8,-4);c.closePath();c.fill();
+  c.strokeStyle='#F2C9A8';c.lineWidth=.9;c.lineCap='round';c.beginPath();c.moveTo(.6,-8);c.lineTo(3.4+sw*.4,-11.5-sw*.8);c.stroke();
+  c.fillStyle='#E0607E';disc(c,-1.4,-7.4,.8,'#E0607E');disc(c,.4,-7.4,.8,'#E0607E');
+  disc(c,-.2,-11,2.1,'#F2C9A8');c.fillStyle='#D2522E';c.beginPath();c.moveTo(-2.4,-11.6);c.quadraticCurveTo(-.2,-14.4,2,-11.8);c.quadraticCurveTo(-.6,-12.6,-2,-11);c.quadraticCurveTo(-4.4,-7,-3.4,-4.2);c.quadraticCurveTo(-4.8,-8,-2.4,-11.6);c.closePath();c.fill();
+  disc(c,.6,-11,.32,'#2A1A14');c.restore();}
 function voyageEnc(lk,el){if(!lk||!lk.id)return null;let at=70000+h32(lk.id+'e0')%60000;let i=0;while(at<el+1){const end=at+26000;if(el>=at&&el<end){let ei=h32(lk.id+'e'+i)%ENCOUNTERS.length;if(ENCOUNTERS[ei].id==='stars'&&skyPhase()!=='night')ei=(ei+1)%ENCOUNTERS.length;const e=ENCOUNTERS[ei];return{...e,i,p:(el-at)/26000};}i++;at=end+90000+h32(lk.id+'e'+i)%110000;}return null;}
 function voyageBoss(lk){const d=VOYAGE_DIFF[lk.diff||'calm'];return{...d,hp:Math.max(5,Math.round(lk.dur/60000*d.rate))};}
 function drawVoyage(c,t,lk,dms,progress){
@@ -175,16 +203,16 @@ function drawVoyage(c,t,lk,dms,progress){
   c.fillStyle='rgba(255,255,255,.25)';for(let i=0;i<6;i++){const x=((i*70-t/14*speed)%400+400)%400-40;c.fillRect(x,98+i%3*2,30,.8);}
   // encounters
   if(enc){const p=enc.p;const ex=330-p*380,ey=130;
-    if(enc.id==='whale'){const bp=Math.sin(Math.min(1,p*2)*Math.PI);ell(c,ex,ey-bp*18,16,6,'#5E86B8',-.3+p*.6);ell(c,ex+2,ey-bp*18+2,12,3,'#C9DCF0',-.3+p*.6);for(let k=0;k<6;k++)disc(c,ex-12+k*5,ey+2,2+bp*2,'rgba(255,255,255,.8)');}
+    if(enc.id==='whale'){encWhale(c,ex,ey,p,t);}
     else if(enc.id==='dolphins'){for(let k=0;k<3;k++){const q=(p*3+k*.33)%1;c.save();c.translate(ex+k*14,ey+8-Math.sin(q*Math.PI)*12);c.rotate(-Math.cos(q*Math.PI)*.9);ell(c,0,0,6,2.2,'#7FA3C8');poly(c,[[-6,0],[-9,-2],[-9,2]],'#7FA3C8');c.restore();}}
     else if(enc.id==='bottle'||enc.id==='chest'){const got=G.players[S.me]?.claimed.has(`vb_${lk.id}_${enc.i}`);if(!got){const by=ey+Math.sin(t/300)*1.5;if(enc.id==='bottle'){c.save();c.translate(ex,by);c.rotate(.4);rr(c,-2,-6,4,8,1.5,'rgba(170,220,200,.9)');rr(c,-1,-8,2,2.4,.6,'#9A6B45');rr(c,-1.2,-3,2.4,3,.4,'#F4E8CC');c.restore();}else{rr(c,ex-5,by-4,10,6,1,'#A8704A');c.fillStyle='#8A5A3A';c.beginPath();c.ellipse(ex,by-4,5,2.4,0,Math.PI,0);c.fill();R(c,ex-.6,by-5,1.2,5,'#F2C462');}
       glowAt(c,ex,by-3,9,'255,240,170',.4+.2*Math.sin(t/200));hit(ex-10,by-14,20,22,enc.id==='chest'?'Floating chest':'Message in a bottle','Tap to collect a small reward!',{collect:`vb_${lk.id}_${enc.i}`,kind:enc.id});}}
-    else if(enc.id==='turtle'){ell(c,ex,ey+4,7,3,'#5DBE9C');disc(c,ex+7,ey+3,2,'#8CCB9C');disc(c,ex+7.6,ey+2.6,.4,'#3F3A30');}
+    else if(enc.id==='turtle'){encTurtle(c,ex,ey,t);}
     else if(enc.id==='flyingfish'){for(let k=0;k<6;k++){const q=(p*4+k*.2)%1;const fx=ex+k*8,fy=ey-Math.sin(q*Math.PI)*16;ell(c,fx,fy,2.4,.9,'#9FD7F0',-.3);poly(c,[[fx,fy],[fx-1,fy-2.6],[fx+1.4,fy-.6]],'#DCEFF8');}}
     else if(enc.id==='ghost'){c.globalAlpha=.55;c.save();c.translate(ex,ey-4);c.scale(-1,1);drawShip(c,0,0,.6,{hull:'hull_ghost',sail:'sail_canvas',flag:'flag_skull'},t,{captain:false});c.restore();c.globalAlpha=1;}
     else if(enc.id==='spout'){for(let k=0;k<20;k++){const yy=ey-k*4;disc(c,ex+Math.sin(t/120+k*.5)*(2+k*.3),yy,2+k*.18,'rgba(200,225,240,.55)');}}
     else if(enc.id==='jelly'){for(let k=0;k<5;k++){const jx=ex+k*12,jy=ey+6+Math.sin(t/400+k)*3;glowAt(c,jx,jy,6,'200,160,255',.6);ell(c,jx,jy,3,2,'rgba(230,200,255,.9)');for(let l=-1;l<=1;l++)line(c,jx+l,jy+1,jx+l+Math.sin(t/200+l),jy+5,'rgba(230,200,255,.7)',.4);}}
-    else if(enc.id==='mermaid'){disc(c,ex,ey-2,2.2,'#F6D2B2');ell(c,ex-.6,ey-1,2,3,'#C9654A');ell(c,ex+4,ey+3,4,1.4,'#5DBE9C',.5);poly(c,[[ex+7.4,ey+2],[ex+9.6,ey+.6],[ex+9.6,ey+4]],'#5DBE9C');}
+    else if(enc.id==='mermaid'){encMermaid(c,ex,ey,t);}
     else if(enc.id==='barge'){rr(c,ex-12,ey,24,5,2,'#8A5A3A');rr(c,ex-6,ey-7,12,7,1.5,'#E8B46A');R(c,ex-.4,ey-15,.8,8,'#7A4E30');poly(c,[[ex+.4,ey-15],[ex+7,ey-12],[ex+.4,ey-9]],'#9B5DE5');}
     else if(enc.id==='gulls'){for(let k=0;k<4;k++){const gx=ex-20+k*10,gy=40+Math.sin(t/300+k)*4;c.strokeStyle='#FFFFFF';c.lineWidth=1;c.beginPath();c.moveTo(gx-3,gy);c.quadraticCurveTo(gx-1.5,gy-2,gx,gy);c.quadraticCurveTo(gx+1.5,gy-2,gx+3,gy);c.stroke();}}
   }

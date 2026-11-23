@@ -119,16 +119,17 @@ SCREENS.tavern=()=>{const me=G.players[S.me];const ask=askToday();const both=pee
    ${stk?`<div class="card stockCard"><h3>Your Christmas stocking</h3><p class="tiny">${stk.n} target day${stk.n===1?'':'s'} in it so far (1 to 24 December). It opens on ${shortDate(stk.open)}: 20 doubloons and 30 XP per day.</p>${stk.done?'<span class="okTag">Opened</span>':`<button class="btn sm ${stk.can?'primary':''}" data-act="tvStocking" ${stk.can?'':'disabled'}>${stk.can?`Open it: +${stk.g} ${CN}, +${stk.xp} XP`:'Not yet'}</button>`}</div>`:''}
    <div class="card tvGames"><div class="row between"><h3>Games</h3><small class="muted">${both?`<b>${esc(pnameRaw(o))}</b> is in: challenge them`:`Challenges open when ${esc(pnameRaw(o))} is in`}</small></div>
     <div class="stakeBar"><span class="stLbl">Stake</span><div class="stepper"><button data-act="tvStakeStep" data-v="-1" aria-label="Less">−</button><input id="tvStakeIn" type="number" inputmode="numeric" min="5" max="${TV_STAKE_MAX}" step="5" value="${st}" aria-label="Stake"><button data-act="tvStakeStep" data-v="1" aria-label="More">+</button></div>
-     <div class="stQuick">${[10,25,50,100,250].map(v=>`<button class="${st===v?'on':''}" data-act="tvStake" data-v="${v}">${v}</button>`).join('')}</div>
-     <small class="muted stLeft">${fmtN(TV_DAY_CAP-staked)} of ${fmtN(TV_DAY_CAP)} left today</small></div>
+     <div class="stQuick">${[10,50,100,500,1000].map(v=>`<button class="${st===v&&S.tvStake!=='all'?'on':''}" data-act="tvStake" data-v="${v}">${fmtN(v)}</button>`).join('')}<button class="${S.tvStake==='all'?'on':''}" data-act="tvStake" data-v="all">All in</button></div>
+     <small class="muted stLeft">No limits. ${fmtN(staked)} staked today</small></div>
     <div class="gameGrid">${TV_GAME_TILES.map(g=>{const dart=g.id==='darts';const thrown=dart&&me.claimed.has('tv_dart_'+G.today);return `<div class="gameTile g-${g.id}"><canvas class="gameIco" width="200" height="140" data-game="${g.id}"></canvas><b>${g.name}</b><small>${g.desc}</small><div class="gtBtns">${g.house?`<button class="btn sm" data-act="${g.house}" ${dart&&thrown?'disabled':''}>${dart?(thrown?'Thrown today':'Free throw'):g.houseLbl}</button>`:''}${g.h2h?`<button class="btn sm ${both?'primary':''}" data-act="h2hInvite" data-g="${g.h2h}" ${both?'':'disabled'}>vs ${esc(pnameRaw(o))}</button>`:''}</div></div>`;}).join('')}</div></div>
    ${(()=>{const M=tonightsMenu();const row=d=>`<button class="mItem" data-act="tvDrink" data-id="${d.id}" ${me.balance<d.price?'disabled':''}><canvas class="mGlass" width="80" height="96" data-drink="${d.id}"></canvas><span class="mTxt"><span class="mName">${esc(d.name)}<i></i><b>${d.price?fmtN(d.price):'Free'}</b></span><small>${esc(d.desc)}</small></span></button>`;
      return `<div class="card tvMenu"><div class="mHead"><small>The Rusty Anchor</small><h3>Tonight's menu</h3><small>${fmtDateLong(G.today)} · changes every day</small></div>
      <p class="mNote">Drinks are for show: your order sits in your pirate's hand at the bar for the rest of the day.${dr?` You're holding a <b>${esc(dr.name)}</b>.`:''}</p>${b?`<p class="tiny okLine">${esc(boostText(b))} (from an earlier order)</p>`:''}
      <h4>Cocktails</h4>${M.cocktails.map(row).join('')}<h4>Spirits &amp; ales</h4>${M.spirits.map(row).join('')}<h4>On the house</h4>${M.house.map(row).join('')}<p class="mFoot">Prices in doubloons. Bill accepts no tabs, no IOUs and no seagulls.</p></div>`;})()}
    ${jukeboxHtml()}</div>`;};
-const TV_STAKE_MAX=500,TV_DAY_CAP=1000;
-function tvStakeNow(){return clamp(Math.round((S.tvStake||25)/5)*5||25,5,TV_STAKE_MAX);}
+// 23 Nov: no gambling limits. Any stake up to what you have, and no daily cap across games.
+const TV_STAKE_MAX=1e9,TV_DAY_CAP=Infinity;
+function tvStakeNow(){if(S.tvStake==='all')return Math.max(5,Math.floor(((G.players[S.me]||{}).balance||0)));return clamp(Math.round((S.tvStake||25)/5)*5||25,5,TV_STAKE_MAX);}
 document.addEventListener('change',ev=>{if(ev.target&&ev.target.id==='tvStakeIn'){S.tvStake=clamp(Math.round((+ev.target.value||25)/5)*5,5,TV_STAKE_MAX);render();}});
 // full screen: the scene fills the screen at the phone's real sharpness; tap the cross or press Escape to leave
 function tvApplyFs(){const el=document.getElementById('tvScene');if(!el)return;const on=!!S.tvFs;el.classList.toggle('tvFs',on);document.body.classList.toggle('tvFsOn',on);
@@ -140,8 +141,8 @@ document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement
 function tvSizeCanvas(){const cv=document.getElementById('tvCv');if(!cv)return;if(!S.tvFs){if(cv.width!==960){cv.width=960;cv.height=540;}return;}
   const d=Math.min(3,devicePixelRatio||1);const w=Math.round(innerWidth*d),h=Math.round(innerHeight*d);if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h;}}
 window.addEventListener('resize',()=>{try{tvSizeCanvas();}catch(e){}});
-ACT.tvStake=d=>{S.tvStake=+d.v;render();};
-ACT.tvStakeStep=d=>{const st=tvStakeNow();const step=st<50?5:st<200?25:50;S.tvStake=clamp(st+(+d.v)*step,5,TV_STAKE_MAX);render();};
+ACT.tvStake=d=>{S.tvStake=d.v==='all'?'all':+d.v;render();};
+ACT.tvStakeStep=d=>{const st=tvStakeNow();const step=st<50?5:st<200?25:st<1000?50:st<5000?250:1000;S.tvStake=clamp(st+(+d.v)*step,5,TV_STAKE_MAX);render();};
 const TV_GAME_TILES=[
   {id:'dice',name:"Liar's Dice",desc:"Bid on what's under the cups, or call the liar.",house:'ldStart',houseLbl:'vs Gary',h2h:'dice'},
   {id:'poker',name:'Poker',desc:'Five-card draw. Hold, draw once, best hand wins.',house:'pkStart',houseLbl:'vs Pete & Sal',h2h:'poker'},
@@ -198,7 +199,7 @@ addLayer('world','tavernPub',(c,t)=>{const x=200,y=112;rr(c,x-8,y-14,17,14,1.5,'
   const lit=tvOpenNow();rr(c,x-6.4,y-11,3.6,3.4,.6,lit?'#FFD98A':'#6A5A4A');rr(c,x+4,y-11,3.6,3.4,.6,lit?'#FFD98A':'#6A5A4A');if(lit&&isNight())lamp(c,x,y-9,10,.45,'255,200,120');
   R(c,x+10,y-16,.7,7,'#3A2416');rr(c,x+10.6,y-15.6,6,4,.6,'#C9B48A');disc(c,x+13.6,y-13.6,1,'#7A3E22');if(xmasNowSafe())ell(c,x+.5,y-20.6,7,1.2,'#FFFFFF');
   hit(x-11,y-22,30,22,'The Rusty Anchor',`Barnacle Bill's tavern. Always open. Drinks, games and gossip. Tap to go in.`,{go:'tavern'});},{scenes:['harbour'],z:3});
-HELP.push(['The Rusty Anchor','The Tavern (the Tavern button on the Harbour, More, or the pub by the jetty) never closes. Barnacle Bill gossips from the real numbers and may ask to borrow money once a day (every 5 loans he pays you back with something better). Drinks are just for show: your last order sits in your pirate\'s hand. Pick any stake from 5 to 500 (up to 1,000 a day). When you\'re both in, challenge each other to Liar\'s Dice, Poker or Darts; on your own, play the house. Darts is one free throw a day, and the jukebox unlocks shanties.']);
+HELP.push(['The Rusty Anchor','The Tavern (the Tavern button on the Harbour, More, or the pub by the jetty) never closes. Barnacle Bill gossips from the real numbers and may ask to borrow money once a day (every 5 loans he pays you back with something better). Drinks are just for show: your last order sits in your pirate\'s hand. Stake as much as you like, from 5 doubloons to all in. No daily limit. When you\'re both in, challenge each other to Liar\'s Dice, Poker or Darts; on your own, play the house. Darts is one free throw a day, and the jukebox unlocks shanties.']);
 
 /* 21 Nov: a Tavern button on the Harbour, just above the Herald */
 {const _hTV=SCREENS.harbour;SCREENS.harbour=function(){const h=_hTV.apply(this,arguments);const k='<div class="pad">';const i=h.indexOf(k);if(i<0)return h;const both=(()=>{try{return peerIn();}catch(e){return false;}})();

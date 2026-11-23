@@ -315,3 +315,31 @@ html[data-hc-theme=dark] .hStop{background:#FFF6DA;color:#2A2218}
 /* more + buttons */
 html[data-hc-theme=dark] .mGIco{background:#2A3646}html[data-hc-theme=dark] .mGIco svg{fill:#C9D3DE}
 html[data-hc-theme=dark] .mTile.need{border-color:#B8862B}
+
+/* 23 Nov: header icon buttons centre their icon whatever the host box-sizing or button padding */
+#hud .mute{padding:0;box-sizing:border-box;display:grid;place-items:center;line-height:0}#hud .mute svg{flex:none;display:block;margin:0}
+
+/* 23 Nov: Guide layout, cards spaced and topics grouped */
+.guidePage .guideBody{display:flex;flex-direction:column;gap:12px;margin-top:14px}
+.guidePage .guideBody>.card{margin:0}
+.guidePage .gHero p{margin:6px 0 12px}
+.gSearch{display:flex;align-items:center;gap:8px;background:var(--card);border-radius:16px;padding:0 14px;box-shadow:inset 0 0 0 2px var(--line);color:var(--soft)}
+.gSearch svg{width:18px;height:18px;flex:none}.gSearch input{flex:1;border:0;background:transparent;font:inherit;color:var(--ink);padding:12px 0;outline:0;min-width:0}
+.gSec{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.gSecH{display:flex;align-items:center;gap:8px;font-size:15px;margin:0 4px;color:var(--ink)}
+.gSecH small{font:700 12px Nunito,sans-serif;background:var(--card2);border-radius:999px;padding:1px 8px;color:var(--soft)}
+.gList{display:flex;flex-direction:column;background:var(--card);border-radius:18px;box-shadow:inset 0 0 0 2px var(--line);overflow:hidden}
+.gItem{border-top:1.5px solid var(--line)}.gItem:first-child{border-top:0}
+.gItem summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 16px;font-size:15px}
+.gItem summary::-webkit-details-marker{display:none}
+.gItem summary::after{content:'+';font:700 18px/1 Nunito,sans-serif;color:var(--soft);transition:transform .2s}
+.gItem[open] summary::after{transform:rotate(45deg)}
+.gItem[open]{background:var(--card2)}
+.gItem p{margin:0;padding:0 16px 14px;line-height:1.55;font-size:14px}
+.gNone{text-align:center;padding:20px 0}
+.guidePage .gSearch input{box-shadow:none!important;background:transparent!important;border:0!important;border-radius:0!important;margin:0!important;height:auto!important;padding:13px 0!important}
+/* 23 Nov: Archive joins the drawer footer; on phones Delete and Archive drop to icons so the main button fits */
+#crm .cDFoot{gap:8px}#crm .cDFoot .crmPrimary{min-width:0;flex-shrink:1}
+@media (max-width:520px){#crm .cDFoot .crmGhost span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}#crm .cDFoot .crmGhost{padding-left:12px;padding-right:12px}}
+#crm .cGSetup summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:6px}#crm .cGSetup summary::-webkit-details-marker{display:none}#crm .cGSetup summary::after{content:"+";font-weight:700;opacity:.6}#crm .cGSetup[open] summary::after{content:"\2212"}#crm .cGSetup summary h4{margin:0}
+#crm .cGSetup code,#crm .cCopy{word-break:break-all;white-space:normal;cursor:pointer;display:inline-block;max-width:100%}#crm .cSteps{padding-left:20px}#crm .cSteps li{margin:4px 0}#crm .crmPrimary[disabled]{opacity:.45;pointer-events:none}

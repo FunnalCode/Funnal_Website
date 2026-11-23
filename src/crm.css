@@ -554,3 +554,7 @@ html.crmCover #fx{display:none}
 #crm .cFaceCard b{font-size:15px;font-weight:650}
 #crm .cFacePick{cursor:pointer}
 #crm .cSheet .cTabs[data-pill=setTabs]{grid-template-columns:repeat(4,minmax(0,1fr))}
+
+/* 23 Nov: Archive joins the drawer footer; on phones Delete and Archive drop to icons so the main button fits */
+#crm .cDFoot{gap:8px}#crm .cDFoot .crmPrimary{min-width:0;flex-shrink:1}
+@media (max-width:520px){#crm .cDFoot .crmGhost span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}#crm .cDFoot .crmGhost{padding-left:12px;padding-right:12px}}
