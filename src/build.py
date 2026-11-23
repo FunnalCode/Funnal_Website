@@ -28,3 +28,17 @@ open('hl-game.js','w',encoding='ascii').write(s)
 # content registry ships as its own small file, loaded before hl-game.js
 cs=''.join(ch if ord(ch)<128 else ('\\u%04x'%ord(ch)) for ch in content)
 open('hl-content.js','w',encoding='ascii').write(cs)
+
+# ---------- Client hub demo: same app, own storage and sample data, opens straight into the pipeline ----------
+files=re.search(r"js='\\n'\.join\(open\(f\)\.read\(\) for f in (\[[^\]]*\])\)",open('build.py').read()).group(1)
+flist=eval(files);bi=flist.index('boot.js')
+djs='\n'.join(open(f).read() for f in flist[:bi]+['demo_post.js']+flist[bi:])
+djs=djs.replace("const fn=SCREENS[S.screen]||SCREENS.harbour;","const fn=S.me?(SCREENS[S.screen]||SCREENS.harbour):SCREENS.harbour;")
+dcss=css+'\n'+open('demo.css').read()
+demo_embed=embed_js.replace(json.dumps(css)[:-1],json.dumps(dcss)[:-1],1)
+assert demo_embed!=embed_js
+dsrc=open('demo_pre.js').read()+'\n'+demo_embed+content+'\n'+djs
+dsrc=''.join(ch if ord(ch)<128 else ('\\u%04x'%ord(ch) if ord(ch)<0x10000 else ''.join('\\u%04x'%u for u in __import__('struct').unpack('<2H',ch.encode('utf-16-le')))) for ch in dsrc)
+open('crm-demo.js','w',encoding='ascii').write(dsrc)
+# local test page for the demo
+open('demo.html','w').write('<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Client hub demo</title><script src="supabase.js"></script></head><body><script src="crm-demo.js"></script></body></html>')

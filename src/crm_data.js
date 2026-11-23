@@ -72,7 +72,7 @@ async function evSave(o){o.updated_by=S.me;o.updated_at=new Date().toISOString()
 async function evDelete(id){const e=CDB.ev.find(x=>x.id===id);if(!e)return;if(e.gcal_id)await cdbUpdate('ev',id,{deleted:true,updated_by:S.me,updated_at:new Date().toISOString()});else await cdbRemove('ev',id);if(typeof gcalSoon==='function')gcalSoon();}
 
 /* ---------- quotes ---------- */
-const QUOTE_URL=tok=>`https://www.funnal.co.uk/quote?q=${tok}`;
+const QUOTE_URL=tok=>window.HL_DEMO?`${location.origin}/crm-demo-quote?q=${tok}`:`https://www.funnal.co.uk/quote?q=${tok}`;
 const quoteTok=()=>{const a=new Uint8Array(12);crypto.getRandomValues(a);return [...a].map(x=>x.toString(16).padStart(2,'0')).join('');};
 async function quoteEncrypt(obj,pw){const enc=new TextEncoder();const salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12));
   const k=await crypto.subtle.importKey('raw',enc.encode(pw),'PBKDF2',false,['deriveKey']);const key=await crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:310000,hash:'SHA-256'},k,{name:'AES-GCM',length:256},false,['encrypt']);
