@@ -65,35 +65,48 @@ async function sync() {
   let cal = a.cal_id;
   if (!cal) { const cals = await calendars(a).catch(async (e) => { await saveAuth({ last_error: (e as Error).message }); throw e; }); const pick = cals.find((c: any) => /funnal/i.test(c.name)) || cals.find((c: any) => c.primary) || cals[0]; if (!pick) return { skip: "no writable calendar" }; cal = pick.id; await saveAuth({ cal_id: cal }); await setCfg("gcal_cal", cal); a.cal_id = cal; }
   let tok: string; try { tok = await accessToken(a); } catch (e) { await saveAuth({ last_error: (e as Error).message, ...((e as any).grant ? { refresh_token: null } : {}) }); throw e; }
-  const base = `/calendars/${encodeURIComponent(cal)}/events`; const n = { sent: 0, edited: 0, deleted: 0, pulled: 0, changed: 0, removed: 0 };
+  const base = `/calendars/${encodeURIComponent(cal)}/events`; const n: any = { sent: 0, edited: 0, deleted: 0, pulled: 0, changed: 0, removed: 0 };
   try {
     const evs: any[] = await rest("hl_events?select=*&limit=5000");
     const pl: any[] = await rest("hl_prospects?select=id,business,contact&limit=5000"); const pros = Object.fromEntries(pl.map((p) => [p.id, p]));
     const upd = (id: string, p: any) => rest(`hl_events?id=eq.${id}`, { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify(p) });
     const del = (id: string) => rest(`hl_events?id=eq.${id}`, { method: "DELETE", headers: { Prefer: "return=minimal" } });
-    // 1. new pipeline events go to Google
-    for (const e of evs.filter((x) => (!x.gcal_id || x.gcal_cal !== cal) && !x.deleted && x.created_by !== "google")) { const g = await gapi(tok, base, { method: "POST", body: JSON.stringify(toG(e, pros)) }); if (g) { await upd(e.id, { gcal_id: g.id, gcal_cal: cal, gcal_etag: g.etag, gcal_updated: g.updated }); e.gcal_id = g.id; e.gcal_cal = cal; e.gcal_updated = g.updated; n.sent++; } }
+    // 23 Nov: other people's calendars shared with this account (James's), pulled in alongside the main one
+    const extras: string[] = ((a.extra_cals || []) as string[]).filter((c) => c && c !== cal);
+    const ownerOf = (c: string) => (c === cal ? (a.connected_by || null) : (CREW[c.toLowerCase()] || null));
+    const calOf = (e: any) => { const want = e.owner && extras.find((c) => CREW[c.toLowerCase()] === e.owner && writable.has(c)); return want || cal; };
+    const writable = new Set<string>([cal]); const readable = new Set<string>([cal]);
+    if (extras.length) { try { const list: any = await gapi(tok, "/users/me/calendarList?maxResults=250"); for (const c of list.items || []) { if (!extras.includes(c.id)) continue; readable.add(c.id); if (["owner", "writer"].includes(c.accessRole)) writable.add(c.id); }
+        for (const c of extras.filter((x) => !readable.has(x))) { try { const g: any = await gapi(tok, "/users/me/calendarList", { method: "POST", body: JSON.stringify({ id: c }) }); readable.add(c); if (["owner", "writer"].includes(g.accessRole)) writable.add(c); } catch (er) { n.extraErr = `${c}: ${(er as Error).message}`; } } } catch (er) { n.extraErr = (er as Error).message; } }
+    const isOurs = (x: any) => !!x.gcal_id && readable.has(x.gcal_cal);
+    // 1. new pipeline events go to Google (to the owner's own calendar when it's shared with edit rights)
+    for (const e of evs.filter((x) => (!x.gcal_id || !readable.has(x.gcal_cal)) && !x.deleted && x.created_by !== "google")) { const target = calOf(e);
+      let g: any = null; try { g = await gapi(tok, `/calendars/${encodeURIComponent(target)}/events`, { method: "POST", body: JSON.stringify(toG(e, pros)) }); } catch (er) { if (target === cal) throw er; g = await gapi(tok, base, { method: "POST", body: JSON.stringify(toG(e, pros)) }); }
+      if (g) { const gc = g.organizer?.email && readable.has(g.organizer.email) ? g.organizer.email : target; await upd(e.id, { gcal_id: g.id, gcal_cal: gc, gcal_etag: g.etag, gcal_updated: g.updated }); e.gcal_id = g.id; e.gcal_cal = gc; e.gcal_updated = g.updated; n.sent++; } }
     // 2. deletions made in the pipeline
-    for (const e of evs.filter((x) => x.deleted)) { if (x_has(e, cal)) { try { await gapi(tok, `${base}/${encodeURIComponent(e.gcal_id)}`, { method: "DELETE" }); } catch (er) { if (![404, 410].includes((er as any).status)) throw er; } } await del(e.id); n.deleted++; }
+    const evPath = (e: any) => `/calendars/${encodeURIComponent(e.gcal_cal)}/events/${encodeURIComponent(e.gcal_id)}`;
+    for (const e of evs.filter((x) => x.deleted)) { if (isOurs(e) && writable.has(e.gcal_cal)) { try { await gapi(tok, evPath(e), { method: "DELETE" }); } catch (er) { if (![404, 410].includes((er as any).status)) throw er; } } await del(e.id); n.deleted++; }
     // 3. edits made in the pipeline since the last sync
-    for (const e of evs.filter((x) => x_has(x, cal) && !x.deleted && tms(x.updated_at) > tms(x.gcal_updated) + 1500)) {
-      try { const g = await gapi(tok, `${base}/${encodeURIComponent(e.gcal_id)}`, { method: "PATCH", body: JSON.stringify(toG(e, pros)) }); if (g) { await upd(e.id, { gcal_etag: g.etag, gcal_updated: g.updated, updated_at: g.updated }); n.edited++; } }
+    for (const e of evs.filter((x) => isOurs(x) && writable.has(x.gcal_cal) && !x.deleted && tms(x.updated_at) > tms(x.gcal_updated) + 1500)) {
+      try { const g = await gapi(tok, evPath(e), { method: "PATCH", body: JSON.stringify(toG(e, pros)) }); if (g) { await upd(e.id, { gcal_etag: g.etag, gcal_updated: g.updated, updated_at: g.updated }); n.edited++; } }
       catch (er) { if ([404, 410].includes((er as any).status)) { await del(e.id); n.removed++; } else throw er; } }
     // 4. Google's side: new events, edits and deletions
-    const tmin = new Date(Date.now() - 90 * 864e5).toISOString(), tmax = new Date(Date.now() + 400 * 864e5).toISOString(); let page: string | null = null; const items: any[] = [];
-    do { const j: any = await gapi(tok, `${base}?singleEvents=true&showDeleted=true&maxResults=2500&timeMin=${encodeURIComponent(tmin)}&timeMax=${encodeURIComponent(tmax)}${page ? "&pageToken=" + encodeURIComponent(page) : ""}`); items.push(...(j.items || [])); page = j.nextPageToken || null; } while (page);
+    const tmin = new Date(Date.now() - 90 * 864e5).toISOString(), tmax = new Date(Date.now() + 400 * 864e5).toISOString();
     const fresh: any[] = [];
+    for (const cal of [...readable]) { const base = `/calendars/${encodeURIComponent(cal)}/events`; let page: string | null = null; const items: any[] = []; const owner = ownerOf(cal);
+    do { const j: any = await gapi(tok, `${base}?singleEvents=true&showDeleted=true&maxResults=2500&timeMin=${encodeURIComponent(tmin)}&timeMax=${encodeURIComponent(tmax)}${page ? "&pageToken=" + encodeURIComponent(page) : ""}`); items.push(...(j.items || [])); page = j.nextPageToken || null; } while (page);
     for (const g of items) {
       const e = evs.find((x) => x.gcal_id === g.id && x.gcal_cal === cal && !x.deleted);
       if (g.status === "cancelled") { if (e) { await del(e.id); n.removed++; } continue; } if (!g.start) continue;
       if (!e) { const mine = g.extendedProperties?.private?.funnal; const own = mine && evs.find((x) => x.id === mine);
         if (own) { if (!own.deleted) await upd(own.id, { gcal_id: g.id, gcal_cal: cal, gcal_etag: g.etag, gcal_updated: g.updated }); continue; }
-        fresh.push({ ...fromG(g), kind: g.extendedProperties?.private?.kind || "google", gcal_id: g.id, gcal_cal: cal, gcal_etag: g.etag, gcal_updated: g.updated, updated_at: g.updated, created_by: "google", updated_by: "google", deleted: false }); }
+        if (fresh.some((f) => f.gcal_id === g.id) || evs.some((x) => x.gcal_id === g.id && !x.deleted)) continue;
+        fresh.push({ ...fromG(g), owner, kind: g.extendedProperties?.private?.kind || "google", gcal_id: g.id, gcal_cal: cal, gcal_etag: g.etag, gcal_updated: g.updated, updated_at: g.updated, created_by: "google", updated_by: "google", deleted: false }); }
       else if (tms(g.updated) > tms(e.gcal_updated) + 1500 && tms(g.updated) > tms(e.updated_at)) { await upd(e.id, { ...fromG(g), gcal_etag: g.etag, gcal_updated: g.updated, updated_at: g.updated, updated_by: "google" }); n.changed++; }
-    }
+    } }
     if (fresh.length) { await rest("hl_events?on_conflict=gcal_cal,gcal_id", { method: "POST", headers: { Prefer: "resolution=ignore-duplicates,return=minimal" }, body: JSON.stringify(fresh) }); n.pulled = fresh.length; }
     await saveAuth({ last_sync: new Date().toISOString(), last_error: null });
-    return { ok: true, ...n };
+    return { ok: true, calendars: [...readable], ...n };
   } catch (e) { await saveAuth({ last_error: (e as Error).message || "Sync failed" }); throw e; }
 }
 function x_has(e: any, cal: string) { return !!e.gcal_id && e.gcal_cal === cal; }
