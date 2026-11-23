@@ -54,3 +54,4 @@ html.hlDemo #crm .crmMark svg{width:100%;height:100%}
 #crm .spin svg{animation:dmSpin .8s linear infinite}
 
 html.hlDemo #toasts [data-act=pGame],html.hlDemo #toasts .pQuip{display:none!important}
+#dmGate *,#dmIntro *,#dmLive{font-family:Inter,'Helvetica Neue',system-ui,sans-serif!important;letter-spacing:-.01em}#dmGate h1{letter-spacing:-.025em}
