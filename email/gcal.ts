@@ -35,13 +35,13 @@ const okReturn = (u: string) => { try { const x = new URL(u); return x.protocol 
 async function accessToken(a: any) {
   const id = await cfg("gcal_client"); if (!id || !a?.client_secret || !a?.refresh_token) throw new Error("Not connected");
   const r = await fetch("https://oauth2.googleapis.com/token", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ client_id: id, client_secret: a.client_secret, refresh_token: a.refresh_token, grant_type: "refresh_token" }) });
-  const j = await r.json(); if (!r.ok) { const e = new Error(j.error === "invalid_grant" ? "Google access was removed or expired. Connect again" : (j.error_description || j.error || "Google refused")); (e as any).grant = j.error === "invalid_grant"; throw e; }
+  const j = await r.json().catch(() => ({})); if (!r.ok) { const e = new Error(j.error === "invalid_grant" ? "Google access was removed or expired. Connect again" : `Token refresh failed (${r.status}): ${j.error || ""} ${j.error_description || ""}`.trim()); (e as any).grant = j.error === "invalid_grant"; throw e; }
   return j.access_token as string;
 }
 async function gapi(tok: string, path: string, opt: RequestInit = {}) {
-  const r = await fetch("https://www.googleapis.com/calendar/v3" + path, { ...opt, headers: { Authorization: "Bearer " + tok, "Content-Type": "application/json", ...(opt.headers || {}) } });
+  const r = await fetch("https://www.googleapis.com/calendar/v3" + path, { ...opt, headers: { Authorization: "Bearer " + tok, ...(opt.body ? { "Content-Type": "application/json" } : {}), ...(opt.headers || {}) } });
   if (r.status === 204 || r.status === 410) return null; const j = await r.json().catch(() => ({}));
-  if (!r.ok) { const e = new Error((j.error && j.error.message) || "Google said " + r.status); (e as any).status = r.status; throw e; } return j;
+  if (!r.ok) { const det = (j.error && (j.error.errors?.[0]?.reason || j.error.status)) || ""; const e = new Error(`Google Calendar ${r.status}${det ? " " + det : ""}: ${(j.error && j.error.message) || "request failed"}`); (e as any).status = r.status; throw e; } return j;
 }
 const londonDay = (iso: string) => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/London" }).format(new Date(iso));
 const addDays = (d: string, n: number) => { const x = new Date(d + "T12:00:00Z"); x.setUTCDate(x.getUTCDate() + n); return x.toISOString().slice(0, 10); };
@@ -62,7 +62,8 @@ const tms = (s: string | null) => (s ? new Date(s).getTime() : 0);
 
 async function sync() {
   const a = await auth(); if (!a?.refresh_token) return { skip: "not connected" };
-  const cal = a.cal_id; if (!cal) return { skip: "no calendar" };
+  let cal = a.cal_id;
+  if (!cal) { const cals = await calendars(a).catch(async (e) => { await saveAuth({ last_error: (e as Error).message }); throw e; }); const pick = cals.find((c: any) => /funnal/i.test(c.name)) || cals.find((c: any) => c.primary) || cals[0]; if (!pick) return { skip: "no writable calendar" }; cal = pick.id; await saveAuth({ cal_id: cal }); await setCfg("gcal_cal", cal); a.cal_id = cal; }
   let tok: string; try { tok = await accessToken(a); } catch (e) { await saveAuth({ last_error: (e as Error).message, ...((e as any).grant ? { refresh_token: null } : {}) }); throw e; }
   const base = `/calendars/${encodeURIComponent(cal)}/events`; const n = { sent: 0, edited: 0, deleted: 0, pulled: 0, changed: 0, removed: 0 };
   try {
