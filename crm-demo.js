@@ -11002,6 +11002,7 @@ async function supaGate(sb){
 /* ===== Client hub demo, part 2: runs after the pipeline code, before the app boots ===== */
 if(window.HL_DEMO){(function(){
 const D=window.HL_DEMO;
+{const f=document.createElement('link');f.rel='stylesheet';f.href='https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap';document.head.appendChild(f);}
 /* a general set of stages and services (same ids underneath, so all the logic still works) */
 const ST={video_needed:['New lead','Just came in'],video_made:['Researched','Ready to contact'],messaged:['Contacted','First message sent'],followed_up:['Followed up','Nudged at least once'],
   talking:['In conversation','They replied'],meeting:['Meeting','Booked or held'],quote_sent:['Proposal sent','Waiting on a yes'],client:['Client','Won']};
