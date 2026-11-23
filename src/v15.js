@@ -79,20 +79,29 @@ function weeklyBossLine(W){if(!W||!W.hp)return '';const ws=weekStart(G.today);co
   const d=HELP.find(h=>h[0]==='Decorating');if(d)d[1]=d[1].replace(' The Shop also has 13 new faces, 10 new coats and 6 new hats.','');})();
 
 /* 21 Nov: little painted scenes on the Fishing and Monsters buttons */
-function drawLiArt(cv,t){const k=cv.dataset.liart;const c=cv.getContext('2d');c.setTransform(cv.width/150,0,0,cv.width/150,0,0);const W2=150,H2=70;
+function drawLiArt(cv,t){if(typeof hdCanvas==='function')hdCanvas(cv,140/300);const k=cv.dataset.liart;const c=cv.getContext('2d');c.setTransform(cv.width/150,0,0,cv.width/150,0,0);const W2=150,H2=70;
   if(k==='fish'){const g=c.createLinearGradient(0,0,0,H2);g.addColorStop(0,'#F7B58A');g.addColorStop(.55,'#F6D7A8');g.addColorStop(.56,'#6FB3C9');g.addColorStop(1,'#2E6F93');c.fillStyle=g;c.fillRect(0,0,W2,H2);
     disc(c,112,30,9,'rgba(255,240,200,.9)');c.fillStyle='rgba(120,90,110,.35)';c.beginPath();c.moveTo(0,39);c.lineTo(22,26);c.lineTo(40,36);c.lineTo(62,24);c.lineTo(86,39);c.closePath();c.fill();
     for(let i=0;i<5;i++)R(c,96+i*6-((t/60+i*9)%30),46+i*4,10,.6,'rgba(255,255,255,.55)');
-    c.fillStyle='#5A3A26';c.beginPath();c.moveTo(18,46);c.lineTo(54,46);c.lineTo(50,52);c.lineTo(22,52);c.closePath();c.fill();R(c,34,30,1.2,16,'#5A3A26');c.fillStyle='#F4EFE4';c.beginPath();c.moveTo(35.5,31);c.lineTo(48,44);c.lineTo(35.5,44);c.closePath();c.fill();
+    const crew=k==='fish'&&liSplit(S.view.lockMode||'hunt').crew||k==='mon'&&liSplit(S.view.lockMode||'hunt').crew;
+    const fishBoat=(t)=>{
+      c.fillStyle='#5A3A26';c.beginPath();c.moveTo(18,46);c.lineTo(54,46);c.lineTo(50,52);c.lineTo(22,52);c.closePath();c.fill();R(c,34,30,1.2,16,'#5A3A26');c.fillStyle='#F4EFE4';c.beginPath();c.moveTo(35.5,31);c.lineTo(48,44);c.lineTo(35.5,44);c.closePath();c.fill();
     line(c,46,46,70,22,'#7A4E30',1);c.strokeStyle='rgba(255,255,255,.85)';c.lineWidth=.4;c.beginPath();c.moveTo(70,22);c.quadraticCurveTo(84,30,88,48);c.stroke();
     const a=((t/1600)%1),fx=84+a*18,fy=48-Math.sin(a*Math.PI)*20;if(a<.95){c.save();c.translate(fx,fy);c.rotate(-.7+a*1.4);try{drawFish(c,FISH.find(f=>f.name==='Mahi-mahi')||FISH.find(f=>f.rar==='rare')||FISH[0],0,0,1.6,t,false,'');}catch(e){ell(c,0,0,4,2,'#F2A33A');}c.restore();}
-    for(let i=0;i<5;i++){const an=-Math.PI*(i+.5)/5;disc(c,88+Math.cos(an)*5,48+Math.sin(an)*3,.7,'rgba(255,255,255,.85)');}}
+    for(let i=0;i<5;i++){const an=-Math.PI*(i+.5)/5;disc(c,88+Math.cos(an)*5,48+Math.sin(an)*3,.7,'rgba(255,255,255,.85)');}};
+    /* 23 Nov: crew mode shows two boats fishing side by side */
+    if(crew){c.save();c.translate(-15,-10+Math.sin(t/800)*.5);c.translate(36,48);c.scale(.72,.72);c.translate(-36,-48);c.globalAlpha=.92;fishBoat(t+800);c.restore();}
+    c.save();c.translate(crew?6:0,Math.sin(t/900+1)*.5);fishBoat(t);c.restore();}
   else{const g=c.createLinearGradient(0,0,0,H2);g.addColorStop(0,'#3A3F6A');g.addColorStop(.55,'#6A6A9A');g.addColorStop(.56,'#3E5F86');g.addColorStop(1,'#1C2E4A');c.fillStyle=g;c.fillRect(0,0,W2,H2);
     for(let i=0;i<14;i++){const x=(i*23+t/30)%W2,y=(i*13+t/14)%40;line(c,x,y,x-1.4,y+4,'rgba(200,210,255,.35)',.4);}
     if(Math.sin(t/700)>.92){c.fillStyle='rgba(255,255,255,.15)';c.fillRect(0,0,W2,H2);}
     const prev=THEME.scene;try{THEME.scene=null;drawBoss(c,{type:'kraken',col:'#9B5DE5',eye:'#3F3A30'},108,40,12,.8,t,false,46);}catch(e){}THEME.scene=prev;
+    const crewM=liSplit(S.view.lockMode||'hunt').crew;const monBoat=(t)=>{
     c.fillStyle='#2A1E18';c.beginPath();c.moveTo(10,46);c.lineTo(46,46);c.lineTo(42,52);c.lineTo(14,52);c.closePath();c.fill();R(c,27,28,1.2,18,'#2A1E18');c.fillStyle='#1C1A22';c.beginPath();c.moveTo(28.5,29);c.lineTo(40,43);c.lineTo(28.5,43);c.closePath();c.fill();
     const a=((t/1300)%1),bx=46+a*52,by=42-Math.sin(a*Math.PI)*22;disc(c,bx,by,1.6,'#2A2A2A');for(let i=1;i<5;i++){const q=Math.max(0,a-i*.04);disc(c,46+q*52,42-Math.sin(q*Math.PI)*22,1.2-i*.2,`rgba(255,220,150,${.5-i*.1})`);}
-    if(a<.15){disc(c,47,42,3*(1-a/.15)+1,'rgba(255,240,200,.8)');}
+    if(a<.15){disc(c,47,42,3*(1-a/.15)+1,'rgba(255,240,200,.8)');}};
+    /* 23 Nov: crew mode shows two ships firing together */
+    if(crewM){c.save();c.translate(-12,-10+Math.sin(t/800)*.5);c.translate(28,48);c.scale(.72,.72);c.translate(-28,-48);monBoat(t+650);c.restore();}
+    c.save();c.translate(crewM?10:0,Math.sin(t/900+1)*.5);monBoat(t);c.restore();
     R(c,0,52,W2,18,'rgba(20,30,60,.25)');}}
 (function liArtLoop(){const run=()=>{const l=document.querySelectorAll('canvas[data-liart]');if(l.length){const t=performance.now();l.forEach(cv=>{try{drawLiArt(cv,t);}catch(e){}});}hlRAF(run);};hlRAF(run);})();

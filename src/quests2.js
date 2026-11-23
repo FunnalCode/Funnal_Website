@@ -92,7 +92,7 @@ function eventsSideHtml(){const today=G.today;const now=seasonAt(today);const nx
   return `${hero?evHeroHtml(hero,now?'now':'next'):''}${hero&&hero.id==='frozen'?advCalHtml():''}${hero?pass:''}${evComingHtml(coming)}${evPastHtml(past)}`;}
 
 /* ---------- the two painted buttons ---------- */
-{const _dla=drawLiArt;drawLiArt=function(cv,t){const k=cv.dataset.liart;if(k!=='quests'&&k!=='events')return _dla(cv,t);const c=cv.getContext('2d');c.setTransform(cv.width/150,0,0,cv.width/150,0,0);const W2=150,H2=70;
+{const _dla=drawLiArt;drawLiArt=function(cv,t){const k=cv.dataset.liart;if(k!=='quests'&&k!=='events')return _dla(cv,t);if(typeof hdCanvas==='function')hdCanvas(cv,140/300);const c=cv.getContext('2d');c.setTransform(cv.width/150,0,0,cv.width/150,0,0);const W2=150,H2=70;
   if(k==='quests'){c.fillStyle='#6E4A2E';c.fillRect(0,0,W2,H2);for(let y=0;y<H2;y+=10){R(c,0,y,W2,.8,'rgba(40,24,12,.35)');}for(let i=0;i<9;i++)R(c,(i*37)%W2,(i*23)%H2,5,.5,'rgba(255,220,170,.10)');
     rr(c,14,8,92,56,3,'#4A2F1C');rr(c,16,10,88,52,2,'#B88A55');for(let i=0;i<6;i++)disc(c,22+i*15,36+((i*7)%9),.9,'rgba(90,60,30,.35)');
     const notes=[[20,14,-.07],[48,12,.05],[76,15,-.04]];notes.forEach(([x,y,r],i)=>{const fl=Math.sin(t/380+i*1.7)*.03;c.save();c.translate(x+13,y);c.rotate(r+fl);rr(c,-13,0,26,34,1.5,'#F6EBCF');R(c,-9,7,18,1.6,'rgba(70,50,30,.55)');R(c,-9,12,14,1.2,'rgba(70,50,30,.35)');R(c,-9,16,16,1.2,'rgba(70,50,30,.35)');
@@ -125,7 +125,9 @@ SCREENS.quests=()=>{const tab=S.view.qtab==='season'?'events':(S.view.qtab||'que
   let adv=0;try{if(typeof adventState==='function'&&G.today.slice(5,7)==='12'){const A=adventState();adv=Array.from({length:24},(_,i)=>i+1).filter(k=>A.open[k]&&!A.claimed(k)).length;}}catch(e){}
   const evSub=se?`${esc(se.name)}: day ${daysBetween(se.start,G.today)+1} of ${evDays(se)}`:nx?`${esc(nx.label||nx.name)} in ${daysBetween(G.today,nx.start)} days`:'Nothing on right now';
   const btns=`<div class="liGroups qGroups"><button class="liGroup ${tab==='quests'?'on':''}" data-act="qTab" data-t="quests"><canvas class="liArt" width="300" height="140" data-liart="quests"></canvas><b>Quests${claim?` <span class="qBadge">${claim}</span>`:''}</b><small>${claim?`${claim} ready to claim`:`${dDone} of ${q.daily.length} done today`}</small></button><button class="liGroup ${tab==='events'?'on':''}" data-act="qTab" data-t="events"><canvas class="liArt" width="300" height="140" data-liart="events"></canvas><b>Events${un+adv?` <span class="qBadge">${un+adv}</span>`:''}</b><small>${evSub}</small></button></div>`;
-  return `<div class="pad qPage">${btns}${tab==='events'?eventsSideHtml():questsSideHtml()}</div>`;};
+  /* 23 Nov: the two tiles sit inside a card, like Lock In */
+  const top=`<div class="card qTop"><h2>Quests</h2><p class="muted liIntro">Daily and weekly bounties, lifetime voyages and seasonal events. Fill a ring, then claim the reward.</p>${btns}</div>`;
+  return `<div class="pad qPage">${top}${tab==='events'?eventsSideHtml():questsSideHtml()}</div>`;};
 
 /* the Harbour keeps a small nudge for the Advent Calendar instead of the whole grid */
 if(typeof adventHtml==='function'){adventHtml=function(){if(!xmasNow()||!G)return '';const A=adventState();const ready=Array.from({length:24},(_,i)=>i+1).filter(k=>A.open[k]&&!A.claimed(k)).length;

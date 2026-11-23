@@ -88,7 +88,7 @@ function drawNest(c,x,y,t,coins,gary){ell(c,x,y+1.2,6.4,2.2,'#7A5A3A');c.strokeS
     if(xmasNowSafe()){poly(c,[[x+1.2,y-4.8+b],[x+4,y-5+b],[x+2.2,y-7.6+b]],'#C8102E');R(c,x+1.1,y-5.2+b,3,.7,'#FFFFFF');disc(c,x+2.1,y-7.8+b,.55,'#FFFFFF');}}}
 // 21 Nov: in the painted look the nest sits on the lighthouse gallery with a proper Gary in it (it read as stray eggs half way up the tower)
 addLayer('world','garyNest',(c,t)=>{if(!G||!S.me)return;const n=myNest();const top=lighthouseTop();const away=typeof marketOpen==='function'&&marketOpen();const art=typeof isArtLook==='function'&&isArtLook();const x=art?118.4:114,y=art?top-3.6:top+12;
-  if(art){R(c,x-5.6,y+2.4,4,.8,'#4A3A30');line(c,x-3,y+3,x-5,y+5.2,'#4A3A30',.6);c.save();c.translate(x,y);c.scale(1.3,1.3);artNestBowl(c,t,n.held);c.restore();if(!away&&!HEIST.on)artGaryNest(c,x,y-1,t);}
+  if(art){/* 23 Nov: smaller, so the nest and Gary sit in scale on top of the lighthouse */c.save();c.translate(x-4,y+3);c.scale(.5,.5);c.translate(-(x-4),-(y+3));R(c,x-5.6,y+2.4,4,.8,'#4A3A30');line(c,x-3,y+3,x-5,y+5.2,'#4A3A30',.6);c.save();c.translate(x,y);c.scale(1.3,1.3);artNestBowl(c,t,n.held);c.restore();if(!away&&!HEIST.on)artGaryNest(c,x,y-1,t);c.restore();}
   else{R(c,x-4,y+2.6,8,.8,'#6B5040');drawNest(c,x,y,t,n.held,!away&&!HEIST.on);}if(away&&!art)txt(c,'out',x,y-4,'rgba(255,255,255,.7)',4.6,'center');
   hit(x-8,y-9,16,13,"Gary's nest",n.held?`${n.held} of your doubloons are in here. Hit the target to get them back. Tap to visit.`:'Twigs, chip papers and anything shiny. Tap to visit.',{go:'nest'});},{scenes:['harbour'],z:4});
 const HEIST={on:false,t0:0,back:false};

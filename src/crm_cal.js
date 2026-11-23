@@ -72,7 +72,16 @@ function crmEvNew(o){const d=o.d||CRM.cal.sel||G.today;const t0=o.t||'10:00',t1=
 function crmSettingsHtml(){const s=CRM.sheet;const t=s.tab||'prices';
   const groups=[['package','Packages'],['service','Services'],['addon','Add-ons']];
   const per=c=>`<select data-cat="${c.id}" data-k="period">${Object.entries({monthly:'Monthly',four_weekly:'Every 4 weeks',one_off:'One-off'}).map(([k,v])=>`<option value="${k}" ${c.period===k?'selected':''}>${v}</option>`).join('')}</select>`;
-  const prices=groups.map(([k,n])=>`<div class="cSetGroup"><h4>${n}</h4>${catItems(k).map(c=>`<div class="cCatRow"><input data-cat="${c.id}" data-k="name" value="${cEsc(c.name)}" aria-label="Name"><label class="cCatP"><span>£</span><input data-cat="${c.id}" data-k="price" type="number" inputmode="decimal" value="${c.price==null?'':c.price}" placeholder="Ask" aria-label="Price"></label>${per(c)}<input class="cCatNote" data-cat="${c.id}" data-k="note" value="${cEsc(c.note||'')}" placeholder="Short note" aria-label="Note"><button class="cIconBtn sm" data-c="catHide" data-id="${c.id}" aria-label="Remove ${cEsc(c.name)}" title="Remove">${cSvg('trash')}</button></div>`).join('')}<button class="cMore" data-c="catAdd" data-k="${k}">${cSvg('plus')} Add to ${n.toLowerCase()}</button></div>`).join('');
+  /* 23 Nov: prices as a clean list; tap one to open it in its own box with room for the full description */
+  const PER={monthly:'a month',four_weekly:'every 4 weeks',one_off:'one-off'};
+  const ed=s.edit&&catBy(s.edit);
+  const prices=ed?`<div class="cCatEd"><button class="cTxtLink cCatBack" data-c="catBack">${cSvg('back')}All prices</button>
+     <label class="cF wide"><span>Name</span><input data-cat="${ed.id}" data-k="name" value="${cEsc(ed.name)}"></label>
+     <div class="cCatEdRow"><label class="cF"><span>Price (£)</span><input data-cat="${ed.id}" data-k="price" type="number" inputmode="decimal" value="${ed.price==null?'':ed.price}" placeholder="Ask"></label>
+       <label class="cF"><span>Billing</span>${per(ed)}</label></div>
+     <label class="cF wide"><span>What's included</span><textarea data-cat="${ed.id}" data-k="note" rows="5" placeholder="A short description shown when you pick this package">${cEsc(ed.note||'')}</textarea></label>
+     <div class="cCatEdFoot"><button class="crmGhost danger" data-c="catHide" data-id="${ed.id}">${cSvg('trash')}Remove</button><button class="crmPrimary" data-c="catBack">${cSvg('check')}Done</button></div></div>`
+   :groups.map(([k,n])=>`<div class="cSetGroup"><h4>${n}</h4><div class="cCatList">${catItems(k).map(c=>`<button class="cCatItem" data-c="catEdit" data-id="${c.id}"><span class="cCatTxt"><b>${cEsc(c.name)}</b>${c.note?`<small>${cEsc(c.note)}</small>`:''}</span><span class="cCatPr"><b>${c.price==null?'Ask':pMoney(c.price)}</b><small>${PER[c.period]||''}</small></span>${cSvg('back','flip')}</button>`).join('')}</div><button class="cMore" data-c="catAdd" data-k="${k}">${cSvg('plus')} Add to ${n.toLowerCase()}</button></div>`).join('');
   const st=gcalState();const cal=gcalCal();
   const google=`<div class="cSetGroup"><h4>Client ID</h4><p class="cSetP">From Google Cloud: <b>APIs &amp; Services → Credentials → OAuth client ID</b> (Web application) with <code>https://www.funnal.co.uk</code> and <code>https://funnal.co.uk</code> as authorised JavaScript origins. It is not a secret.</p>
      <div class="cCatRow one"><input id="cs_gid" value="${cEsc(gcalClient()||'')}" placeholder="1234-abc.apps.googleusercontent.com" autocomplete="off"><button class="crmPrimary" data-c="gcalSave">Save</button></div></div>
@@ -80,8 +89,8 @@ function crmSettingsHtml(){const s=CRM.sheet;const t=s.tab||'prices';
     ${st==='on'?`<div class="cSetGroup"><h4>Calendar to sync</h4><p class="cSetP">Shared by both of you. A calendar called Funnal, shared with James, works best.</p><select id="cs_gcal" class="cSetSel">${(GCAL.cals||[]).map(c=>`<option value="${cEsc(c.id)}" ${c.id===cal?'selected':''}>${cEsc(c.name)}${c.primary?' (main)':''}</option>`).join('')}</select></div>`:''}`;
   return `<div class="crmScrim add" data-c="sheetClose"></div><div class="crmAdd cSheet wide" role="dialog" aria-label="Settings">
    <div class="crmAddHead"><span class="cEvIc">${cSvg('cog')}</span><div><h3>Settings</h3><p>Shared by Sam and James. Changes save as you go.</p></div><button class="cIconBtn sm" data-c="sheetClose" aria-label="Close">${cSvg('x')}</button></div>
-   <div class="cTabs" data-pill="setTabs"><button class="${t==='prices'?'on':''}" data-c="setTab" data-t="prices">Prices</button><button class="${t==='google'?'on':''}" data-c="setTab" data-t="google">Calendar sync</button><button class="${t==='sound'?'on':''}" data-c="setTab" data-t="sound">Sounds</button></div>
-   <div class="cSetBody" data-scroll="settings">${t==='prices'?prices:t==='sound'?crmSoundHtml():google}</div></div>`;}
+   <div class="cTabs" data-pill="setTabs"><button class="${t==='prices'?'on':''}" data-c="setTab" data-t="prices">Prices</button><button class="${t==='google'?'on':''}" data-c="setTab" data-t="google">Calendar</button><button class="${t==='team'?'on':''}" data-c="setTab" data-t="team">Photos</button><button class="${t==='sound'?'on':''}" data-c="setTab" data-t="sound">Sounds</button></div>
+   <div class="cSetBody" data-scroll="settings">${t==='prices'?prices:t==='sound'?crmSoundHtml():t==='team'?crmTeamHtml():google}</div></div>`;}
 
 /* ---------- details panel extras ---------- */
 function crmDealHtml(r){const cat=catItems();const grp=k=>cat.filter(c=>c.kind===k);const pk=r.package&&catBy(r.package);
@@ -128,9 +137,11 @@ Object.assign(CRM_ACT,{
   evDel:async b=>{if(!b.dataset.sure){b.dataset.sure=1;b.classList.add('sure');b.querySelector('span').textContent='Tap again to delete';return;}const id=CRM.sheet.ev.id;CRM.sheet=null;crmRender();await evDelete(id);},
   sheetClose:()=>{const w=document.querySelector('#crm .cSheet');if(w&&!CRM_REDUCED()){w.classList.add('out');document.querySelector('#crm .crmSheetWrap .crmScrim')?.classList.add('out');setTimeout(()=>{CRM.sheet=null;crmRender();},180);}else{CRM.sheet=null;crmRender();}},
   settings:b=>{CRM.sheet={type:'settings',key:'set'+Date.now(),tab:b.dataset.t||'prices'};crmRender();},
-  setTab:b=>{CRM.sheet.tab=b.dataset.t;CRM.sheet.key='set'+Date.now();crmRender();},
-  catHide:b=>{cdbUpdate('cat',b.dataset.id,{active:false,updated_by:S.me});CRM.sheet.key='set'+Date.now();},
-  catAdd:async b=>{const k=b.dataset.k;const n=catItems(k).length;await cdbInsert('cat',{id:'c_'+cdbUid().slice(0,8),name:k==='package'?'New package':k==='addon'?'New add-on':'New service',kind:k,price:null,period:'monthly',sort:(k==='package'?0:k==='service'?10:80)+n+1,active:true,updated_by:S.me});CRM.sheet.key='set'+Date.now();crmRender();},
+  setTab:b=>{CRM.sheet.tab=b.dataset.t;CRM.sheet.edit=null;CRM.sheet.key='set'+Date.now();crmRender();},
+  catHide:b=>{cdbUpdate('cat',b.dataset.id,{active:false,updated_by:S.me});CRM.sheet.edit=null;CRM.sheet.key='set'+Date.now();crmRender();},
+  catEdit:b=>{CRM.sheet.edit=b.dataset.id;CRM.sheet.key='set'+Date.now();crmRender();try{CSND.open();}catch(e){}},
+  catBack:b=>{const a=document.activeElement;if(a&&a.blur)a.blur();CRM.sheet.edit=null;CRM.sheet.key='set'+Date.now();crmRender();try{CSND.close();}catch(e){}},
+  catAdd:async b=>{const k=b.dataset.k;const n=catItems(k).length;const nid='c_'+cdbUid().slice(0,8);CRM.sheet.edit=nid;await cdbInsert('cat',{id:nid,name:k==='package'?'New package':k==='addon'?'New add-on':'New service',kind:k,price:null,period:'monthly',sort:(k==='package'?0:k==='service'?10:80)+n+1,active:true,updated_by:S.me});CRM.sheet.key='set'+Date.now();crmRender();},
   gcalSave:async()=>{const v=(document.getElementById('cs_gid').value||'').trim();if(v&&!/\.apps\.googleusercontent\.com$/.test(v)){toast('<b>That doesn\'t look like a Client ID.</b> It ends in .apps.googleusercontent.com','joke');return;}await cfgSet('gcal_client',v||null);GCAL.tc=null;gcalPrepare();CRM.sheet.key='set'+Date.now();crmRender();toast('<b>Client ID saved.</b> Now connect Google Calendar.','good');},
   gcalGo:()=>gcalConnect(),
   gcalSync:()=>{gcalSync();},
@@ -138,7 +149,7 @@ Object.assign(CRM_ACT,{
   payToggle:async b=>{const r=PIPE.rows.find(x=>x.id===b.dataset.id);if(!r)return;const d=b.dataset.d;if(payPaid(r,d)){await payUnmark(r,d);}else{b.classList.add('cPop');await payMark(r,d);toast(`<b>${cEsc(r.business)}</b> paid ${pMoney(r.deal_value)} for ${pShortD(d)}.`,'good');}},
 });
 // settings inputs save as you type
-function crmSetBind(el){el.addEventListener('change',e=>{const c=e.target.closest('[data-cat]');if(c){const k=c.dataset.k;let v=c.value;if(k==='price')v=v===''?null:+v;else v=v.trim()||null;if(k==='name'&&!v)return;cdbUpdate('cat',c.dataset.cat,{[k]:v,updated_by:S.me});return;}
+function crmSetBind(el){el.addEventListener('change',e=>{if(e.target.matches&&e.target.matches('[data-face]')){crmFaceFile(e.target);return;}const c=e.target.closest('[data-cat]');if(c){const k=c.dataset.k;let v=c.value;if(k==='price')v=v===''?null:+v;else v=v.trim()||null;if(k==='name'&&!v)return;cdbUpdate('cat',c.dataset.cat,{[k]:v,updated_by:S.me});return;}
     if(e.target.id==='cs_gcal'){cfgSet('gcal_cal',e.target.value);gcalSoon();return;}
     if(e.target.id==='ce_all'){['ce_start','ce_end'].forEach(i=>{const x=document.getElementById(i);if(x)x.disabled=e.target.checked;});}});}
 
@@ -173,3 +184,14 @@ Object.assign(CRM_ACT,{
   sndToggle:b=>{S.sound=!!b.checked;try{localStorage.setItem('hl_sound',S.sound?'1':'0');}catch(e){}const m=document.getElementById('mute');if(m)m.classList.toggle('off',!S.sound);if(S.sound)CSND.toggle(true);
     document.querySelectorAll('#crm [data-c=sndTry]').forEach(x=>x.disabled=!S.sound);},
   sndTry:b=>{const k=b.dataset.k;if(CSND[k])CSND[k]();}});
+
+/* ---------- 23 Nov: profile photos (shared, so you both see each other's face) ---------- */
+function crmTeamHtml(){return `<div class="cSetGroup"><h4>Profile photos</h4><p class="cSetP">Shown in the pipeline and on the calendar. Pick a photo and it is cropped to a circle and saved for both of you.</p>
+  <div class="cFaces">${['sam','james'].map(p=>{const f=cFace(p);return `<div class="cFaceCard"><span class="cFaceBig" style="--ac:${pcolHex(p)}">${f?`<img src="${f}" alt="">`:cEsc(cName(p)[0])}</span><b>${cName(p)}</b>
+    <label class="crmGhost cFacePick">${cSvg('plus')}${f?'Change':'Add photo'}<input type="file" accept="image/*" data-face="${p}" hidden></label>${f?`<button class="cTxtLink" data-c="faceDel" data-p="${p}">Remove</button>`:''}</div>`;}).join('')}</div></div>`;}
+function crmFaceFile(inp){const f=inp.files&&inp.files[0];if(!f)return;const p=inp.dataset.face;const rd=new FileReader();rd.onload=()=>{const im=new Image();im.onload=async()=>{
+  const S2=320,cv=document.createElement('canvas');cv.width=cv.height=S2;const c=cv.getContext('2d');const s=Math.min(im.width,im.height);c.imageSmoothingQuality='high';c.drawImage(im,(im.width-s)/2,(im.height-s)/2,s,s,0,0,S2,S2);
+  const url=cv.toDataURL('image/jpeg',.86);await cfgSet('face_'+p,url);CRM.sheet.key='set'+Date.now();crmRender();try{CSND.done();}catch(e){}toast(`<b>Photo saved.</b> ${p===S.me?'Looking good.':cName(p)+' will see it too.'}`);};im.src=rd.result;};rd.readAsDataURL(f);}
+Object.assign(CRM_ACT,{
+  faceOpen:b=>{CRM.sheet={type:'settings',tab:'team',key:'set'+Date.now()};crmRender();try{CSND.open();}catch(e){}},
+  faceDel:async b=>{await cfgSet('face_'+b.dataset.p,null);CRM.sheet.key='set'+Date.now();crmRender();}});

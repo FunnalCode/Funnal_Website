@@ -39,6 +39,15 @@ function anBars(id,buckets,series,opt={}){const max=Math.max(1,...buckets.map((_
     ${series.length>1||opt.legend?`<div class="cLegend">${series.map(s=>`<span><i class="${s.cls||''}" style="--c:${s.c}"></i>${cEsc(s.n)}</span>`).join('')}</div>`:''}</div>`;}
 function anNice(m){const p=Math.pow(10,Math.floor(Math.log10(m)));const f=m/p;return (f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*p;}
 
+
+/* 23 Nov: DM numbers from the game (both of you together) */
+function anDms(r){const out={dm:0,fu:0,resp:0,vid:0,meet:0,work:0,hit:0,best:0,bestD:null,days:0};if(typeof G==='undefined'||!G||!G.days)return out;const cfg=C();
+  const first=Object.keys(G.days).filter(k=>Object.values(G.days[k].p||{}).some(x=>x.d)).sort()[0]||G.today;let d=r[0]<first?first:r[0];
+  for(let i=0;i<800&&d<=r[1];i++,d=addDays(d,1)){const D=G.days[d];const w=isWork(d,cfg);if(w&&d<=G.today)out.work++;if(!D)continue;
+    const sum=k=>Object.values(D.p||{}).reduce((a,x)=>a+(x[k]||0),0);const dm=sum('d');out.dm+=dm;out.fu+=sum('f');out.resp+=sum('r');out.vid+=sum('v');out.meet+=sum('m');if(dm)out.days++;
+    if(D.hit)out.hit++;if(dm>out.best){out.best=dm;out.bestD=d;}}
+  return out;}
+function anDmBuckets(p){const t=G.today;if(p==='30'){const o=[];for(let i=29;i>=0;i--){const a=addDays(t,-i);o.push({a,b:a,lab:i%5===0||i===29?pShortD(a):'',tip:pShortD(a)});}return o;}return anBuckets(p);}
 function crmAnalytics(rows){anLoad();const p=CRM.an.p;const r=anRange(p),pr=anPrev(p);const cur=anStats(r),prev=pr?anStats(pr):null;const C=AN_COL[anDark()?'dark':'light'];
   const periods=[['30','30 days'],['90','90 days'],['365','12 months'],['all','All time']];
   const cl=PIPE.rows.filter(x=>x.stage==='client');const mrr=Math.round(cl.reduce((a,x)=>a+pMonthly(x),0));const goal=pGoal();
@@ -73,6 +82,10 @@ function crmAnalytics(rows){anLoad();const p=CRM.an.p;const r=anRange(p),pr=anPr
   // income by package or service
   const inc={};cl.forEach(x=>{const k=(x.package&&catBy(x.package)&&catBy(x.package).name)||(x.products||[])[0]||'Other';inc[k]=(inc[k]||0)+pMonthly(x);});const incL=Object.entries(inc).filter(e=>e[1]>0).sort((a,b)=>b[1]-a[1]).slice(0,6);const imax=Math.max(1,...incL.map(e=>e[1]));
   const income=incL.length?`<div class="cHBars">${incL.map(([n,v],i)=>`<div class="cHBar" style="--i:${i}" data-tip="${cEsc(`<b>${cEsc(n)}</b><span>${pMoney(v)} a month</span>`)}" tabindex="0"><span>${cEsc(n)}</span><span class="cFunTrack"><i style="--w:${v/imax*100}%;--c:${C[0]}"></i></span><b>${pMoney(v)}</b></div>`).join('')}</div>`:`<p class="cSetP">Retainer clients show here once they have billing set.</p>`;
+  // DMs (from the game)
+  const dmC=anDms(r),dmP=pr?anDms(pr):null;const dbk=anDmBuckets(p);const dsum=(b,k)=>{let t=0;for(let d=b.a,i=0;d<=b.b&&i<40;d=addDays(d,1),i++){const D=G.days&&G.days[d];if(D)t+=Object.values(D.p||{}).reduce((a,x)=>a+(x[k]||0),0);}return t;};
+  const dmChart=anBars('dms',dbk.map(b=>({...b,tip:b.tip||`${p==='90'?'Week of ':''}${b.lab}`})),[{n:'DMs',c:C[0],v:dbk.map(b=>dsum(b,'d'))},{n:'Follow-ups',c:C[1],v:dbk.map(b=>dsum(b,'f'))}]);
+  const dmKV=`<div class="cKV cKV6">${[['DMs sent',fmtN(dmC.dm),dmP?anDelta(dmC.dm,dmP.dm):''],['A working day',dmC.work?Math.round(dmC.dm/dmC.work):'–','on average'],['Target hit',`${dmC.hit} of ${dmC.work}`,'working days'],['Best day',dmC.best||'–',dmC.bestD?pShortD(dmC.bestD):''],['Follow-ups',fmtN(dmC.fu),dmP?anDelta(dmC.fu,dmP.fu):''],['Responses',fmtN(dmC.resp),dmC.dm?`${(dmC.resp/dmC.dm*100).toFixed(1)}% of DMs`:'']].map(([k,v,sub])=>`<div><small>${k}</small><b>${v}</b>${sub?`<em>${sub}</em>`:''}</div>`).join('')}</div>`;
   const empty=!PIPE.rows.length&&!CDB.pay.length;
   return `<div class="cPage cAnalytics">
    <div ${cIn(0,'cHello')}><div><h1>Analytics</h1><p>${empty?'Numbers fill in as you use the pipeline.':`How outreach is turning into clients${p==='all'?'':', over the last '+(p==='365'?'12 months':p+' days')}.`}</p></div>
@@ -81,6 +94,7 @@ function crmAnalytics(rows){anLoad();const p=CRM.an.p;const r=anRange(p),pr=anPr
    <div class="cStats">${tile(5,'star','Clients won',cur.won,'int',pv('won'),'','tint')}${tile(6,'money','Money in',cur.cash,'money',pv('cash'),'')}${tile(7,'trend','Monthly income now',mrr,'money',`<span class="cMiniBar"><i style="--w:${Math.min(100,Math.round(mrr/goal*100))}%"></i></span>${Math.min(999,Math.round(mrr/goal*100))}% of ${pMoney(goal)}`,'','ink')}${tile(8,'target','Messages to a client',cur.won?Math.round(cur.msg/cur.won):0,'int',cur.won?'first messages per client won':'needs a win in this period','')}</div>
    ${vs?`<p class="cVs">Arrows compare with the ${p==='365'?'12 months':p+' days'} before.</p>`:''}
    <div class="cAnGrid">
+    <section ${cIn(9,'cPanel cAnWide')}><header class="cPanelH"><div><h3>DMs</h3><p>From the game, both of you together · ${p==='30'?'day by day':p==='90'?'week by week':'month by month'}</p></div></header>${dmKV}${dmChart}</section>
     <section ${cIn(9,'cPanel cAnWide')}><header class="cPanelH"><div><h3>Outreach</h3><p>${p==='30'||p==='90'?'Week by week':'Month by month'}</p></div></header>${CRM_AN.ev?act:'<div class="crmLoading"><i></i><i></i><i></i></div>'}</section>
     <section ${cIn(10,'cPanel cAnWide')}><header class="cPanelH"><div><h3>Money in</h3><p>Payments marked paid, and what is still due from current clients</p></div></header>${money}</section>
     <section ${cIn(11,'cPanel')}><header class="cPanelH"><div><h3>From prospect to client</h3><p>${p==='all'?'Everyone in the pipeline':'Prospects added in this period'}, and how far they got</p></div></header>${funnel}</section>

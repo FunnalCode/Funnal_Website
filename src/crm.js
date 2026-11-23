@@ -18,7 +18,8 @@ function cRel(d){const n=cDays(d);if(n==null)return '';if(n===0)return 'today';i
 function cDueLabel(x){const n=cDays(x.d);if(x.cls==='stale')return 'Gone quiet';if(n<0)return `${-n}d overdue`;if(n===0)return 'Due today';if(n===1)return 'Tomorrow';return pShortD(x.d);}
 const cName=p=>p==='sam'?'Sam':p==='james'?'James':(p?pnameRaw(p):'');
 const cOwnerName=p=>p?cName(p):'Unassigned';
-const cAv=(p,cls='')=>p?`<span class="cAv ${cls}" style="--ac:${pcolHex(p)}" title="${cEsc(cOwnerName(p))}">${cEsc(cOwnerName(p)[0])}</span>`:'';
+const cFace=p=>{try{const v=typeof cfgGet==='function'&&cfgGet('face_'+p);return v&&/^data:image\//.test(v)?v:null;}catch(e){return null;}};
+const cAv=(p,cls='')=>{if(!p)return '';const f=cFace(p);return `<span class="cAv ${cls}${f?' img':''}" style="--ac:${pcolHex(p)}" title="${cEsc(cOwnerName(p))}">${f?`<img src="${f}" alt="">`:cEsc(cOwnerName(p)[0])}</span>`;};
 const cOwnerChip=p=>cAv(p);
 const cBiz=(r,cls='')=>`<span class="cBizAv ${cls}" style="--sc:${CRM_STAGE_COL[r.stage]||'#6B6B6B'}">${cEsc(cIni(r.business))}</span>`;
 const cRows=()=>{const q=CRM.q.trim().toLowerCase();return PIPE.rows.filter(r=>(!CRM.review||r.review)&&(!q||pSearchKey(r).includes(q)));};
@@ -86,7 +87,7 @@ function crmRender(first){const root=document.getElementById('crm');if(!root)ret
     <nav class="cNav" data-pill="nav" role="tablist">${views.map(([k,n,ic,c,cls])=>`<button role="tab" aria-selected="${CRM.view===k}" class="${CRM.view===k?'on':''}" data-c="view" data-v="${k}" title="${n}">${cSvg(ic)}<span class="cNavTxt">${n}</span>${c?`<i class="${cls||''}">${c}</i>`:''}</button>`).join('')}</nav>
     <div class="cGrow"></div>
     <button class="cGoalCard" data-c="goalNav" title="Monthly retainers"><span class="cGoalTop"><span>Retainers</span>${cSvg('up')}</span><b>${pMoney(mrr)}<small>/${pMoney(goal)}</small></b><span class="cDots">${Array.from({length:20},(_,i)=>`<i class="${i<Math.round(gp/5)?'on':''}"></i>`).join('')}</span><small class="cGoalFoot">${gp}% of the monthly goal</small></button>
-    <div class="cMe">${cAv(S.me,'lg')}<span class="cNavTxt"><b>${cEsc(cName(S.me))}</b><small>Signed in</small></span><button class="cIconBtn" data-c="settings" aria-label="Settings" title="Settings">${cSvg('cog')}</button><button class="cIconBtn cMeTheme" data-c="theme" aria-label="${dark?'Switch to light mode':'Switch to dark mode'}">${cSvg(dark?'sun':'moon')}</button></div>
+    <div class="cMe"><button class="cMeAv" data-c="faceOpen" aria-label="Change your photo" title="Change your photo">${cAv(S.me,'lg')}</button><span class="cNavTxt"><b>${cEsc(cName(S.me))}</b><small>Signed in</small></span><button class="cIconBtn" data-c="settings" aria-label="Settings" title="Settings">${cSvg('cog')}</button><button class="cIconBtn cMeTheme" data-c="theme" aria-label="${dark?'Switch to light mode':'Switch to dark mode'}">${cSvg(dark?'sun':'moon')}</button></div>
    </aside>`,top:`<header class="cTop">
      <div class="cTopL"><button class="cIconBtn cBackTop" data-c="back" aria-label="Back to the game">${cSvg('back')}</button>${cMark()}<div class="cCrumb"><span>Pipeline</span>${cSvg('back','flip')}<b>${crumbs[CRM.view]}</b></div></div>
      <div class="cTopR">
