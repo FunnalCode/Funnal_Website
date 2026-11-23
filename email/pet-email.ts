@@ -2,7 +2,9 @@
 //  - the pet sighting email, once a working day at the sighting start
 //  - 23 Nov: the 08:00 pipeline digest (follow-ups due, today's meetings and events, payments due)
 //  - 23 Nov: a heads-up 30 minutes before each meeting or call in the pipeline calendar
-// All need the RESEND_API_KEY secret. Without it nothing sends, and ?dry shows what would.
+// The Resend key and sender live in hl_private (server-only), or the RESEND_API_KEY / MAIL_FROM secrets.
+// Until funnal.co.uk is verified in Resend, mail falls back to Resend's test sender, which only reaches Sam.
+// ?dry shows what would send; ?test sends a test email now.
 const TPL = `<div style="background-color:#F5EFDF;padding:24px 12px;font-family:'Trebuchet MS',Verdana,sans-serif;color:#3F5160"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#FFFCF4" style="max-width:600px;margin:0 auto;background-color:#FFFCF4;border-radius:22px;overflow:hidden;border:2px solid #E9DFC6"><tr><td><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td bgcolor="#1E3550" align="center" style="background:#1E3550;padding:26px 16px 8px;font-family:Arial,sans-serif"><div style="font-size:12px;letter-spacing:3px;color:#F2C462;font-weight:bold">PET SIGHTING &middot; FUNNAL COVE</div><div style="font-size:72px;line-height:96px">PETEMOJI</div></td></tr><tr><td bgcolor="COLOUR" align="center" style="background:COLOUR;padding:10px 16px;font-family:Arial,sans-serif;font-size:16px;font-weight:bold;color:#ffffff;letter-spacing:2px">RARITYUP PET &middot; NEED DMS BY END</td></tr><tr><td bgcolor="#2A6E8C" style="background:#2A6E8C;font-size:6px;line-height:6px">&nbsp;</td></tr></table></td></tr><tr><td bgcolor="COLOUR" style="background-color:COLOUR;color:#ffffff;text-align:center;padding:10px 16px;font-size:13px;font-weight:bold;letter-spacing:2px;text-transform:uppercase"><font color="#ffffff">RARITY pet sighting &middot; Funnal Cove</font></td></tr><tr><td style="padding:26px 28px 6px;text-align:center"><div style="font-size:27px;line-height:1.2;font-weight:bold;color:#2C3E50">Something PHRASE has surfaced, captains.</div><p style="font-size:16px;line-height:1.5;margin:14px 0 0">A <b style="color:COLOUR">RARITY</b> pet is in Funnal Cove right now, until <b>END</b> UK time. Log NEED DMs before then and it is yours. Rarer pets ask for more, so clear your diary.</p></td></tr><tr><td style="padding:16px 28px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td width="32%" bgcolor="#EEF2F5" style="background-color:#EEF2F5;border-radius:14px;padding:14px 6px;text-align:center"><div style="font-size:26px;font-weight:bold;color:#2C3E50">NEED</div><div style="font-size:12px">DMs to log</div></td><td width="2%"></td><td width="32%" bgcolor="#EEF2F5" style="background-color:#EEF2F5;border-radius:14px;padding:14px 6px;text-align:center"><div style="font-size:26px;font-weight:bold;color:#2C3E50">WINDOW</div><div style="font-size:12px">minutes</div></td><td width="2%"></td><td width="32%" bgcolor="#EEF2F5" style="background-color:#EEF2F5;border-radius:14px;padding:14px 6px;text-align:center"><div style="font-size:19px;line-height:31px;font-weight:bold;color:#2C3E50;white-space:nowrap">START&ndash;END</div><div style="font-size:12px">UK time</div></td></tr></table></td></tr><tr><td align="center" style="padding:8px 28px 28px;text-align:center"><table role="presentation" cellpadding="0" cellspacing="0" align="center" style="margin:0 auto"><tr><td align="center" bgcolor="#2C3E50" style="background-color:#2C3E50;border-radius:999px;border-bottom:4px solid #1D2A36"><a href="https://funnal.co.uk/crew" target="_blank" style="display:inline-block;padding:15px 38px;font-size:18px;font-weight:bold;color:#ffffff;text-decoration:none;border-radius:999px"><font color="#ffffff">Board the ship &rarr;</font></a></td></tr></table><p style="font-size:13px;line-height:1.5;color:#7F8A95;margin:18px 0 0">JOKE The pet stays a surprise until you claim it.<br>Gary the gull, Head of Pet Sightings, Hundred Cannons</p></td></tr></table></div>`;
 const KEY_URL = Deno.env.get("SUPABASE_URL")!;
 const SRK = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -26,6 +28,19 @@ function ukNow() {
 async function rest(path: string, init: RequestInit = {}) {
   return fetch(`${KEY_URL}/rest/v1/${path}`, { ...init, headers: { apikey: SRK, Authorization: `Bearer ${SRK}`, "Content-Type": "application/json", ...(init.headers || {}) } });
 }
+const PRIV: Record<string, string> = {};
+async function priv(k: string) { if (k in PRIV) return PRIV[k]; const r = await rest(`hl_private?k=eq.${k}&select=v`); const j = r.ok ? await r.json() : []; PRIV[k] = (j[0] && j[0].v) || ""; return PRIV[k]; }
+async function resendKey() { return Deno.env.get("RESEND_API_KEY") || (await priv("resend_key")) || ""; }
+async function mail(subject: string, html: string, text: string) {
+  const key = await resendKey(); if (!key) throw new Error("no key");
+  const to = (Deno.env.get("MAIL_TO") || "sam@funnal.co.uk,james@funnal.co.uk").split(",");
+  const from = Deno.env.get("MAIL_FROM") || (await priv("mail_from")) || "Hundred Cannons <onboarding@resend.dev>";
+  const go = (f: string, t: string[]) => fetch("https://api.resend.com/emails", { method: "POST", headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" }, body: JSON.stringify({ from: f, to: t, subject, html, text }) });
+  let r = await go(from, to); let out = await r.text();
+  // domain not verified yet: Resend's test sender, which can only email the account owner
+  if (!r.ok && /verif|domain|own email/i.test(out) && !/resend\.dev/.test(from)) { r = await go("Hundred Cannons <onboarding@resend.dev>", ["sam@funnal.co.uk"]); out = (await r.text()) + " (sent from the Resend test address to Sam only: verify funnal.co.uk in Resend)"; }
+  if (!r.ok) throw new Error(out); return out;
+}
 async function petMail(req: Request) {
   const u = new URL(req.url); const dry = u.searchParams.has("dry"); const now = ukNow(); const D = u.searchParams.get("date") || now.D;
   const s = sighting(D);
@@ -38,14 +53,12 @@ async function petMail(req: Request) {
   for (const [a, b] of [["PETEMOJI", c[2]], ["RARITYUP", s.rar.toUpperCase()], ["COLOUR", c[0]], ["RARITY", s.rar], ["PHRASE", c[1]], ["NEED", String(s.need)], ["WINDOW", String(s.win)], ["START", s.st], ["END", s.en], ["JOKE", jokes[h32(D + "joke") % jokes.length]]]) html = html.split(a).join(b);
   const subject = `Pet sighting now: ${s.rar[0].toUpperCase() + s.rar.slice(1)} pet, ${s.need} DMs by ${s.en}`;
   const text = `A ${s.rar} pet is in Funnal Cove right now. Log ${s.need} DMs in Hundred Cannons by ${s.en} UK time to claim it. Board the ship: https://funnal.co.uk/crew  -- Gary the gull`;
-  const to = (Deno.env.get("MAIL_TO") || "sam@funnal.co.uk,james@funnal.co.uk").split(",");
-  const key = Deno.env.get("RESEND_API_KEY");
-  if (dry || !key) return Response.json({ dry: true, haveKey: !!key, D, ...s, subject, to }, { headers: {} });
+  const key = await resendKey();
+  if (dry || !key) return Response.json({ dry: true, haveKey: !!key, D, ...s, subject });
   const ins = await rest("hl_mail_log?on_conflict=d", { method: "POST", headers: { Prefer: "resolution=ignore-duplicates,return=representation" }, body: JSON.stringify({ d: D }) });
   const rows = await ins.json(); if (!Array.isArray(rows) || !rows.length) return Response.json({ skip: "already sent", D });
-  const r = await fetch("https://api.resend.com/emails", { method: "POST", headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" }, body: JSON.stringify({ from: Deno.env.get("MAIL_FROM") || "Hundred Cannons <onboarding@resend.dev>", to, subject, html, text }) });
-  const out = await r.text();
-  if (!r.ok) { await rest(`hl_mail_log?d=eq.${D}`, { method: "DELETE" }); return Response.json({ error: out }, { status: 500 }); }
+  let out = "";
+  try { out = await mail(subject, html, text); } catch (e) { await rest(`hl_mail_log?d=eq.${D}`, { method: "DELETE" }); return Response.json({ error: (e as Error).message }, { status: 500 }); }
   await rest(`hl_mail_log?d=eq.${D}`, { method: "PATCH", body: JSON.stringify({ info: out }) });
   return Response.json({ sent: true, D, out });
 }
@@ -57,11 +70,7 @@ const esc = (x: unknown) => String(x ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&
 async function J(path: string) { const r = await rest(path); return r.ok ? r.json() : []; }
 async function claim(k: string) { const r = await rest("hl_notify_log?on_conflict=k", { method: "POST", headers: { Prefer: "resolution=ignore-duplicates,return=representation" }, body: JSON.stringify({ k }) }); const j = await r.json().catch(() => []); return Array.isArray(j) && j.length > 0; }
 async function unclaim(k: string) { await rest(`hl_notify_log?k=eq.${encodeURIComponent(k)}`, { method: "DELETE" }); }
-async function send(subject: string, html: string, text: string) {
-  const key = Deno.env.get("RESEND_API_KEY"); if (!key) throw new Error("no key");
-  const r = await fetch("https://api.resend.com/emails", { method: "POST", headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" }, body: JSON.stringify({ from: Deno.env.get("MAIL_FROM") || "Hundred Cannons <onboarding@resend.dev>", to: MAIL_TO(), subject, html, text }) });
-  const out = await r.text(); if (!r.ok) throw new Error(out); return out;
-}
+const send = (subject: string, html: string, text: string) => mail(subject, html, text);
 const dayAdd = (d: string, n: number) => { const x = new Date(d + "T12:00:00Z"); x.setUTCDate(x.getUTCDate() + n); return x.toISOString().slice(0, 10); };
 const ukDay = (iso: string) => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/London" }).format(new Date(iso));
 const ukTime = (iso: string) => new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/London", hour: "2-digit", minute: "2-digit" }).format(new Date(iso));
@@ -115,6 +124,7 @@ async function soon(dry: boolean) {
 }
 Deno.serve(async (req) => {
   const u = new URL(req.url); const dry = u.searchParams.has("dry"); const now = ukNow(); const res: Record<string, unknown> = {};
+  if (u.searchParams.has("test")) { try { const out = await mail("Hundred Cannons: email is working", shell("Email is working", "Pet sightings, the 08:00 pipeline summary and meeting reminders will land here.", card("What you'll get", [row("Pet sightings", "Once a working day, when a pet turns up in Funnal Cove"), row("Pipeline today", "08:00 on working days: follow-ups due, meetings and payments"), row("Meeting reminders", "30 minutes before each meeting or call in the pipeline calendar")], "")), "Hundred Cannons email is working."); return Response.json({ test: "sent", out }); } catch (e) { return Response.json({ test: "failed", error: (e as Error).message }); } }
   try { res.soon = await soon(dry); } catch (e) { res.soon = (e as Error).message; }
   if (dry || (now.min >= 480 && now.min < 540)) {
     // the morning digest goes out from 08:00 on working days (retries until 09:00 if sending fails)
@@ -122,6 +132,6 @@ Deno.serve(async (req) => {
     if (dry || wd.trim() !== "false") { try { res.digest = await digest(now.D, dry); } catch (e) { res.digest = (e as Error).message; } }
   }
   const pet = await petMail(req); res.pet = await pet.json().catch(() => null);
-  res.haveKey = !!Deno.env.get("RESEND_API_KEY");
+  res.haveKey = !!(await resendKey());
   return Response.json(res);
 });
