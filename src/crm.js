@@ -8,7 +8,7 @@
    Same data, shared tables and history as before. Edits save as you type. */
 const CRM={view:'today',q:'',owner:'all',stage:'messaged',open:null,closed:false,review:false,tab:null,adding:false,from:'harbour',drag:null,saveT:{},anim:true,search:false,
   rail:(()=>{try{return localStorage.getItem('hl_crm_rail')==='1';}catch(e){return false;}})()};
-const CRM_STAGE_COL={video_needed:'#C4493E',video_made:'#8A6CC9',messaged:'#486790',followed_up:'#3A8E8A',talking:'#3E9468',meeting:'#D19A3A',quote_sent:'#E06034',client:'#283338',not_now:'#8C959D',no_response:'#A9B0B6'};
+const CRM_STAGE_COL={video_needed:'#C91E36',video_made:'#B98A8A',messaged:'#486790',followed_up:'#7FA2D2',talking:'#DDA94D',meeting:'#B8862E',quote_sent:'#566C80',client:'#3F5160',not_now:'#9A9A9A',no_response:'#B4B4B4'};
 const CRM_STAGE_HINT={video_needed:'Record a Loom for these',video_made:'Ready to send',messaged:'First message sent',followed_up:'Nudged at least once',talking:'In conversation',meeting:'Call booked or held',quote_sent:'Waiting on a decision',client:'Signed',not_now:'Comes back on a date',no_response:'Parked'};
 const CRM_REDUCED=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
 const cEsc=s=>esc(s==null?'':String(s));
@@ -25,7 +25,7 @@ const cIcon={back:'M15 18l-6-6 6-6',search:'M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14z
   today:'M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zM4 9h16M9 13.5l2 2 4-4',board:'M4 5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1zM10.5 5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1zM17 5a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1z',clients:'M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5z',
   users:'M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM2 21a7 7 0 0 1 14 0M16 3.5a4 4 0 0 1 0 7.5M18 14a6 6 0 0 1 4 7',rail:'M4 5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1zM9 4v16',sun:'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4',moon:'M20.5 14.6A8.5 8.5 0 0 1 9.4 3.5a8.5 8.5 0 1 0 11.1 11.1z',
   money:'M12 3v18M16.5 7.5c-.7-1.4-2.4-2.2-4.5-2.2-2.6 0-4.3 1.3-4.3 3.2 0 4.5 9 2.3 9 6.8 0 1.9-1.9 3.4-4.7 3.4-2.3 0-4-.9-4.8-2.5',target:'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10zM12 11a1 1 0 1 0 0 2 1 1 0 0 0 0-2z',layers:'M12 3l9 5-9 5-9-5zM3 13l9 5 9-5'};
-const cSvg=(k,cls='')=>`<svg class="cI ${cls}" viewBox="0 0 24 24" aria-hidden="true"><path d="${cIcon[k]}"/></svg>`;
+const cSvg=(k,cls='')=>`<svg class="cI ${cls}${k==='g'?' fill':''}" viewBox="0 0 24 24" aria-hidden="true"><path d="${cIcon[k]}"/></svg>`;
 const cMark=()=>`<span class="crmMark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h18l-7 8v6l-4 2v-8z"/></svg></span>`;
 // a number that counts up when its panel first appears
 const cNum=(n,fmt='int')=>{const txt=fmt==='money'?pMoney(n):fmt==='pct'?n+'%':String(n);return `<span class="cNum" data-n="${+n||0}" data-fmt="${fmt}">${cEsc(txt)}</span>`;};
@@ -51,8 +51,8 @@ function cCount(root){if(CRM_REDUCED())return;root.querySelectorAll('.cNum').for
 
 /* ---------- open and close ---------- */
 SCREENS.pipeline=()=>'<div class="pad crmHold"></div>';
-function crmShow(){document.querySelectorAll('#toasts .toast').forEach(t=>{if(t.querySelector('[data-act=pGoSched]'))t.remove();});let el=document.getElementById('crm');if(!el){el=document.createElement('div');el.id='crm';el.setAttribute('role','application');el.setAttribute('aria-label','Pipeline');el.innerHTML='<div class="crmApp"></div><div class="crmScrim" data-c="close"></div><aside class="crmDrawer" aria-label="Prospect details"></aside><div class="crmAddWrap"></div>';document.body.appendChild(el);crmBind(el);}
-  if(!el.classList.contains('on')){el.classList.add('on');document.documentElement.classList.add('crmOpen');pipeStart();if(typeof pEvStart==='function')pEvStart();CRM.anim=true;crmRender(true);}}
+function crmShow(){document.querySelectorAll('#toasts .toast').forEach(t=>{if(t.querySelector('[data-act=pGoSched]'))t.remove();});let el=document.getElementById('crm');if(!el){el=document.createElement('div');el.id='crm';el.setAttribute('role','application');el.setAttribute('aria-label','Pipeline');el.innerHTML='<div class="crmApp"></div><div class="crmScrim" data-c="close"></div><aside class="crmDrawer" aria-label="Prospect details"></aside><div class="crmAddWrap"></div><div class="crmSheetWrap"></div>';document.body.appendChild(el);crmBind(el);crmSetBind(el);crmQuoteBind(el);}
+  if(!el.classList.contains('on')){el.classList.add('on');document.documentElement.classList.add('crmOpen');pipeStart();cdbStart();gcalRestore();gcalPrepare();gcalTick();if(gcalState()==='on')setTimeout(gcalSync,800);if(typeof pEvStart==='function')pEvStart();CRM.anim=true;crmRender(true);}}
 function crmHide(){const el=document.getElementById('crm');if(el&&el.classList.contains('on')){el.classList.remove('on');document.documentElement.classList.remove('crmOpen','crmDr');CRM.open=null;}}
 let CRM_PREV='harbour';
 {const _dv=decorateView;decorateView=function(){_dv.apply(this,arguments);try{if(S.screen==='pipeline'){if(S.view.ptab){CRM.view=S.view.ptab==='schedule'?'today':S.view.ptab==='clients'?'clients':S.view.ptab==='board'?'board':CRM.view;if(S.view.pstage){CRM.stage=S.view.pstage;CRM.view='board';}S.view.ptab=null;S.view.pstage=null;}CRM.from=CRM_PREV;crmShow();}else{CRM_PREV=S.screen||'harbour';crmHide();}}catch(e){console.warn('crm',e);}};}
@@ -67,10 +67,11 @@ function crmRender(first){const root=document.getElementById('crm');if(!root)ret
   const act=document.activeElement;const typing=act&&act.matches&&act.matches('[data-crm-q]');const caret=typing?act.selectionStart:null;
   const rows=cRows();const items=pSchedItems(rows);const due=items.filter(x=>x.cls==='over'||x.cls==='today').length;
   const open=rows.filter(r=>r.stage in P_IDX&&r.stage!=='client').length;const cl=rows.filter(r=>r.stage==='client').length;
-  const views=[['today','Today','today',due,'due'],['board','Board','board',open],['clients','Clients','clients',cl]];
-  const crumbs={today:'Today',board:'Board',clients:'Clients'};const dark=typeof hcTheme==='function'&&hcTheme()==='dark';
+  const evT=typeof evLive==='function'?evLive().filter(e=>evDay(e)===G.today).length:0;
+  const views=[['today','Today','today',due,'due'],['board','Board','board',open],['calendar','Calendar','cal',evT],['clients','Clients','clients',cl]];
+  const crumbs={today:'Today',board:'Board',calendar:'Calendar',clients:'Clients'};const dark=typeof hcTheme==='function'&&hcTheme()==='dark';
   const who=[['all','Everyone',PIPE.rows.length],['sam',pnameRaw('sam'),PIPE.rows.filter(r=>r.owner==='sam').length],['james',pnameRaw('james'),PIPE.rows.filter(r=>r.owner==='james').length]];
-  const mrr=PIPE.rows.filter(r=>r.stage==='client'&&r.deal_period==='monthly').reduce((a,r)=>a+(+r.deal_value||0),0);const goal=pGoal();const gp=Math.min(100,Math.round(mrr/goal*100));
+  const mrr=Math.round(PIPE.rows.filter(r=>r.stage==='client').reduce((a,r)=>a+pMonthly(r),0));const goal=pGoal();const gp=Math.min(100,Math.round(mrr/goal*100));
   root.classList.toggle('rail',CRM.rail);
   el.innerHTML=`
    <aside class="cSide" aria-label="Pipeline navigation">
@@ -82,7 +83,7 @@ function crmRender(first){const root=document.getElementById('crm');if(!root)ret
     <div class="cWho" data-pill="who">${who.map(([k,n,c])=>`<button class="${CRM.owner===k?'on':''}" data-c="owner" data-o="${k}" title="${cEsc(n)}">${k==='all'?`<span class="cAv all">${cSvg('users')}</span>`:cAv(k)}<span class="cNavTxt">${cEsc(n)}</span><i>${c}</i></button>`).join('')}</div>
     <div class="cGrow"></div>
     <button class="cGoalCard" data-c="goalNav" title="Monthly retainers"><span class="cGoalTop"><span>Retainers</span>${cSvg('up')}</span><b>${pMoney(mrr)}<small>/${pMoney(goal)}</small></b><span class="cDots">${Array.from({length:20},(_,i)=>`<i class="${i<Math.round(gp/5)?'on':''}"></i>`).join('')}</span><small class="cGoalFoot">${gp}% of the monthly goal</small></button>
-    <div class="cMe">${cAv(S.me,'lg')}<span class="cNavTxt"><b>${cEsc(pnameRaw(S.me))}</b><small>Signed in</small></span><button class="cIconBtn" data-c="theme" aria-label="${dark?'Switch to light mode':'Switch to dark mode'}">${cSvg(dark?'sun':'moon')}</button></div>
+    <div class="cMe">${cAv(S.me,'lg')}<span class="cNavTxt"><b>${cEsc(pnameRaw(S.me))}</b><small>Signed in</small></span><button class="cIconBtn" data-c="settings" aria-label="Settings" title="Settings">${cSvg('cog')}</button><button class="cIconBtn cMeTheme" data-c="theme" aria-label="${dark?'Switch to light mode':'Switch to dark mode'}">${cSvg(dark?'sun':'moon')}</button></div>
    </aside>
    <div class="cMainCol">
     <header class="cTop">
@@ -90,15 +91,16 @@ function crmRender(first){const root=document.getElementById('crm');if(!root)ret
      <div class="cTopR">
       <label class="cSearch ${CRM.search||CRM.q?'show':''}">${cSvg('search')}<input data-crm-q type="search" placeholder="Search prospects" value="${cEsc(CRM.q)}" aria-label="Search prospects"><kbd>/</kbd></label>
       <button class="cIconBtn cSearchBtn" data-c="searchT" aria-label="Search">${cSvg(CRM.search||CRM.q?'x':'search')}</button>
-      <button class="cIconBtn cThemeTop" data-c="theme" aria-label="${dark?'Switch to light mode':'Switch to dark mode'}">${cSvg(dark?'sun':'moon')}</button>
+      <button class="cIconBtn cSetTop" data-c="settings" aria-label="Settings">${cSvg('cog')}</button><button class="cIconBtn cThemeTop" data-c="theme" aria-label="${dark?'Switch to light mode':'Switch to dark mode'}">${cSvg(dark?'sun':'moon')}</button>
       <button class="crmPrimary crmAddBtn" data-c="add">${cSvg('plus')}<span>New prospect</span></button>
      </div>
     </header>
     ${PIPE.err?`<div class="crmErr">${cEsc(PIPE.err)} <button data-c="reload">Try again</button></div>`:''}
-    ${!PIPE.ready?'<div class="crmLoading"><i></i><i></i><i></i></div>':`<main class="crmMain view-${CRM.view} ${CRM.anim?'enter':''}" data-scroll="main">${CRM.view==='board'?crmBoard(rows):CRM.view==='clients'?crmClients(rows):crmToday(rows,items)}</main>`}
+    ${!PIPE.ready?'<div class="crmLoading"><i></i><i></i><i></i></div>':`<main class="crmMain view-${CRM.view} ${CRM.anim?'enter':''}" data-scroll="main">${CRM.view==='board'?crmBoard(rows):CRM.view==='clients'?crmClients(rows):CRM.view==='calendar'?crmCal(rows):crmToday(rows,items)}</main>`}
    </div>
    <button class="crmFab" data-c="add" aria-label="New prospect">${cSvg('plus')}</button>`;
   root.classList.toggle('drawerOn',!!CRM.open);document.documentElement.classList.toggle('crmDr',!!CRM.open);const dr=root.querySelector('.crmDrawer');dr.setAttribute('aria-hidden',String(!CRM.open));
+  const sw=root.querySelector('.crmSheetWrap');if(CRM.sheet){if(sw.dataset.k!==CRM.sheet.key||(CRM.sheet.type==='settings'&&!sw.contains(document.activeElement))){const top=sw.querySelector('.cSetBody');const st=top&&sw.dataset.t===CRM.sheet.type?top.scrollTop:0;sw.innerHTML=CRM.sheet.type==='event'?crmEvHtml():CRM.sheet.type==='quote'?crmQuoteHtml():crmSettingsHtml();sw.dataset.k=CRM.sheet.key;sw.dataset.t=CRM.sheet.type;const t2=sw.querySelector('.cSetBody');if(t2)t2.scrollTop=st;cPills(sw,false);if(CRM.sheet.type==='event'&&!CRM.sheet.ev.id)setTimeout(()=>{const i=document.getElementById('ce_title');if(i)i.focus();},40);}}else if(sw.firstChild){sw.innerHTML='';sw.dataset.k='';}
   const aw=root.querySelector('.crmAddWrap');if(CRM.adding&&!aw.firstChild)aw.innerHTML=crmAddHtml();else if(!CRM.adding&&aw.firstChild)aw.innerHTML='';
   if(typing){const i=el.querySelector('[data-crm-q]');if(i){i.focus();try{i.setSelectionRange(caret,caret);}catch(e){}}}
   if(CRM.open&&(first===true||!dr.contains(document.activeElement))){const ds=dr.querySelector('[data-scroll=drawer]');const top=first===true?0:(ds?ds.scrollTop:0);crmDrawerFill(first);const ds2=dr.querySelector('[data-scroll=drawer]');if(ds2)ds2.scrollTop=top;}else if(!CRM.open){dr.classList.remove('on');}
@@ -112,7 +114,7 @@ function crmUpNext(rows,items){const wk=G.today;const meet=rows.filter(r=>r.stag
   if(meet)return {r:meet,kind:'Meeting',when:cRel(meet.meeting_at),big:meet.meeting_at===wk?'Today':cDays(meet.meeting_at)===1?'Tomorrow':pShortD(meet.meeting_at),it:items.find(x=>x.r.id===meet.id)};
   const it=items.find(x=>x.cls==='over')||items.find(x=>x.cls==='today')||items.find(x=>x.cls==='later');if(!it)return null;
   return {r:it.r,kind:it.what,when:'',big:cDueLabel(it),it};}
-function crmToday(rows,items){const open=rows.filter(r=>r.stage in P_IDX&&r.stage!=='client');const cl=rows.filter(r=>r.stage==='client');const mrr=cl.filter(r=>r.deal_period==='monthly').reduce((a,r)=>a+(+r.deal_value||0),0);
+function crmToday(rows,items){const open=rows.filter(r=>r.stage in P_IDX&&r.stage!=='client');const cl=rows.filter(r=>r.stage==='client');const mrr=Math.round(cl.reduce((a,r)=>a+pMonthly(r),0));
   const reached=rows.filter(r=>pReach(r)>=P_IDX.messaged).length;const win=reached?Math.round(cl.length/reached*100):0;const goal=pGoal();const gp=Math.min(100,Math.round(mrr/goal*100));
   const wk=G.today,wk7=addDays(G.today,7);const meets=rows.filter(r=>r.stage==='meeting'&&r.meeting_at&&r.meeting_at>=wk&&r.meeting_at<=wk7).length;
   const quoted=open.filter(r=>r.stage==='quote_sent').reduce((a,r)=>a+(pVal(r)||0),0);
@@ -125,7 +127,7 @@ function crmToday(rows,items){const open=rows.filter(r=>r.stage in P_IDX&&r.stag
   const maxSt=Math.max(1,...PIPE_STAGES.map(s=>rows.filter(r=>r.stage===s.id).length));
   const list=groups[CRM.tab];
   return `<div class="cPage">
-   <div ${cIn(0,'cHello')}><div><h1>${hello}, ${cEsc(pnameRaw(S.me))}</h1><p>${cEsc(dateTxt)}${nDue?` · <button class="cTxtLink" data-c="tab" data-t="${groups.over.length?'over':'today'}">${nDue} follow-up${nDue===1?'':'s'} waiting</button>`:' · all caught up'}${meets?` · <span>${meets} meeting${meets===1?'':'s'} this week</span>`:''}</p></div>${crmWhoM()}</div>
+   <div ${cIn(0,'cHello')}><div><h1>${hello}, <em>${cEsc(pnameRaw(S.me))}</em></h1><p>${cEsc(dateTxt)}${nDue?` · <button class="cTxtLink" data-c="tab" data-t="${groups.over.length?'over':'today'}">${nDue} follow-up${nDue===1?'':'s'} waiting</button>`:' · all caught up'}${meets?` · <span>${meets} meeting${meets===1?'':'s'} this week</span>`:''}</p></div>${crmWhoM()}</div>
    <div class="cStats">
     <div ${cIn(1,'cStat tint')}><span class="cStatL">${cSvg('clock')}Due now</span><b>${cNum(nDue)}</b><span class="cStatF">${groups.over.length?`<em class="bad">${groups.over.length} overdue</em>`:'<em class="good">Nothing overdue</em>'}${groups.today.length?` · ${groups.today.length} today`:''}</span></div>
     <button ${cIn(2,'cStat')} data-c="view" data-v="board"><span class="cStatL">${cSvg('layers')}Open prospects</span><b>${cNum(open.length)}</b><span class="cStatF">${quoted?`${pMoney(quoted)} quoted, waiting`:`${meets} meeting${meets===1?'':'s'} this week`}</span></button>
@@ -146,6 +148,7 @@ function crmToday(rows,items){const open=rows.filter(r=>r.stage in P_IDX&&r.stag
      ${rev.length?`<section ${cIn(7,'cPanel cChecks')}><header class="cPanelH"><div><h3>Needs a check</h3><p>Imported rows that could be read two ways.</p></div><span class="cBadge">${rev.length}</span></header>
        ${rev.slice(0,3).map(r=>`<div class="cCheckRow">${cBiz(r)}<div><b>${cEsc(r.business||'Unnamed')}</b><small>${cEsc(r.review)}</small><span class="cCheckAct"><button class="cPillBtn dark" data-c="okRow" data-id="${r.id}">${cSvg('check')}Looks right</button><button class="cPillBtn" data-c="open" data-id="${r.id}">Review</button></span></div></div>`).join('')}
        ${rev.length>3?`<button class="cMore" data-c="review">See all ${rev.length}</button>`:''}</section>`:''}
+     ${crmDiaryPanel(rows,7)}${crmPayPanel(rows,7)}
      <section ${cIn(8,'cPanel cFunnel')}><header class="cPanelH"><div><h3>Stages</h3><p>Where everyone sits right now.</p></div></header>
       ${PIPE_STAGES.map(s=>{const n=rows.filter(r=>r.stage===s.id).length;return `<button class="cFunRow" data-c="stageGo" data-s="${s.id}"><span class="crmDot" style="--sc:${CRM_STAGE_COL[s.id]}"></span><span class="cFunN">${cEsc(s.name)}</span><span class="cFunBar"><i style="--w:${Math.round(n/maxSt*100)}%;--sc:${CRM_STAGE_COL[s.id]}"></i></span><b>${n}</b></button>`;}).join('')}</section>
     </div>
@@ -164,7 +167,7 @@ function crmCard(r,i){const due=pDue(r);const v=pVal(r);const nx=PIPE_STAGES[P_I
   return `<article class="cCard ${r.review?'rev':''}" draggable="true" data-c="open" data-id="${r.id}" tabindex="0" style="--sc:${CRM_STAGE_COL[r.stage]};--i:${Math.min(i||0,10)}">
    <div class="cCardSub"><span class="crmDot"></span><span>${cEsc([r.contact,host].filter(Boolean).join(' · ')||(PIPE_BY[r.stage]||{}).name||'')}</span></div>
    <b class="cCardT">${cEsc(r.business||'Unnamed')}</b>
-   <div class="cMeta">${dueTxt?`<span class="cDue ${due.cls}">${cSvg('clock')}${cEsc(dueTxt)}</span>`:''}${v?`<span class="cVal">${pMoney(v)}${r.deal_period==='monthly'?'/mo':''}</span>`:''}${r.priority?`<span class="cTag pri">Priority</span>`:''}${r.rag&&r.rag!=='maybe'?`<span class="cTag ${r.rag}">${cEsc((PIPE_RAG[r.rag]||{}).n||'')}</span>`:''}${r.review?'<span class="cTag chk">Check</span>':''}
+   <div class="cMeta">${dueTxt?`<span class="cDue ${due.cls}">${cSvg('clock')}${cEsc(dueTxt)}</span>`:''}${v?`<span class="cVal">${pMoney(v)}${P_PERIOD_SHORT[r.deal_period]||''}</span>`:''}${r.priority?`<span class="cTag pri">Priority</span>`:''}${r.rag&&r.rag!=='maybe'?`<span class="cTag ${r.rag}">${cEsc((PIPE_RAG[r.rag]||{}).n||'')}</span>`:''}${r.review?'<span class="cTag chk">Check</span>':''}
     <span class="cIcons">${r.video_url?cSvg('play'):''}${r.quote_url?cSvg('doc'):''}</span>${cAv(r.owner)}</div>
    ${nx?`<button class="cNext" data-c="next" data-id="${r.id}" title="Move to ${cEsc(nx.name)}" aria-label="Move to ${cEsc(nx.name)}">${cSvg('arrow')}</button>`:''}</article>`;}
 function crmBoard(rows){const byS=s=>rows.filter(r=>r.stage===s).sort((a,b)=>(b.priority?1:0)-(a.priority?1:0)||(a.sort||0)-(b.sort||0));
@@ -180,16 +183,16 @@ function crmBoard(rows){const byS=s=>rows.filter(r=>r.stage===s).sort((a,b)=>(b.
    <div class="cBoard" data-scroll="board">${stages.map(col).join('')}</div></div>`;}
 
 /* ---------- Clients ---------- */
-function crmClients(rows){const cl=rows.filter(r=>r.stage==='client').sort((a,b)=>(pVal(b)||0)-(pVal(a)||0));const mon=cl.filter(r=>r.deal_period==='monthly');const mrr=mon.reduce((a,r)=>a+(+r.deal_value||0),0);const one=cl.filter(r=>r.deal_period!=='monthly').reduce((a,r)=>a+(+r.deal_value||0),0);
+function crmClients(rows){const cl=rows.filter(r=>r.stage==='client').sort((a,b)=>(pMonthly(b)||pVal(b)||0)-(pMonthly(a)||pVal(a)||0));const mon=cl.filter(pRecurring);const mrr=Math.round(mon.reduce((a,r)=>a+pMonthly(r),0));const one=cl.filter(r=>!pRecurring(r)).reduce((a,r)=>a+(+r.deal_value||0),0);
   const goal=pGoal();const pct=Math.min(100,Math.round(mrr/goal*100));
   return `<div class="cPage">
-   <div ${cIn(0,'cHello')}><div><h1>Clients</h1><p>${cl.length} signed · ${mon.length} on a monthly retainer</p></div>${crmWhoM()}</div>
+   <div ${cIn(0,'cHello')}><div><h1>Clients</h1><p>${cl.length} signed · ${mon.length} on a retainer</p></div>${crmWhoM()}</div>
    <div class="cStats three">
     <div ${cIn(1,'cStat ink wide')}><span class="cStatL">${cSvg('money')}Monthly retainers</span><b>${cNum(mrr,'money')}<small> / ${pMoney(goal)}</small></b><span class="cDots big">${Array.from({length:30},(_,i)=>`<i class="${i<Math.round(pct*.3)?'on':''}" style="--d:${i}"></i>`).join('')}</span><span class="cStatF">${mrr<goal?`${pct}% of the goal · ${pMoney(goal-mrr)} to go`:'Goal reached. Time to raise it.'} · <button class="cTxtLink light" data-c="goal">Change goal</button></span></div>
     <div ${cIn(2,'cStat tint')}><span class="cStatL">${cSvg('doc')}One-off work</span><b>${cNum(one,'money')}</b><span class="cStatF">${cl.length-mon.length} project${cl.length-mon.length===1?'':'s'}</span></div>
     <div ${cIn(3,'cStat')}><span class="cStatL">${cSvg('clients')}Clients</span><b>${cNum(cl.length)}</b><span class="cStatF">${mon.length} monthly</span></div>
    </div>
-   ${cl.length?`<section ${cIn(4,'cPanel cTablePanel')}><header class="cPanelH"><div><h3>Everyone you work with</h3><p>Highest value first.</p></div></header><div class="crmTable" role="table"><div class="crmTr th" role="row"><span>Client</span><span>Service</span><span>Value</span><span>Billing</span><span>Owner</span></div>${cl.map((r,i)=>`<div class="crmTr" role="row" data-c="open" data-id="${r.id}" tabindex="0" style="--i:${Math.min(i,12)}"><span class="crmCli">${cBiz(r)}<span><b>${cEsc(r.business)}</b><small>${cEsc(r.contact||'')}</small></span></span><span class="cSvc">${cEsc((r.products||[]).join(', ')||'—')}</span><span class="num">${r.deal_value!=null?pMoney(r.deal_value):'—'}</span><span>${r.deal_period==='monthly'?'<span class="cBill m">Monthly</span>':r.deal_period?'<span class="cBill">One-off</span>':'—'}</span><span>${cAv(r.owner)}</span></div>`).join('')}</div></section>`:`<div class="crmEmpty"><span class="cEmptyIc">${cSvg('clients')}</span><b>No clients yet.</b><span>Move a card to Client on the board and it lands here.</span></div>`}</div>`;}
+   ${cl.length?`<section ${cIn(4,'cPanel cTablePanel')}><header class="cPanelH"><div><h3>Everyone you work with</h3><p>Highest value first.</p></div></header><div class="crmTable" role="table"><div class="crmTr th" role="row"><span>Client</span><span>Service</span><span>Value</span><span>Billing</span><span>Owner</span></div>${cl.map((r,i)=>`<div class="crmTr" role="row" data-c="open" data-id="${r.id}" tabindex="0" style="--i:${Math.min(i,12)}"><span class="crmCli">${cBiz(r)}<span><b>${cEsc(r.business)}</b><small>${cEsc(r.contact||'')}</small></span></span><span class="cSvc">${cEsc((r.package&&catBy(r.package)&&catBy(r.package).name)||(r.products||[]).join(', ')||'—')}</span><span class="num">${r.deal_value!=null?pMoney(r.deal_value)+(P_PERIOD_SHORT[r.deal_period]||''):'—'}</span><span>${r.deal_period?`<span class="cBill ${pRecurring(r)?'m':''}">${r.deal_period==='monthly'?'Monthly':r.deal_period==='four_weekly'?'Every 4 weeks':'One-off'}</span>${pRecurring(r)&&payNext(r)?`<small class="cNextPay">next ${pShortD(payNext(r))}</small>`:''}`:'—'}</span><span>${cAv(r.owner)}</span></div>`).join('')}</div></section>`:`<div class="crmEmpty"><span class="cEmptyIc">${cSvg('clients')}</span><b>No clients yet.</b><span>Move a card to Client on the board and it lands here.</span></div>`}</div>`;}
 
 /* ---------- details panel ---------- */
 function crmDrawerFill(first){const d=document.querySelector('#crm .crmDrawer');if(!d)return;const r=PIPE.rows.find(x=>x.id===CRM.open);if(!r){CRM.open=null;d.classList.remove('on');return;}
@@ -209,11 +212,13 @@ function crmDrawerFill(first){const d=document.querySelector('#crm .crmDrawer');
     <div class="cGroup"><h4>Deal</h4>
      <div class="cSeg" role="group" aria-label="Likelihood">${Object.entries(PIPE_RAG).map(([k,v])=>`<button class="${r.rag===k?'on':''} ${k}" data-c="rag" data-v="${k}"><span class="crmDot"></span>${v.n}</button>`).join('')}<button class="${r.priority?'on pri':''}" data-c="pri">${cSvg('star')}Priority</button></div>
      <div class="cChips">${PIPE_PRODUCTS.map(p=>`<button class="${(r.products||[]).includes(p)?'on':''}" data-c="prod" data-p="${cEsc(p)}">${cEsc(p)}</button>`).join('')}</div>
-     <div class="cGrid">${f('quote_value','Quote (£)',r.quote_value,'number')}${f('deal_value','Deal (£)',r.deal_value,'number')}
-      <label class="cF"><span>Billing</span><select data-f="deal_period"><option value="" ${!r.deal_period?'selected':''}>Not set</option><option value="monthly" ${r.deal_period==='monthly'?'selected':''}>Monthly</option><option value="one_off" ${r.deal_period==='one_off'?'selected':''}>One-off</option></select></label>${f('editor','Editor',r.editor)}
+     <div class="cGrid">${crmDealHtml(r)}${f('quote_value','Quote (£)',r.quote_value,'number')}${f('deal_value','Deal (£)',r.deal_value,'number')}
+      ${crmBillHtml(r)}${f('editor','Editor',r.editor)}
       ${f('video_url','Video link',r.video_url,'url','Loom link')}${f('quote_url','Quote link',r.quote_url,'url','Drive link')}</div></div>
+    <div class="cGroup"><h4>Quotes</h4>${crmQuotesHtml(r)}</div>
+    <div class="cGroup"><h4>Meetings and calls</h4>${crmMeetHtml(r)}</div>
     <div class="cGroup"><h4>Contact</h4><div class="cGrid">${f('insta','Instagram',r.insta,'text','handle')}${f('website','Website',r.website,'url','https://')}${f('email','Email',r.email,'email')}${f('phone','Phone',r.phone,'tel')}</div></div>
-    <div class="cGroup"><h4>Dates</h4><div class="cGrid">${f('last_contact','Last contact',r.last_contact,'date')}${f('next_due','Next follow-up',r.next_due||'','date')}${f('meeting_at','Meeting',r.meeting_at,'date')}
+    <div class="cGroup"><h4>Dates</h4><div class="cGrid">${f('last_contact','Last contact',r.last_contact,'date')}${f('next_due','Next follow-up',r.next_due||'','date')}
       <label class="cF"><span>Follow-ups sent</span><input data-f="follow_ups" type="number" min="0" value="${r.follow_ups||0}"></label>${r.stage==='not_now'?f('return_on','Bring back on',r.return_on,'date'):''}
       <label class="cF cCheck wide"><input type="checkbox" data-f="meeting_held" ${r.meeting_held?'checked':''}><span class="cTog"></span><span>Meeting happened</span></label></div></div>
     <div class="cGroup"><h4>Notes</h4><textarea data-f="notes" rows="4" placeholder="Anything worth remembering">${cEsc(r.notes||'')}</textarea></div>
@@ -240,6 +245,7 @@ async function crmAddGo(){const i=document.getElementById('crmAddIn');const o=pP
 function crmBind(el){
   el.addEventListener('click',async e=>{const b=e.target.closest('[data-c]');if(!b||!el.contains(b))return;const c=b.dataset.c,id=b.dataset.id;
     if(c!=='open'&&c!=='close')e.stopPropagation();
+    if(CRM_ACT[c]){CRM_ACT[c](b,e,el);return;}
     if(c==='back'){location.hash='#'+(CRM.from&&CRM.from!=='pipeline'?CRM.from:'harbour');return;}
     if(c==='view'){if(CRM.view!==b.dataset.v){CRM.view=b.dataset.v;CRM.anim=true;}CRM.open=null;crmRender();const m=el.querySelector('.crmMain');if(m)m.scrollTop=0;return;}
     if(c==='owner'){CRM.owner=b.dataset.o;crmRender();return;}
@@ -275,7 +281,9 @@ function crmBind(el){
   el.addEventListener('input',e=>{const q=e.target.closest('[data-crm-q]');if(q){CRM.q=q.value;cancelAnimationFrame(CRM_RAF);CRM_RAF=requestAnimationFrame(()=>crmRender());return;}
     const f=e.target.closest('.crmDrawer [data-f]');if(f&&!['SELECT'].includes(f.tagName)&&f.type!=='checkbox'&&f.type!=='date'){const id=CRM.open;clearTimeout(CRM.saveT[f.dataset.f]);CRM.saveT[f.dataset.f]=setTimeout(()=>crmSet(id,{[f.dataset.f]:crmFieldVal(f)}),700);}});
   el.addEventListener('change',e=>{const f=e.target.closest('.crmDrawer [data-f]');if(!f)return;const id=CRM.open;const k=f.dataset.f;clearTimeout(CRM.saveT[k]);
-    if(k==='stage'){const r=PIPE.rows.find(x=>x.id===id);if(r&&r.stage!==f.value)pMove(id,f.value);return;}crmSet(id,{[k]:crmFieldVal(f)});});
+    if(k==='stage'){const r=PIPE.rows.find(x=>x.id===id);if(r&&r.stage!==f.value)pMove(id,f.value);return;}
+    if(k==='package'){const c=catBy(f.value);const p={package:f.value||null};if(c){if(c.price!=null)p.deal_value=c.price;p.deal_period=c.period;const pr=PIPE.rows.find(x=>x.id===id);if(pr&&pr.stage!=='client'&&c.price!=null)p.quote_value=c.price;}crmSet(id,p).then(()=>{if(CRM.open===id){const d=document.querySelector('#crm .crmDrawer');const ds=d.querySelector('[data-scroll=drawer]');const t=ds?ds.scrollTop:0;crmDrawerFill();const d2=d.querySelector('[data-scroll=drawer]');if(d2)d2.scrollTop=t;}});return;}
+    if(k==='deal_period'||k==='billing_start'){crmSet(id,{[k]:crmFieldVal(f)}).then(()=>{if(CRM.open===id){const d=document.querySelector('#crm .crmDrawer');const ds=d.querySelector('[data-scroll=drawer]');const t=ds?ds.scrollTop:0;crmDrawerFill();const d2=d.querySelector('[data-scroll=drawer]');if(d2)d2.scrollTop=t;}});return;}crmSet(id,{[k]:crmFieldVal(f)});});
   el.addEventListener('keydown',e=>{if(e.key==='Escape')return;
     if(e.key==='Enter'&&e.target.id==='crmAddIn'){e.preventDefault();crmAddGo();return;}
     if(e.key==='Enter'&&e.target.matches('[data-c="open"]')){CRM.open=e.target.dataset.id;crmRender(true);}});
@@ -285,7 +293,7 @@ function crmBind(el){
   el.addEventListener('dragover',e=>{const col=e.target.closest('.cCol');if(!col||!CRM.drag)return;e.preventDefault();el.querySelectorAll('.cOver').forEach(x=>x!==col&&x.classList.remove('cOver'));col.classList.add('cOver');});
   el.addEventListener('drop',e=>{const col=e.target.closest('.cCol');if(!col||!CRM.drag)return;e.preventDefault();const id=CRM.drag;CRM.drag=null;col.classList.remove('cOver');const r=PIPE.rows.find(x=>x.id===id);if(r&&r.stage!==col.dataset.stage)pMove(id,col.dataset.stage);});}
 document.addEventListener('keydown',e=>{if(!document.documentElement.classList.contains('crmOpen'))return;
-  if(e.key==='Escape'){const m=document.getElementById('modal');if(m&&!m.hidden)return;if(CRM.adding){CRM.adding=false;crmRender();}else if(CRM.open){CRM.open=null;crmRender();}else if(CRM.search||CRM.q){CRM.search=false;CRM.q='';crmRender();}return;}
+  if(e.key==='Escape'){const m=document.getElementById('modal');if(m&&!m.hidden)return;if(CRM.sheet){CRM.sheet=null;crmRender();}else if(CRM.adding){CRM.adding=false;crmRender();}else if(CRM.open){CRM.open=null;crmRender();}else if(CRM.search||CRM.q){CRM.search=false;CRM.q='';crmRender();}return;}
   if(e.target.matches('input,textarea,select'))return;
   if(e.key==='/'||(e.key==='k'&&(e.metaKey||e.ctrlKey))){e.preventDefault();CRM.search=true;const i=document.querySelector('#crm [data-crm-q]');if(i){i.closest('.cSearch')?.classList.add('show');i.focus();}}else if(e.key==='n'&&!e.metaKey&&!e.ctrlKey){e.preventDefault();CRM.adding=true;crmRender();}});
 // buttons inside the pipeline keep its own calm style, not the game's bouncy one
