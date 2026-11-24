@@ -48,14 +48,17 @@ const pIni=s=>{const w=String(s||'?').replace(/[^\p{L}\p{N} &]/gu,' ').split(/\s
 const pMoney=n=>n==null||n===''?'':'£'+fmtN(Math.round(+n));
 const pVal=r=>r.deal_value!=null?+r.deal_value:r.quote_value!=null?+r.quote_value:null;
 // when a prospect is next due: the date you set, else a sensible gap after the last contact (so the imported sheet has dates too)
-const P_GAP={messaged:5,followed_up:5,talking:3,quote_sent:4};
-function pDueDate(r){if(r.stage==='archived')return null;if(r.stage==='not_now')return r.return_on||null;if(r.stage==='client'||r.stage==='no_response')return null;if(r.stage==='meeting'&&!r.meeting_held&&r.meeting_at)return r.meeting_at;if(r.next_due)return r.next_due;const g=P_GAP[r.stage];return g&&r.last_contact?addDays(r.last_contact,g):null;}
+const P_GAP={video_needed:7,messaged:5,followed_up:5,talking:3,quote_sent:4};
+// a video that's been waiting a week (from the last contact, or from when they were added) is due
+const pBase=r=>r.last_contact||(r.stage==='video_needed'&&r.created_at?String(r.created_at).slice(0,10):null);
+function pDueDate(r){if(r.stage==='archived')return null;if(r.stage==='not_now')return r.return_on||null;if(r.stage==='client'||r.stage==='no_response')return null;if(r.stage==='meeting'&&!r.meeting_held&&r.meeting_at)return r.meeting_at;if(r.next_due)return r.next_due;const g=P_GAP[r.stage];const b=pBase(r);return g&&b?addDays(b,g):null;}
 function pDue(r){const d=pDueDate(r);if(!d)return null;const t=G.today;return{d,cls:d<addDays(t,-30)?'stale':d<t?'over':d===t?'today':'later'};}
 function pDueN(rows){return (rows||PIPE.rows).filter(r=>{const d=pDue(r);return d&&(d.cls==='over'||d.cls==='today');}).length;}
 const pShortD=d=>{try{return new Date(d+'T12:00:00Z').toLocaleDateString('en-GB',{day:'numeric',month:'short'});}catch(e){return d;}};
 const pHost=u=>{try{return new URL(/^https?:/.test(u)?u:'https://'+u).hostname.replace(/^www\./,'');}catch(e){return u;}};
 function pFilter(rows){const ow=S.view.powner||'all';return rows.filter(r=>ow==='all'||r.owner===ow);}
-function pStageRows(st){return pFilter(PIPE.rows.filter(r=>r.stage===st)).sort((a,b)=>(b.priority?1:0)-(a.priority?1:0)||(a.sort||0)-(b.sort||0));}
+function pRank(st){return (a,b)=>(b.priority?1:0)-(a.priority?1:0)||(st==='video_needed'?(pDueDate(a)||'9999').localeCompare(pDueDate(b)||'9999'):0)||(a.sort||0)-(b.sort||0);}
+function pStageRows(st){return pFilter(PIPE.rows.filter(r=>r.stage===st)).sort(pRank(st));}
 function pSearchKey(r){return [r.business,r.contact,r.insta,r.website,r.niche,r.location,(r.products||[]).join(' '),r.notes].filter(Boolean).join(' ').toLowerCase();}
 
 /* ---------- the sliding pill tab bar (the reel's stretchy motion: the front edge leads, the back edge catches up) ---------- */

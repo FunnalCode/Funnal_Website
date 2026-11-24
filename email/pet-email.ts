@@ -122,20 +122,23 @@ async function gameData() {
 }
 
 // ---------- today on deck: your diary and your follow-ups due today ----------
-const GAP: Record<string, number> = { messaged: 5, followed_up: 5, talking: 3, quote_sent: 4 };
+const GAP: Record<string, number> = { video_needed: 7, messaged: 5, followed_up: 5, talking: 3, quote_sent: 4 };
 const STAGE: Record<string, string> = { video_needed: "Video needed", video_made: "Video made", messaged: "Video sent", followed_up: "Followed up", talking: "Talking", meeting: "Meeting", quote_sent: "Quote sent", not_now: "Not now", client: "Client" };
 const KIND: Record<string, string> = { meeting: "Meeting", call: "Call", google: "Calendar", task: "Task", reminder: "Reminder" };
 function dueOf(r: any): string | null {
   if (["archived", "client", "no_response"].includes(r.stage)) return null; if (r.stage === "not_now") return r.return_on || null;
   if (r.stage === "meeting" && !r.meeting_held && r.meeting_at) return String(r.meeting_at).slice(0, 10);
-  if (r.next_due) return r.next_due; const g = GAP[r.stage]; return g && r.last_contact ? dayAdd(r.last_contact, g) : null;
+  if (r.next_due) return r.next_due; const g = GAP[r.stage];
+  // a video that has waited a week (from the last contact, or from when they were added) is due
+  const base = r.last_contact || (r.stage === "video_needed" && r.created_at ? String(r.created_at).slice(0, 10) : null);
+  return g && base ? dayAdd(base, g) : null;
 }
 function drow(left: string, title: string, sub: string, chip = CARD2, chipInk = INK) {
   return `<tr><td style="padding:0 0 8px">${T(`<tr><td width="70" valign="middle" style="padding:12px 0 12px 12px"><div style="display:inline-block;background:${chip};color:${chipInk};font-family:${DISPLAY};font-size:14px;font-weight:600;padding:5px 10px;border-radius:99px;white-space:nowrap">${left}</div></td><td valign="middle" style="padding:12px 14px 12px 8px;font-family:${BODY}"><div style="font-size:16px;font-weight:800;color:${INK};line-height:1.3">${title}</div>${sub ? `<div style="font-size:13px;font-weight:700;color:${SOFT};margin-top:2px;line-height:1.4">${sub}</div>` : ""}</td></tr>`, `background:${CARD2};border-radius:16px`)}</td></tr>`;
 }
 async function todayBlock(D: string, me: string) {
   const [pros, evs, pays, quotes, qev] = await Promise.all([
-    J("hl_prospects?select=id,business,contact,stage,last_contact,next_due,next_action,return_on,meeting_at,meeting_held,owner&limit=5000"),
+    J("hl_prospects?select=id,business,contact,stage,last_contact,next_due,next_action,return_on,meeting_at,meeting_held,owner,created_at&limit=5000"),
     J(`hl_events?select=*&deleted=eq.false&starts_at=gte.${dayAdd(D, -1)}T00:00:00Z&starts_at=lt.${dayAdd(D, 2)}T00:00:00Z&order=starts_at`),
     J(`hl_payments?select=*&paid_at=is.null&due=eq.${D}`),
     J("hl_quotes?select=id,prospect_id,status,valid_until,viewed_at,title&status=in.(sent,viewed)"),
@@ -149,9 +152,12 @@ async function todayBlock(D: string, me: string) {
   const inDiary = new Set(today.map((e: any) => e.prospect_id).filter(Boolean));
   const dueToday = (pros as any[]).filter((r) => mine(r.owner) && dueOf(r) === D && !(r.stage === "meeting" && inDiary.has(r.id)));
   const fu = dueToday.map((r) => {
-    const what = r.stage === "meeting" ? "Meeting today" : r.stage === "not_now" ? "Back on the list today" : r.next_action ? esc(r.next_action) : `Follow up &middot; ${esc(STAGE[r.stage] || r.stage)}`;
+    const what = r.stage === "meeting" ? "Meeting today" : r.stage === "video_needed" ? "Video waiting a week: make it today" : r.stage === "not_now" ? "Back on the list today" : r.next_action ? esc(r.next_action) : `Follow up &middot; ${esc(STAGE[r.stage] || r.stage)}`;
     return drow("&#10003;", esc(r.business || "Unnamed"), `${what}${r.contact ? " &middot; " + esc(r.contact) : ""}`, "#E3F4EC", GOOD);
   });
+  // videos that have waited more than a week: one gentle line, oldest first
+  const late = (pros as any[]).filter((r) => r.stage === "video_needed" && mine(r.owner) && (dueOf(r) || "9999") < D).sort((x, y) => String(dueOf(x)).localeCompare(String(dueOf(y))));
+  if (late.length) fu.push(drow("&#9654;", `${plural(late.length, "video")} waiting over a week`, late.slice(0, 3).map((r) => esc(r.business || "Unnamed")).join(", ") + (late.length > 3 ? ` and ${late.length - 3} more` : ""), "#F1E8FB", "#7A4FB8"));
   const py = (pays as any[]).filter((p) => mine(byId[p.prospect_id]?.owner)).map((p) => drow("&pound;", `${esc(byId[p.prospect_id]?.business || "Client")} pays today`, money(p.amount) + tag(byId[p.prospect_id]?.owner), "#FDEBDD", BRACKEN));
   const opens: Record<string, number> = {}; for (const e of qev as any[]) opens[e.quote_id] = (opens[e.quote_id] || 0) + 1;
   const qs: string[] = [];

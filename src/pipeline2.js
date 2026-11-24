@@ -25,7 +25,8 @@ function pActText(e){const r=PIPE.rows.find(x=>x.id===e.prospect_id);const b=`<b
 
 /* ---------- what's due, and the one-tap "done" for each kind ---------- */
 function pSchedItems(rows){return (rows||PIPE.rows).map(r=>{const d=pDue(r);if(!d)return null;let what,done;
-    if(r.stage==='not_now'){what='Bring them back';done='Message';}
+    if(r.stage==='video_needed'){what=d.cls==='over'||d.cls==='stale'?'Video waiting over a week':'Make their video';done='Made it';}
+    else if(r.stage==='not_now'){what='Bring them back';done='Message';}
     else if(r.stage==='meeting'){if(r.meeting_at&&!r.meeting_held){what=d.cls==='later'||d.cls==='today'?'Meeting':'Meeting: did it happen?';done='Held';}else{what='Follow up after the meeting';done='Done';}}
     else if(r.stage==='messaged'){what='1st follow-up';done='Followed up';}
     else if(r.stage==='followed_up'){what=`${pNth((r.follow_ups||1)+1)} follow-up`;done='Followed up';}
@@ -40,6 +41,7 @@ function pSchedRow(x,opts){const r=x.r;const st=PIPE_BY[r.stage]||PIPE_STAGES[0]
 ACT.pDone=async(d,el)=>{const r=PIPE.rows.find(x=>x.id===d.id);if(!r)return;const t=G.today;const row=el&&el.closest('.pSched');if(row)row.classList.add('ticked');
   const later=fn=>setTimeout(fn,row&&!matchMedia('(prefers-reduced-motion: reduce)').matches?320:0);
   later(async()=>{
+    if(r.stage==='video_needed')return pMove(r.id,'video_made');
     if(r.stage==='not_now')return pMove(r.id,'messaged');
     if(r.stage==='messaged')return pMove(r.id,'followed_up');
     let patch,kind,det,msg;

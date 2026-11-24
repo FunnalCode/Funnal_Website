@@ -2007,3 +2007,14 @@ html.crmCover #fx{display:none}
 #crm .cFaceCard b{font-size:15px;font-weight:650}
 #crm .cFacePick{cursor:pointer}
 #crm .cSheet .cTabs[data-pill=setTabs]{grid-template-columns:repeat(4,minmax(0,1fr))}
+
+/* 24 Nov: the Harbour's buttons share one rhythm and one look, and the arrows line up on the right */
+.pad>.tvGo{margin:0}
+.tvGo{background:var(--card);border:0;border-radius:18px;padding:12px 14px;box-shadow:0 3px 0 var(--shadow);min-height:64px}
+.tvGo .grow{flex:1 1 auto;min-width:0}
+.tvGo .tvGoArrow{margin-left:auto;font-size:22px;line-height:1;color:var(--muted)}
+.pad>.links{gap:12px}
+/* the sound and light/dark icons sit dead centre in their circles, whatever the page around them does */
+#hud .mute{position:relative;padding:0}
+#hud .mute svg{position:absolute;top:calc(50% - 10px);left:calc(50% - 10px);margin:0;width:20px;height:20px}
+#hud #mute svg{left:calc(50% - 11px)} /* the speaker is heavier on the left, so nudge it to look centred */
