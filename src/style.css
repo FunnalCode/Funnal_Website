@@ -2047,3 +2047,11 @@ html[data-hc-theme=dark] .caseRow{background:var(--card)}
 html[data-hc-theme=dark] .caseFile .caseHead,html[data-hc-theme=dark] .hCase{background:#2A3546;box-shadow:inset 0 0 0 2px #3A4A60}
 html[data-hc-theme=dark] .caseFile .caseHead h2,html[data-hc-theme=dark] .caseCulprit b{color:#F2D58A}
 html[data-hc-theme=dark] .caseS.on,html[data-hc-theme=dark] .caseClue.fresh{background:#3A3420}
+
+/* 24 Nov: a proper save tick in the prospect panel, and how long since they were messaged on Up next */
+#crm .cSaveBtn{display:inline-flex;align-items:center;gap:6px;height:42px;padding:0 16px;border-radius:999px;border:0!important;background:var(--c-inv);color:var(--c-invInk);font-size:13.5px;font-weight:600;flex:none;cursor:pointer;transition:background .2s,transform .2s var(--c-ease)}
+#crm .cSaveBtn svg{width:16px;height:16px}
+#crm .cSaveBtn:active{transform:scale(.95)}
+#crm .cSaveBtn.done{background:#2F9A63;color:#fff}
+#crm .cDHead .cIconBtn{margin-left:0}
+#crm .cUpAgo{display:block;margin-top:6px;color:var(--c-invMuted);font-size:13px;font-weight:600}

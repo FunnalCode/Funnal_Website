@@ -2,7 +2,7 @@
    Overview, Schedule and Growth tabs, a daily reminder, the Harbour button, and stage moves that count in the game.
    Moving a card to Video made, Talking, Meeting or Client offers a one-tap "Count it" in the toast, so nothing is
    logged twice by accident. Caps, cooldowns and the crew check still apply, because it goes through the normal buttons. */
-const P_GAME={video_made:'v',talking:'r',meeting:'m',client:'c'};
+const P_GAME={messaged:'v',talking:'r',meeting:'m',client:'c'};
 const P_IDX=Object.fromEntries(PIPE_STAGES.map((s,i)=>[s.id,i]));
 const pNth=n=>n+(n%100>=11&&n%100<=13?'th':['th','st','nd','rd'][n%10]||'th');
 const pAgo=at=>{const m=Math.max(0,Math.round((Date.now()-Date.parse(at))/60000));return m<1?'just now':m<60?`${m} min ago`:m<1440?`${Math.round(m/60)} h ago`:m<2880?'yesterday':`${Math.round(m/1440)} days ago`;};
@@ -41,7 +41,7 @@ function pSchedRow(x,opts){const r=x.r;const st=PIPE_BY[r.stage]||PIPE_STAGES[0]
 ACT.pDone=async(d,el)=>{const r=PIPE.rows.find(x=>x.id===d.id);if(!r)return;const t=G.today;const row=el&&el.closest('.pSched');if(row)row.classList.add('ticked');
   const later=fn=>setTimeout(fn,row&&!matchMedia('(prefers-reduced-motion: reduce)').matches?320:0);
   later(async()=>{
-    if(r.stage==='video_needed')return pMove(r.id,'video_made');
+    if(r.stage==='video_needed')return pMove(r.id,'messaged');
     if(r.stage==='not_now')return pMove(r.id,'messaged');
     if(r.stage==='messaged')return pMove(r.id,'followed_up');
     let patch,kind,det,msg;

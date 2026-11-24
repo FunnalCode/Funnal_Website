@@ -9,7 +9,7 @@
 const CRM={view:'today',q:'',owner:'all',stage:'messaged',open:null,closed:false,review:false,tab:null,adding:false,from:'harbour',drag:null,saveT:{},anim:true,search:false,
   rail:(()=>{try{return localStorage.getItem('hl_crm_rail')==='1';}catch(e){return false;}})()};
 const CRM_STAGE_COL={video_needed:'#C91E36',video_made:'#B98A8A',messaged:'#486790',archived:'#A3ACB5',followed_up:'#7FA2D2',talking:'#DDA94D',meeting:'#B8862E',quote_sent:'#566C80',client:'#3F5160',not_now:'#9A9A9A',no_response:'#B4B4B4'};
-const CRM_STAGE_HINT={video_needed:'Record a Loom for these',video_made:'Ready to send',messaged:'Video sent, waiting to hear back',archived:'No longer relevant',followed_up:'Nudged at least once',talking:'In conversation',meeting:'Call booked or held',quote_sent:'Waiting on a decision',client:'Signed',not_now:'Comes back on a date',no_response:'Parked'};
+const CRM_STAGE_HINT={video_needed:'Record a Loom for these',video_made:'Ready to send',messaged:'Made and sent, waiting to hear back',archived:'No longer relevant',followed_up:'Nudged at least once',talking:'In conversation',meeting:'Call booked or held',quote_sent:'Waiting on a decision',client:'Signed',not_now:'Comes back on a date',no_response:'Parked'};
 const CRM_REDUCED=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
 const cEsc=s=>esc(s==null?'':String(s));
 const cIni=s=>String(s||'?').replace(/^the\s+/i,'').split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase()||'?';
@@ -117,6 +117,9 @@ function crmRender(first){const root=document.getElementById('crm');if(!root)ret
 const cIn=(i,cls='')=>`class="cIn ${cls}" style="--i:${i}"`;
 
 /* ---------- Today ---------- */
+// how long since they were last messaged, for the Up next card
+function cMsgAgo(r){if(!r.last_contact)return r.stage==='video_needed'?'Not messaged yet':'No message logged yet';const n=cDays(r.last_contact);const d=-n;
+  return d<=0?'Messaged today':d===1?'Messaged yesterday':d<14?`Messaged ${d} days ago`:d<60?`Messaged ${Math.round(d/7)} weeks ago`:`Messaged ${Math.round(d/30)} months ago`;}
 function crmUpNext(rows,items){const wk=G.today;const meet=rows.filter(r=>r.stage==='meeting'&&r.meeting_at&&r.meeting_at>=wk&&!r.meeting_held).sort((a,b)=>a.meeting_at<b.meeting_at?-1:1)[0];
   if(meet)return {r:meet,kind:'Meeting',when:cRel(meet.meeting_at),big:meet.meeting_at===wk?'Today':cDays(meet.meeting_at)===1?'Tomorrow':pShortD(meet.meeting_at),it:items.find(x=>x.r.id===meet.id)};
   const it=items.find(x=>x.cls==='over')||items.find(x=>x.cls==='today')||items.find(x=>x.cls==='later');if(!it)return null;
@@ -150,7 +153,7 @@ function crmToday(rows,items){const open=rows.filter(r=>r.stage in P_IDX&&r.stag
     <div class="cSideCol">
      ${up?`<section ${cIn(6,'cUp')}><header><span>Up next</span><button class="cRound" data-c="open" data-id="${up.r.id}" aria-label="Open ${cEsc(up.r.business)}">${cSvg('up')}</button></header>
        <div class="cUpWho">${cBiz(up.r,'lg')}<div><b>${cEsc(up.r.business||'Unnamed')}</b><small>${cEsc([up.r.contact,(PIPE_BY[up.r.stage]||{}).name].filter(Boolean).join(' · '))}</small></div></div>
-       <small class="cUpK">${cEsc(up.kind)}</small><div class="cUpBig">${cEsc(up.big)}</div>${up.r.notes?`<p class="cUpNote">${cEsc(up.r.notes.slice(0,120))}${up.r.notes.length>120?'…':''}</p>`:''}
+       <small class="cUpK">${cEsc(up.kind)}</small><div class="cUpBig">${cEsc(up.big)}</div><small class="cUpAgo">${cEsc(cMsgAgo(up.r))}</small>${up.r.notes?`<p class="cUpNote">${cEsc(up.r.notes.slice(0,120))}${up.r.notes.length>120?'…':''}</p>`:''}
        <footer><span class="grow"></span>${up.it?`<button class="cUpDone" data-c="done" data-id="${up.r.id}">${cSvg('check')}${cEsc(up.it.done)}</button>`:''}<button class="cUpGhost" data-c="open" data-id="${up.r.id}">Open</button></footer></section>`:''}
      ${rev.length?`<section ${cIn(7,'cPanel cChecks')}><header class="cPanelH"><div><h3>Needs a check</h3><p>Imported rows that could be read two ways.</p></div><span class="cBadge">${rev.length}</span></header>
        ${rev.slice(0,3).map(r=>`<div class="cCheckRow">${cBiz(r)}<div><b>${cEsc(r.business||'Unnamed')}</b><small>${cEsc(r.review)}</small><span class="cCheckAct"><button class="cPillBtn dark" data-c="okRow" data-id="${r.id}">${cSvg('check')}Looks right</button><button class="cPillBtn" data-c="open" data-id="${r.id}">Review</button></span></div></div>`).join('')}
@@ -209,7 +212,7 @@ function crmDrawerFill(first){const d=document.querySelector('#crm .crmDrawer');
   const evHtml=ev=>ev.length?ev.slice(0,30).map(e=>`<li><span class="cEvDot"></span><div>${cEsc(pEvText(e).replace(/^(\w+) it /,'$1 ').replace(/^./,m=>m.toUpperCase()))}<small>${cEsc(pWhen(e.at))}</small></div></li>`).join(''):'<li class="none">No activity yet.</li>';
   const ev=PIPE.ev[r.id];
   d.innerHTML=`<div class="cDHead"><select class="cStageSel" data-f="stage" style="--sc:${CRM_STAGE_COL[r.stage]}" aria-label="Stage">${PIPE_ALL.map(s=>`<option value="${s.id}" ${s.id===r.stage?'selected':''}>${cEsc(s.name)}</option>`).join('')}</select>
-     <span class="cSaved" aria-live="polite"></span><button class="cIconBtn" data-c="close" aria-label="Close">${cSvg('x')}</button></div>
+     <span class="cSaved" aria-live="polite"></span><button class="cSaveBtn" data-c="saveClose" aria-label="Save and close">${cSvg('check')}<span>Save</span></button><button class="cIconBtn" data-c="close" aria-label="Close">${cSvg('x')}</button></div>
    <div class="cDBody" data-scroll="drawer">
     <div class="cDHero">${cBiz(r,'xl')}<div class="cDHeroTxt"><input class="cName" data-f="business" value="${cEsc(r.business)}" placeholder="Business name" aria-label="Business name">
      <input class="cContact" data-f="contact" value="${cEsc(r.contact||'')}" placeholder="Add a contact name" aria-label="Contact name"></div></div>
@@ -235,7 +238,7 @@ function crmDrawerFill(first){const d=document.querySelector('#crm .crmDrawer');
   if(first===true)d.classList.remove('fresh'),void d.offsetWidth,d.classList.add('fresh');
   d.classList.add('on');cPills(d,first!==true);
   if(first===true||!PIPE.ev[r.id])pipeEvents(r.id).then(()=>{if(CRM.open===r.id){const tl=d.querySelector('.cTimeline');if(tl)tl.innerHTML=evHtml(PIPE.ev[r.id]||[]);}});}
-function crmSaved(t){const s=document.querySelector('#crm .cSaved');if(!s)return;s.textContent=t||'Saved';s.classList.add('on');clearTimeout(s._t);s._t=setTimeout(()=>s.classList.remove('on'),1400);}
+function crmSaved(t){const s=document.querySelector('#crm .cSaved');if(!s||CRM.tickSave)return;s.textContent=t||'Saved';s.classList.add('on');clearTimeout(s._t);s._t=setTimeout(()=>s.classList.remove('on'),1400);}
 async function crmSet(id,patch){const r=PIPE.rows.find(x=>x.id===id);if(!r)return;const keys=Object.keys(patch).filter(k=>JSON.stringify(r[k]??null)!==JSON.stringify(patch[k]??null));if(!keys.length)return;const p={};keys.forEach(k=>p[k]=patch[k]);
   crmSaved('Saving…');const prev=await pipePatch(id,p,'edit',{fields:keys});crmSaved(prev===false?'Couldn\'t save':'Saved');}
 function crmFieldVal(el){const k=el.dataset.f;if(el.type==='checkbox')return el.checked;let v=el.value.trim();if(el.type==='number')return v===''?null:+v;if(el.type==='date')return v||null;if(k==='insta')v=v.replace(/^@/,'').replace(/^https?:\/\/(www\.)?instagram\.com\//i,'').replace(/\/.*$/,'');return v===''?null:v;}
@@ -271,6 +274,10 @@ function crmBind(el){
     if(c==='addGo'){crmAddGo();return;}
     if(c==='open'){if(e.target.closest('a'))return;CRM.open=id;crmRender(true);return;}
     if(c==='close'){CRM.open=null;crmRender();return;}
+    // the tick: save whatever's typed straight away (normally it saves itself a moment after you stop typing), then close
+    if(c==='saveClose'){const id=CRM.open;const d=b.closest('.crmDrawer');const patch={};if(d)d.querySelectorAll('[data-f]').forEach(f=>{const k=f.dataset.f;if(k==='stage'||k==='package'||f.type==='checkbox')return;clearTimeout(CRM.saveT[k]);patch[k]=crmFieldVal(f);});
+      b.classList.add('done');b.querySelector('span').textContent='Saved';CRM.tickSave=1;setTimeout(()=>CRM.tickSave=0,1500);try{CSND.done();}catch(e){}
+      Promise.resolve(Object.keys(patch).length?crmSet(id,patch):null).then(()=>setTimeout(()=>{if(CRM.open===id){CRM.open=null;crmRender();}},450));return;}
     if(c==='next'){const r=PIPE.rows.find(x=>x.id===id);const nx=r&&PIPE_STAGES[P_IDX[r.stage]+1];if(nx){const card=b.closest('.cCard');if(card)card.classList.add('cLeaving');setTimeout(()=>pMove(id,nx.id),card?220:0);}return;}
     if(c==='done'){const row=b.closest('.crmRow');if(row){row.style.height=row.offsetHeight+'px';void row.offsetWidth;row.classList.add('cTicked');}setTimeout(()=>ACT.pDone({id}),row?320:0);return;}
     if(c==='snooze'){ACT.pSnooze({id,n:3});return;}

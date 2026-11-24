@@ -5,15 +5,17 @@
    import check. Part 2 adds Overview, Schedule, Growth, reminders, game taps and the Harbour button. */
 const PIPE_STAGES=[
   {id:'video_needed',name:'Video needed',col:'#C0392B',hint:'Record a video for these'},
-  {id:'video_made',name:'Video made',col:'#8E5BD0',hint:'Video ready, not sent yet'},
-  {id:'messaged',name:'Video sent',col:'#3E8DDB',hint:'Video sent to them'},
+  // 24 Nov: 'Video made' and 'Video sent' are one stage now, called Video made (the id stays 'messaged')
+  {id:'messaged',name:'Video made',col:'#3E8DDB',hint:'Made and sent, waiting to hear back'},
   {id:'followed_up',name:'Followed up',col:'#2E8C88',hint:'Nudged at least once'},
   {id:'talking',name:'Talking',col:'#2F9A63',hint:'They replied'},
   {id:'meeting',name:'Meeting',col:'#D9902B',hint:'Booked or held'},
   {id:'quote_sent',name:'Quote sent',col:'#B8642A',hint:'Waiting on a yes'},
   {id:'client',name:'Client',col:'#A9781C',hint:'Won'}];
 const PIPE_EXITS=[{id:'not_now',name:'Not now',col:'#7A8794',hint:'Comes back on a set date'},{id:'no_response',name:'No response',col:'#5E6A76',hint:'Kept for later'},{id:'archived',name:'Archived',col:'#A3ACB5',hint:'No longer relevant'}];
-const PIPE_ALL=[...PIPE_STAGES,...PIPE_EXITS];const PIPE_BY=Object.fromEntries(PIPE_ALL.map(s=>[s.id,s]));
+const PIPE_ALL=[...PIPE_STAGES,...PIPE_EXITS];const PIPE_BY=Object.fromEntries(PIPE_ALL.map(s=>[s.id,s]));PIPE_BY.video_made=PIPE_BY.messaged;
+// anything still marked with the old 'video made' stage joins Video made
+const pNorm=r=>{if(r&&r.stage==='video_made')r.stage='messaged';return r;};
 const PIPE_PRODUCTS=['Websites','Full Package','Social Media Management','Branding','Email & SMS','Paid Adverts'];
 const PIPE_RAG={likely:{n:'Likely',c:'#2F9A63'},maybe:{n:'Maybe',c:'#D9902B'},unlikely:{n:'Unlikely',c:'#C0392B'}};
 const PIPE={rows:[],ready:false,err:null,src:null,ev:{},undo:null,allEv:null};
@@ -21,10 +23,10 @@ const PIPE={rows:[],ready:false,err:null,src:null,ev:{},undo:null,allEv:null};
 /* ---------- data ---------- */
 const pLocal={get(){try{return JSON.parse(localStorage.getItem('hl_pipe_v1')||'[]');}catch(e){return [];}},set(r){try{localStorage.setItem('hl_pipe_v1',JSON.stringify(r));}catch(e){}}};
 function pipeStart(){if(PIPE.src)return;if(S.sb){PIPE.src='supa';pipeLoad();
-    try{S.sb.channel('hl-pipe').on('postgres_changes',{event:'*',schema:'public',table:'hl_prospects'},p=>{if(p.eventType==='DELETE'){PIPE.rows=PIPE.rows.filter(r=>r.id!==(p.old&&p.old.id));}else if(p.new){const i=PIPE.rows.findIndex(r=>r.id===p.new.id);if(i>=0)PIPE.rows[i]=p.new;else PIPE.rows.push(p.new);}pipeRefresh();}).subscribe();}catch(e){console.warn('pipe sub',e);}
+    try{S.sb.channel('hl-pipe').on('postgres_changes',{event:'*',schema:'public',table:'hl_prospects'},p=>{if(p.eventType==='DELETE'){PIPE.rows=PIPE.rows.filter(r=>r.id!==(p.old&&p.old.id));}else if(p.new){const i=PIPE.rows.findIndex(r=>r.id===p.new.id);pNorm(p.new);if(i>=0)PIPE.rows[i]=p.new;else PIPE.rows.push(p.new);}pipeRefresh();}).subscribe();}catch(e){console.warn('pipe sub',e);}
     document.addEventListener('visibilitychange',()=>{if(!document.hidden)pipeLoad();});}
-  else{PIPE.src='local';PIPE.rows=pLocal.get();PIPE.ready=true;}}
-async function pipeLoad(){try{const {data,error}=await S.sb.from('hl_prospects').select('*').order('sort',{ascending:true}).limit(5000);if(error)throw error;PIPE.rows=data||[];PIPE.ready=true;PIPE.err=null;}catch(e){PIPE.err=(e&&e.message)||'Could not load the pipeline';PIPE.ready=true;}pipeRefresh();}
+  else{PIPE.src='local';PIPE.rows=pLocal.get().map(pNorm);PIPE.ready=true;}}
+async function pipeLoad(){try{const {data,error}=await S.sb.from('hl_prospects').select('*').order('sort',{ascending:true}).limit(5000);if(error)throw error;PIPE.rows=(data||[]).map(pNorm);PIPE.ready=true;PIPE.err=null;}catch(e){PIPE.err=(e&&e.message)||'Could not load the pipeline';PIPE.ready=true;}pipeRefresh();}
 function pipeRefresh(){if(S.screen==='pipeline'||S.screen==='more')render();}
 function pipeSaveLocal(){if(PIPE.src==='local')pLocal.set(PIPE.rows);}
 async function pipeLog(id,kind,detail){const ev={prospect_id:id,by:S.me,kind,detail:detail||{},at:new Date().toISOString()};(PIPE.ev[id]=PIPE.ev[id]||[]).unshift(ev);if(PIPE.allEv)PIPE.allEv.unshift(ev);
@@ -108,7 +110,7 @@ function pReviewHtml(){const rows=PIPE.rows.filter(r=>r.review);return `<div cla
 /* ---------- moving cards ---------- */
 async function pMove(id,to,opts){const r=PIPE.rows.find(x=>x.id===id);if(!r||r.stage===to)return;const from=r.stage;const t=G.today;const patch={stage:to};
   if(to==='messaged'||to==='followed_up'){patch.last_contact=t;if(!r.next_due||r.next_due<=t)patch.next_due=addDays(t,5);}
-  if(to==='followed_up')patch.follow_ups=(r.follow_ups||0)+1;if(to==='client'&&!r.won_at)patch.won_at=t;if(to==='video_made'&&from==='video_needed')patch.priority=false;
+  if(to==='followed_up')patch.follow_ups=(r.follow_ups||0)+1;if(to==='client'&&!r.won_at)patch.won_at=t;if(to==='messaged'&&from==='video_needed')patch.priority=false;
   if(to==='not_now'){patch.return_on=(opts&&opts.ret)||r.return_on||addDays(t,30);}
   const sort=Math.max(0,...PIPE.rows.filter(x=>x.stage===to).map(x=>x.sort||0))+1;patch.sort=sort;
   const prev=await pipePatch(id,patch,'stage',{from,to});if(prev===false)return;PIPE.undo={id,prev,to};try{SND.pop&&SND.pop();}catch(e){}

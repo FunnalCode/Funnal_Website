@@ -123,7 +123,7 @@ async function gameData() {
 
 // ---------- today on deck: your diary and your follow-ups due today ----------
 const GAP: Record<string, number> = { video_needed: 7, messaged: 5, followed_up: 5, talking: 3, quote_sent: 4 };
-const STAGE: Record<string, string> = { video_needed: "Video needed", video_made: "Video made", messaged: "Video sent", followed_up: "Followed up", talking: "Talking", meeting: "Meeting", quote_sent: "Quote sent", not_now: "Not now", client: "Client" };
+const STAGE: Record<string, string> = { video_needed: "Video needed", video_made: "Video made", messaged: "Video made", followed_up: "Followed up", talking: "Talking", meeting: "Meeting", quote_sent: "Quote sent", not_now: "Not now", client: "Client" };
 const KIND: Record<string, string> = { meeting: "Meeting", call: "Call", google: "Calendar", task: "Task", reminder: "Reminder" };
 function dueOf(r: any): string | null {
   if (["archived", "client", "no_response"].includes(r.stage)) return null; if (r.stage === "not_now") return r.return_on || null;
