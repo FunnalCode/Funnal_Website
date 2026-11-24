@@ -2018,3 +2018,32 @@ html.crmCover #fx{display:none}
 #hud .mute{position:relative;padding:0}
 #hud .mute svg{position:absolute;top:calc(50% - 10px);left:calc(50% - 10px);margin:0;width:20px;height:20px}
 #hud #mute svg{left:calc(50% - 11px)} /* the speaker is heavier on the left, so nudge it to look centred */
+
+/* 24 Nov: the monthly mystery */
+.caseRow{background:linear-gradient(135deg,#FFF8E6,var(--card))}
+.caseRow .grow{flex:1;min-width:0;display:flex;flex-direction:column}
+.caseRow .grow small{font:600 12px var(--body);color:var(--muted)}
+.caseIco{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#3F5160;color:#FFE9A8;font:700 17px var(--display);flex:none}
+.caseRow.solved .caseIco{background:var(--good);color:#fff}.caseRow.cold .caseIco{background:var(--bad);color:#fff}
+.caseFile .caseHead{background:#F3E7CB;border-radius:16px;padding:14px 16px;position:relative;margin-bottom:6px;box-shadow:inset 0 0 0 2px #E4D2A8}
+.caseFile .caseHead h2{margin:4px 0 6px;font:700 24px var(--display);color:#5A3E1B}
+.caseFile .caseHead p{margin:0}
+.caseStamp{display:inline-block;font:700 11px var(--display);letter-spacing:2px;text-transform:uppercase;color:#C0392B;border:2px solid #C0392B;border-radius:6px;padding:2px 8px;transform:rotate(-3deg)}
+.caseH{margin:14px 2px 8px;font:600 16px var(--display)}.caseH small{color:var(--muted);font-weight:600}
+.caseSus{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.caseS{background:var(--card2);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:4px;box-shadow:inset 0 0 0 2px var(--line)}
+.caseS.on{box-shadow:inset 0 0 0 2px var(--gold);background:#FFF6DE}
+.caseS b{font:600 14px var(--display)}.caseS small{font-size:12px;color:var(--muted);line-height:1.35;flex:1}.caseS .btn{align-self:flex-start;margin-top:4px}
+.caseClues{display:grid;gap:8px}
+.caseClue{background:var(--card2);border-radius:14px;padding:10px 12px;cursor:pointer;border-left:4px solid #D9C9A6}
+.caseClue.fresh{border-left-color:var(--gold);background:#FFF6DE}
+.caseClue small{font:700 11px var(--body);color:var(--muted);letter-spacing:.3px}.caseClue p{margin:3px 0 0;font-style:italic}
+.caseCulprit{text-align:center;margin:10px 0}.caseCulprit small{display:block;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:2px;font-size:11px}
+.caseCulprit b{font:700 30px var(--display);color:#5A3E1B}
+.reveal.solved .caseStamp{color:var(--good);border-color:var(--good)}
+.hCase{background:#F3E7CB;border-radius:12px;padding:10px 12px;margin:8px 0}.hCase h3{margin:0 0 4px}.hCase p{margin:0 0 6px}
+.ttRow[data-act=voxSay]{cursor:pointer}
+html[data-hc-theme=dark] .caseRow{background:var(--card)}
+html[data-hc-theme=dark] .caseFile .caseHead,html[data-hc-theme=dark] .hCase{background:#2A3546;box-shadow:inset 0 0 0 2px #3A4A60}
+html[data-hc-theme=dark] .caseFile .caseHead h2,html[data-hc-theme=dark] .caseCulprit b{color:#F2D58A}
+html[data-hc-theme=dark] .caseS.on,html[data-hc-theme=dark] .caseClue.fresh{background:#3A3420}
