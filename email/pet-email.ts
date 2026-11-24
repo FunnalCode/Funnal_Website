@@ -14,8 +14,8 @@ const IMG = "https://cdn.jsdelivr.net/gh/FunnalCode/Funnal_Website@9e3be02df23c0
 const SITE = "https://funnal.co.uk/crew";
 const SERIF = "Georgia,'Times New Roman',Times,serif";
 const SANS = "'Helvetica Neue',Helvetica,'Segoe UI',Arial,sans-serif";
-// palette: night harbour and lantern gold
-const NAVY = "#0E1A2B", DEEP = "#08111D", PANEL = "#15263D", LINE = "#24395A", GOLD = "#F2C462", GOLD2 = "#C99A2E", PAPER = "#F7F1E3", INK = "#1E1B16", MIST = "#9FB1C8";
+// palette: light and clean, ink navy with a touch of lantern gold
+const BG = "#F2F3F5", CARD = "#FFFFFF", SOFT = "#F6F7F9", LINE = "#E6E8EC", INK = "#14171F", MUTED = "#6B7280", ACCENT = "#1E3550", GOLD = "#C68A1E", PAPER = "#FFFFFF";
 
 function h32(s: string): number {
   let h = 2166136261 >>> 0;
@@ -69,17 +69,17 @@ const isSunday = (d: string) => new Date(d + "T12:00:00Z").getUTCDay() === 0;
 
 // ---------- design pieces ----------
 const T = (inner: string, style = "", attrs = "") => `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" ${attrs} style="${style}">${inner}</table>`;
-function button(label: string, href: string, bg = GOLD, fg = NAVY) {
-  return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto"><tr><td align="center" bgcolor="${bg}" style="background:${bg};border-radius:999px;box-shadow:0 6px 0 rgba(0,0,0,.25)"><a href="${href}" target="_blank" style="display:inline-block;padding:16px 38px;font-family:${SANS};font-size:16px;font-weight:800;letter-spacing:.5px;color:${fg};text-decoration:none;border-radius:999px"><font color="${fg}">${label}</font></a></td></tr></table>`;
+function button(label: string, href: string, bg = ACCENT, fg = "#FFFFFF") {
+  return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto"><tr><td align="center" bgcolor="${bg}" style="background:${bg};border-radius:12px"><a href="${href}" target="_blank" style="display:inline-block;padding:15px 34px;font-family:${SANS};font-size:15px;font-weight:700;color:${fg};text-decoration:none;border-radius:12px"><font color="${fg}">${label}</font></a></td></tr></table>`;
 }
-const ghost = (label: string, href: string) => `<a href="${href}" target="_blank" style="font-family:${SANS};font-size:14px;font-weight:700;color:${GOLD};text-decoration:none;border-bottom:1px solid ${GOLD2}">${label}</a>`;
+const ghost = (label: string, href: string) => `<a href="${href}" target="_blank" style="font-family:${SANS};font-size:14px;font-weight:700;color:${ACCENT};text-decoration:none">${label}</a>`;
 const pre = (t: string) => `<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent">${esc(t)}&#8199;&#65279;&#847;&#8199;&#65279;&#847;&#8199;&#65279;&#847;&#8199;&#65279;&#847;&#8199;&#65279;&#847;&#8199;&#65279;&#847;</div>`;
 function page(preheader: string, inner: string) {
-  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark light"><meta name="supported-color-schemes" content="dark light"><title>Hundred Cannons</title></head><body style="margin:0;padding:0;background:${DEEP}" bgcolor="${DEEP}">${pre(preheader)}<div style="background:${DEEP};padding:18px 8px 34px">${inner}<div style="max-width:640px;margin:18px auto 0;text-align:center;font-family:${SANS};font-size:11px;letter-spacing:1px;color:#5D7290">HUNDRED CANNONS &middot; FUNNAL CREW ONLY &middot; <a href="${SITE}" style="color:#5D7290">FUNNAL.CO.UK/CREW</a></div></div></body></html>`;
+  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="supported-color-schemes" content="light"><title>Hundred Cannons</title></head><body style="margin:0;padding:0;background:${BG}" bgcolor="${BG}">${pre(preheader)}<div style="background:${BG};padding:18px 8px 34px">${inner}<div style="max-width:640px;margin:18px auto 0;text-align:center;font-family:${SANS};font-size:11px;letter-spacing:1px;color:#9CA3AF">HUNDRED CANNONS &middot; FUNNAL CREW ONLY &middot; <a href="${SITE}" style="color:#9CA3AF">FUNNAL.CO.UK/CREW</a></div></div></body></html>`;
 }
 const kicker = (t: string, c = GOLD) => `<div style="font-family:${SANS};font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:${c}">${t}</div>`;
-const paperHead = (t: string) => `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td style="font-family:${SANS};font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:#8A6A1F;padding-bottom:6px;border-bottom:2px solid ${INK}">${t}</td></tr></table>`;
-const col = (t: string, body: string) => body ? `<div style="display:inline-block;vertical-align:top;width:100%;max-width:258px;margin:0 8px 22px;text-align:left">${paperHead(t)}<div style="font-family:${SERIF};font-size:15px;line-height:1.6;color:#3A3328;padding-top:8px">${body}</div></div>` : "";
+const paperHead = (t: string) => `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td style="font-family:${SANS};font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:${GOLD};padding-bottom:8px;border-bottom:1px solid ${LINE}">${t}</td></tr></table>`;
+const col = (t: string, body: string) => body ? `<div style="display:inline-block;vertical-align:top;width:100%;max-width:258px;margin:0 8px 22px;text-align:left">${paperHead(t)}<div style="font-family:${SERIF};font-size:15px;line-height:1.6;color:#374151;padding-top:10px">${body}</div></div>` : "";
 
 // ---------- game numbers, worked out from the raw logs ----------
 type Day = { date: string; p: Record<string, Record<string, number>>; team: number; target: number; hit: boolean };
@@ -117,8 +117,8 @@ function dueOf(r: any): string | null {
   if (r.next_due) return r.next_due; const g = GAP[r.stage]; return g && r.last_contact ? dayAdd(r.last_contact, g) : null;
 }
 // one row on the day's list: a time or tag on the left, the thing itself on the right
-function drow(left: string, title: string, sub: string, accent = GOLD) {
-  return `<tr><td width="74" valign="top" style="padding:12px 0 12px 16px;border-top:1px solid ${LINE}"><div style="display:inline-block;background:${accent};color:${NAVY};font-family:${SANS};font-size:12px;font-weight:800;letter-spacing:.5px;padding:5px 9px;border-radius:8px;white-space:nowrap">${left}</div></td><td valign="top" style="padding:12px 16px 12px 10px;border-top:1px solid ${LINE};font-family:${SANS}"><div style="font-size:16px;font-weight:700;color:#FFFFFF;line-height:1.3">${title}</div>${sub ? `<div style="font-size:13px;color:${MIST};margin-top:3px;line-height:1.4">${sub}</div>` : ""}</td></tr>`;
+function drow(left: string, title: string, sub: string, accent = "#EEF2F7") {
+  return `<tr><td width="74" valign="top" style="padding:12px 0 12px 16px;border-top:1px solid ${LINE}"><div style="display:inline-block;background:${accent};color:${INK};font-family:${SANS};font-size:12px;font-weight:700;padding:5px 9px;border-radius:8px;white-space:nowrap">${left}</div></td><td valign="top" style="padding:12px 16px 12px 10px;border-top:1px solid ${LINE};font-family:${SANS}"><div style="font-size:16px;font-weight:700;color:${INK};line-height:1.3">${title}</div>${sub ? `<div style="font-size:13px;color:${MUTED};margin-top:3px;line-height:1.4">${sub}</div>` : ""}</td></tr>`;
 }
 async function todayBlock(D: string) {
   const [pros, evs, pays, quotes, qev] = await Promise.all([
@@ -138,25 +138,25 @@ async function todayBlock(D: string) {
   const dueToday = (pros as any[]).filter((r) => dueOf(r) === D && !(r.stage === "meeting" && inDiary.has(r.id)));
   const fu = dueToday.map((r) => {
     const what = r.stage === "meeting" ? "Meeting today" : r.stage === "not_now" ? "Back on the list today" : r.next_action ? esc(r.next_action) : `Follow up &middot; ${esc(STAGE[r.stage] || r.stage)}`;
-    return drow("&#9744;", esc(r.business || "Unnamed"), `${what}${r.contact ? " &middot; " + esc(r.contact) : ""}${who(r.owner)}`, "#8FD3B6");
+    return drow("&#9744;", esc(r.business || "Unnamed"), `${what}${r.contact ? " &middot; " + esc(r.contact) : ""}${who(r.owner)}`, "#E3F5EC");
   });
-  const py = (pays as any[]).map((p) => drow("&pound;", `${esc(byId[p.prospect_id]?.business || "Client")} pays today`, money(p.amount), "#F5A97F"));
+  const py = (pays as any[]).map((p) => drow("&pound;", `${esc(byId[p.prospect_id]?.business || "Client")} pays today`, money(p.amount), "#FDEEE4"));
   const opens: Record<string, number> = {}; for (const e of qev as any[]) opens[e.quote_id] = (opens[e.quote_id] || 0) + 1;
   const qs: string[] = [];
   for (const q of quotes as any[]) {
     const b = byId[q.prospect_id]?.business ? esc(byId[q.prospect_id].business) : esc(q.title || "A quote");
     const opened = opens[q.id] || (q.viewed_at && q.viewed_at >= dayAdd(D, -1) + "T00:00:00Z" ? 1 : 0);
-    if (opened) qs.push(drow("&#9733;", `${b} opened your quote`, `${opened > 1 ? opened + " times " : ""}since yesterday. A good day to call.`, "#B9A2F5"));
-    else if (q.valid_until === D) qs.push(drow("&#9203;", `${b}: quote ends today`, "Worth a nudge.", "#B9A2F5"));
+    if (opened) qs.push(drow("&#9733;", `${b} opened your quote`, `${opened > 1 ? opened + " times " : ""}since yesterday. A good day to call.`, "#EFEAFD"));
+    else if (q.valid_until === D) qs.push(drow("&#9203;", `${b}: quote ends today`, "Worth a nudge.", "#EFEAFD"));
   }
   const rows = [...diary, ...fu, ...py, ...qs]; const n = rows.length;
   const parts = [diary.length && `${diary.length} in the diary`, fu.length && `${fu.length} follow-up${fu.length === 1 ? "" : "s"}`, py.length && `${py.length} payment${py.length === 1 ? "" : "s"}`, qs.length && `${qs.length} quote${qs.length === 1 ? "" : "s"}`].filter(Boolean) as string[];
   const sum = n ? parts.join(", ") : "a clear horizon";
-  const block = `<tr><td style="padding:0 20px">${T(`<tr><td style="height:4px;background:${GOLD};font-size:0;line-height:0">&nbsp;</td></tr><tr><td style="padding:20px 16px 14px">
-      ${kicker("Today on deck")}<div style="font-family:${SERIF};font-size:26px;font-weight:bold;color:#FFFFFF;margin-top:6px;line-height:1.2">${n ? `${n} thing${n === 1 ? "" : "s"} on today, captains` : "A clear horizon today"}</div>
-      <div style="font-family:${SANS};font-size:14px;color:${MIST};margin-top:4px">${n ? parts.join(" &middot; ") : "Nothing in the diary and no follow-ups due. Plenty of room for DMs."}</div></td></tr>
+  const block = `<tr><td style="padding:0 20px">${T(`<tr><td style="padding:20px 16px 14px">
+      ${kicker("Today on deck")}<div style="font-family:${SERIF};font-size:24px;font-weight:bold;color:${INK};margin-top:6px;line-height:1.2">${n ? `${n} thing${n === 1 ? "" : "s"} on today, captains` : "A clear horizon today"}</div>
+      <div style="font-family:${SANS};font-size:14px;color:${MUTED};margin-top:4px">${n ? parts.join(" &middot; ") : "Nothing in the diary and no follow-ups due. Plenty of room for DMs."}</div></td></tr>
       ${n ? `<tr><td>${T(rows.join(""))}</td></tr>` : ""}
-      <tr><td align="center" style="padding:16px 16px 20px;border-top:1px solid ${LINE}">${ghost("Open the pipeline &rarr;", SITE + "#pipeline")}</td></tr>`, `background:${PANEL};border-radius:18px;border:1px solid ${LINE};overflow:hidden`)}</td></tr>`;
+      <tr><td align="center" style="padding:16px 16px 20px;border-top:1px solid ${LINE}">${ghost("Open the pipeline &rarr;", SITE + "#pipeline")}</td></tr>`, `background:${CARD};border-radius:18px;border:1px solid ${LINE};overflow:hidden`)}</td></tr>`;
   const text = `Today on deck: ${sum}.\n${today.map((e: any) => `- ${e.all_day ? "All day" : ukTime(e.starts_at)} ${e.title}`).join("\n")}\n${dueToday.map((r) => `- Follow up: ${r.business}`).join("\n")}`;
   return { block, text, n, sum };
 }
@@ -170,8 +170,8 @@ async function weekBlock(G: any, D: string) {
   const hits = W.filter((x) => x.hit).length, work = W.filter((x) => x.target > 0).length;
   const bestD = W.reduce((a, x) => x.team > a.team ? x : a, W[0]);
   const mx = Math.max(1, ...W.map((x) => Math.max(x.team, x.target)));
-  const bars = W.map((x) => { const h = Math.max(4, Math.round(x.team / mx * 120)); const c = x.hit ? GOLD : "#3D5A80";
-    return `<td align="center" valign="bottom" style="padding:0 4px;font-family:${SANS}"><div style="font-size:13px;font-weight:800;color:${x.hit ? GOLD : "#FFFFFF"};margin-bottom:6px">${x.team}</div><div style="height:${h}px;line-height:${h}px;font-size:0;background:${c};border-radius:8px 8px 3px 3px">&nbsp;</div><div style="font-size:11px;font-weight:700;color:${MIST};margin-top:7px;letter-spacing:1.5px;text-transform:uppercase">${shortDay(x.date)}</div></td>`; }).join("");
+  const bars = W.map((x) => { const h = Math.max(4, Math.round(x.team / mx * 120)); const c = x.hit ? GOLD : "#CBD5E1";
+    return `<td align="center" valign="bottom" style="padding:0 4px;font-family:${SANS}"><div style="font-size:13px;font-weight:800;color:${x.hit ? GOLD : INK};margin-bottom:6px">${x.team}</div><div style="height:${h}px;line-height:${h}px;font-size:0;background:${c};border-radius:8px 8px 3px 3px">&nbsp;</div><div style="font-size:11px;font-weight:700;color:${MUTED};margin-top:7px;letter-spacing:1.5px;text-transform:uppercase">${shortDay(x.date)}</div></td>`; }).join("");
   const from = days[0], to = D;
   const [newP, won, paid, qsent, qo] = await Promise.all([
     J(`hl_prospects?select=id&created_at=gte.${from}T00:00:00Z&created_at=lt.${to}T00:00:00Z`),
@@ -180,20 +180,20 @@ async function weekBlock(G: any, D: string) {
     J(`hl_quotes?select=id&status=neq.draft&created_at=gte.${from}T00:00:00Z&created_at=lt.${to}T00:00:00Z`),
     J(`hl_quote_events?select=id&kind=eq.open&at=gte.${from}T00:00:00Z&at=lt.${to}T00:00:00Z`)]);
   const money_in = (paid as any[]).reduce((a, p) => a + Number(p.amount || 0), 0);
-  const tile = (v: string, l: string) => `<td width="33%" style="padding:5px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${NAVY};border:1px solid ${LINE};border-radius:14px"><tr><td align="center" style="padding:14px 6px;font-family:${SANS}"><div style="font-size:24px;font-weight:800;color:#FFFFFF">${v}</div><div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:${MIST};margin-top:3px">${l}</div></td></tr></table></td>`;
+  const tile = (v: string, l: string) => `<td width="33%" style="padding:5px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${SOFT};border:1px solid ${LINE};border-radius:14px"><tr><td align="center" style="padding:14px 6px;font-family:${SANS}"><div style="font-size:24px;font-weight:800;color:${INK}">${v}</div><div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:${MUTED};margin-top:3px">${l}</div></td></tr></table></td>`;
   const wk = (p: string) => W.reduce((a, x) => a + (x.p[p]?.d || 0), 0); const topWk = Math.max(...G.P.map(wk));
   const per = G.P.map((p: string) => { const t = wk(p); const top = t > 0 && t === topWk;
-    return `<td width="50%" style="padding:5px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${NAVY};border:1px solid ${top ? GOLD2 : LINE};border-radius:14px"><tr><td style="padding:14px 16px;font-family:${SANS}"><div style="font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:${top ? GOLD : MIST}">${esc(G.names[p])}${top ? " &#9813;" : ""}</div><div style="font-size:34px;font-weight:800;color:#FFFFFF;line-height:1.1;margin-top:2px">${n0(t)}</div><div style="font-size:12px;color:${MIST}">DMs &middot; ${W.reduce((a, x) => a + (x.p[p]?.f || 0), 0)} follow-ups &middot; ${W.reduce((a, x) => a + (x.p[p]?.r || 0), 0)} replies</div></td></tr></table></td>`; }).join("");
+    return `<td width="50%" style="padding:5px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${SOFT};border:1px solid ${top ? GOLD : LINE};border-radius:14px"><tr><td style="padding:14px 16px;font-family:${SANS}"><div style="font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:${top ? GOLD : MUTED}">${esc(G.names[p])}${top ? " &#9813;" : ""}</div><div style="font-size:34px;font-weight:800;color:${INK};line-height:1.1;margin-top:2px">${n0(t)}</div><div style="font-size:12px;color:${MUTED}">DMs &middot; ${W.reduce((a, x) => a + (x.p[p]?.f || 0), 0)} follow-ups &middot; ${W.reduce((a, x) => a + (x.p[p]?.r || 0), 0)} replies</div></td></tr></table></td>`; }).join("");
   const html = `<tr><td style="padding:0 20px 22px">${T(`<tr><td style="padding:22px 20px 8px">${kicker("The week in numbers")}
-      <div style="font-family:${SANS};font-size:68px;font-weight:800;line-height:1;color:${GOLD};margin-top:10px">${n0(dm)}</div><div style="font-family:${SANS};font-size:15px;color:#FFFFFF;margin-top:4px">DMs sent this week</div>
-      <div style="margin-top:12px"><span style="display:inline-block;font-family:${SANS};font-size:13px;font-weight:800;padding:5px 11px;border-radius:999px;background:${!pdm ? LINE : ch >= 0 ? "#1F6E4A" : "#7A2A22"};color:#FFFFFF">${pdm ? `${ch >= 0 ? "&#9650;" : "&#9660;"} ${Math.abs(ch)}% on last week` : "First full week"}</span> <span style="font-family:${SANS};font-size:13px;color:${MIST}">&nbsp;Target hit ${hits} of ${work} days &middot; best day ${shortDay(bestD.date)} (${bestD.team})</span></div></td></tr>
+      <div style="font-family:${SANS};font-size:64px;font-weight:800;line-height:1;color:${INK};margin-top:10px">${n0(dm)}</div><div style="font-family:${SANS};font-size:15px;color:${INK};margin-top:4px">DMs sent this week</div>
+      <div style="margin-top:12px"><span style="display:inline-block;font-family:${SANS};font-size:13px;font-weight:800;padding:5px 11px;border-radius:999px;background:${!pdm ? MUTED : ch >= 0 ? "#1F7A4D" : "#B42318"};color:#FFFFFF">${pdm ? `${ch >= 0 ? "&#9650;" : "&#9660;"} ${Math.abs(ch)}% on last week` : "First full week"}</span> <span style="font-family:${SANS};font-size:13px;color:${MUTED}">&nbsp;Target hit ${hits} of ${work} days &middot; best day ${shortDay(bestD.date)} (${bestD.team})</span></div></td></tr>
     <tr><td style="padding:18px 16px 6px">${T(`<tr>${bars}</tr>`, "table-layout:fixed")}</td></tr>
-    <tr><td style="padding:4px 20px 14px;font-family:${SANS};font-size:11px;color:${MIST}"><span style="color:${GOLD}">&#9632;</span> target hit &nbsp; <span style="color:#3D5A80">&#9632;</span> short</td></tr>
+    <tr><td style="padding:4px 20px 14px;font-family:${SANS};font-size:11px;color:${MUTED}"><span style="color:${GOLD}">&#9632;</span> target hit &nbsp; <span style="color:#CBD5E1">&#9632;</span> short</td></tr>
     <tr><td style="padding:0 15px">${T(`<tr>${per}</tr>`)}</td></tr>
-    <tr><td style="padding:12px 20px 0">${kicker("Crew", MIST)}</td></tr>
+    <tr><td style="padding:12px 20px 0">${kicker("Crew", MUTED)}</td></tr>
     <tr><td style="padding:4px 15px 0">${T(`<tr>${tile(n0(tot(W, "f")), "follow-ups")}${tile(n0(tot(W, "r")), "replies")}${tile(n0(tot(W, "m")), "meetings")}</tr>`)}</td></tr>
-    <tr><td style="padding:12px 20px 0">${kicker("Pipeline", MIST)}</td></tr>
-    <tr><td style="padding:4px 15px 16px">${T(`<tr>${tile(String((newP as any[]).length), "new prospects")}${tile(String((won as any[]).length), "clients won")}${tile(money(money_in), "money in")}</tr><tr>${tile(String((qsent as any[]).length), "quotes sent")}${tile(String((qo as any[]).length), "quote opens")}${tile(String(tot(W, "v")), "videos")}</tr>`)}</td></tr>`, `background:${PANEL};border-radius:18px;border:1px solid ${LINE}`)}</td></tr>`;
+    <tr><td style="padding:12px 20px 0">${kicker("Pipeline", MUTED)}</td></tr>
+    <tr><td style="padding:4px 15px 16px">${T(`<tr>${tile(String((newP as any[]).length), "new prospects")}${tile(String((won as any[]).length), "clients won")}${tile(money(money_in), "money in")}</tr><tr>${tile(String((qsent as any[]).length), "quotes sent")}${tile(String((qo as any[]).length), "quote opens")}${tile(String(tot(W, "v")), "videos")}</tr>`)}</td></tr>`, `background:${CARD};border-radius:18px;border:1px solid ${LINE}`)}</td></tr>`;
   const text = `The week: ${dm} DMs (${pdm ? (ch >= 0 ? "+" : "") + ch + "% on last week" : "first week"}), target hit ${hits} of ${work} days, best day ${bestD.date} with ${bestD.team}. Pipeline: ${(newP as any[]).length} new prospects, ${(won as any[]).length} clients won, ${money(money_in)} in.`;
   return { html, text, dm, ch };
 }
@@ -210,29 +210,28 @@ async function heraldMail(D: string, sunday: boolean) {
   const week = sunday ? await weekBlock(G, D) : null;
   const issue = Math.round((new Date(D + "T12:00:00Z").getTime() - new Date("2026-11-10T12:00:00Z").getTime()) / 86400000);
   const [a, b] = G.P; const da = Y.p[a]?.d || 0, db = Y.p[b]?.d || 0;
-  const side = (p: string, v: number, lead: boolean) => `<td width="42%" align="center" valign="top" style="font-family:${SANS};padding:4px 0"><div style="font-size:12px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:${lead ? GOLD : MIST}">${esc(G.names[p])}${lead ? " &#9813;" : ""}</div><div style="font-size:64px;font-weight:800;line-height:1.05;color:${lead ? GOLD : "#FFFFFF"}">${v}</div><div style="font-size:12px;color:${MIST};line-height:1.6">${Y.p[p]?.f || 0} follow-ups &middot; ${Y.p[p]?.r || 0} repl${(Y.p[p]?.r || 0) === 1 ? "y" : "ies"}${(Y.p[p]?.m || 0) ? ` &middot; ${Y.p[p].m} meeting${Y.p[p].m === 1 ? "" : "s"}` : ""}${(Y.p[p]?.c || 0) ? ` &middot; ${Y.p[p].c} client${Y.p[p].c === 1 ? "" : "s"}` : ""}</div></td>`;
+  const side = (p: string, v: number, lead: boolean) => `<td width="42%" align="center" valign="top" style="font-family:${SANS};padding:4px 0"><div style="font-size:12px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:${lead ? GOLD : MUTED}">${esc(G.names[p])}${lead ? " &#9813;" : ""}</div><div style="font-size:60px;font-weight:800;line-height:1.05;color:${lead ? ACCENT : INK}">${v}</div><div style="font-size:12px;color:${MUTED};line-height:1.6">${Y.p[p]?.f || 0} follow-ups &middot; ${Y.p[p]?.r || 0} repl${(Y.p[p]?.r || 0) === 1 ? "y" : "ies"}${(Y.p[p]?.m || 0) ? ` &middot; ${Y.p[p].m} meeting${Y.p[p].m === 1 ? "" : "s"}` : ""}${(Y.p[p]?.c || 0) ? ` &middot; ${Y.p[p].c} client${Y.p[p].c === 1 ? "" : "s"}` : ""}</div></td>`;
   const pct = Y.target ? Math.min(100, Math.round(Y.team / Y.target * 100)) : 0;
   const record = G.best.date === yd && Y.team > 0;
   const score = `<tr><td style="padding:0 20px 22px">${T(`<tr><td style="padding:20px 18px 6px" align="center">${kicker("Yesterday's scoreboard")}</td></tr>
-     <tr><td style="padding:6px 10px">${T(`<tr>${side(a, da, da > db)}<td width="16%" align="center" valign="middle" style="font-family:${SERIF};font-style:italic;font-size:18px;color:${MIST}">vs</td>${side(b, db, db > da)}</tr>`)}</td></tr>
-     ${Y.target ? `<tr><td style="padding:14px 22px 6px">${T(`<tr><td style="font-family:${SANS};font-size:13px;color:#FFFFFF"><b>Team ${Y.team}</b> <span style="color:${MIST}">of ${Y.target}</span></td><td align="right" style="font-family:${SANS};font-size:12px;font-weight:800;letter-spacing:1px;color:${won ? GOLD : MIST}">${won ? "&#10003; TARGET HIT" : `${Y.target - Y.team} SHORT`}${record ? ` &middot; <span style="color:#FF8A7A">RECORD DAY</span>` : ""}</td></tr>`)}</td></tr>
-     <tr><td style="padding:4px 22px 22px">${T(`<tr><td style="background:${LINE};border-radius:999px;height:12px;font-size:0;line-height:0">${T(`<tr><td style="background:${won ? GOLD : "#5B7BA6"};border-radius:999px;height:12px;font-size:0;line-height:0">&nbsp;</td></tr>`, "", `width="${Math.max(3, pct)}%"`)}</td></tr>`)}</td></tr>` : `<tr><td style="padding:6px 20px 20px" align="center"><div style="font-family:${SANS};font-size:13px;color:${MIST}">No target yesterday.</div></td></tr>`}`, `background:${PANEL};border-radius:18px;border:1px solid ${LINE}`)}</td></tr>`;
+     <tr><td style="padding:6px 10px">${T(`<tr>${side(a, da, da > db)}<td width="16%" align="center" valign="middle" style="font-family:${SERIF};font-style:italic;font-size:18px;color:${MUTED}">vs</td>${side(b, db, db > da)}</tr>`)}</td></tr>
+     ${Y.target ? `<tr><td style="padding:14px 22px 6px">${T(`<tr><td style="font-family:${SANS};font-size:13px;color:${INK}"><b>Team ${Y.team}</b> <span style="color:${MUTED}">of ${Y.target}</span></td><td align="right" style="font-family:${SANS};font-size:12px;font-weight:800;letter-spacing:1px;color:${won ? "#1F7A4D" : MUTED}">${won ? "&#10003; TARGET HIT" : `${Y.target - Y.team} SHORT`}${record ? ` &middot; <span style="color:#DC2626">RECORD DAY</span>` : ""}</td></tr>`)}</td></tr>
+     <tr><td style="padding:4px 22px 22px">${T(`<tr><td style="background:${LINE};border-radius:999px;height:12px;font-size:0;line-height:0">${T(`<tr><td style="background:${won ? GOLD : "#94A3B8"};border-radius:999px;height:12px;font-size:0;line-height:0">&nbsp;</td></tr>`, "", `width="${Math.max(3, pct)}%"`)}</td></tr>`)}</td></tr>` : `<tr><td style="padding:6px 20px 20px" align="center"><div style="font-family:${SANS};font-size:13px;color:${MUTED}">No target yesterday.</div></td></tr>`}`, `background:${CARD};border-radius:18px;border:1px solid ${LINE}`)}</td></tr>`;
   const recs = [...(h.records || []).map((r: string) => esc(r)), ...(h.achs || []).map((x: any) => `${esc(x.p)}: <i>${esc(x.n)}</i>`)];
   const cols = [col("Hunting news", story(h.hunting)), col("Gary's Corner", story(h.gary)), col("Fishing report", story(h.fishing)), col("Forecast", story(h.forecast)), col("Leaderboard", story(h.leader)), col("Records &amp; trophies", recs.join("<br>")), col("Bottle post", story(h.bottle))].filter(Boolean).join("");
-  const paper = `<tr><td style="padding:0 20px 22px">${T(`<tr><td style="padding:22px 22px 4px">${paperHead(`${sunday ? "Sunday" : "Morning"} edition &middot; No. ${issue}`)}${h.special ? `<div style="display:inline-block;margin-top:10px;background:#B23A2B;color:#FFFFFF;font-family:${SANS};font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:4px 10px;border-radius:4px">${esc(h.special)}</div>` : ""}
+  const paper = `<tr><td style="padding:0 20px 22px">${T(`<tr><td style="padding:22px 22px 4px">${paperHead("Front page")}${h.special ? `<div style="display:inline-block;margin-top:10px;background:#B23A2B;color:#FFFFFF;font-family:${SANS};font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:4px 10px;border-radius:4px">${esc(h.special)}</div>` : ""}
        <div style="font-family:${SERIF};font-size:34px;line-height:1.12;font-weight:bold;color:${INK};margin-top:12px">${esc(head)}</div>
-       <div style="font-family:${SERIF};font-style:italic;font-size:17px;line-height:1.5;color:#5A4F3E;margin-top:10px">${esc(deck)}</div></td></tr>
-     ${hr && hr.img ? `<tr><td style="padding:14px 22px 0"><img src="${esc(hr.img)}" width="556" alt="${esc(h.caption || "The Herald's front page")}" style="display:block;width:100%;max-width:556px;height:auto;border:2px solid ${INK}"><div style="font-family:${SERIF};font-style:italic;font-size:13px;color:#6B5F4A;margin-top:6px">${esc(h.caption || "")}</div></td></tr>` : ""}
-     ${cols ? `<tr><td align="center" style="padding:22px 8px 0;font-size:0">${cols}</td></tr>` : `<tr><td style="padding:16px 22px 22px;font-family:${SERIF};font-style:italic;font-size:15px;color:#6B5F4A">Gary is still writing up yesterday's stories. They'll be waiting in the game.</td></tr>`}
-     ${h.stop ? `<tr><td style="padding:0 22px 22px"><div style="background:#B23A2B;padding:12px 16px;font-family:${SANS};font-size:14px;font-weight:800;letter-spacing:.5px;color:#FFFFFF;text-align:center;border-radius:6px">${esc(h.stop)}</div></td></tr>` : ""}`, `background:${PAPER};border-radius:18px`, `bgcolor="${PAPER}"`)}</td></tr>`;
-  const inner = `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${NAVY}" style="max-width:640px;margin:0 auto;background:${NAVY};border-radius:22px;overflow:hidden;border:1px solid ${LINE}">
-   <tr><td style="line-height:0;font-size:0"><img src="${IMG}mast-${sunday ? "sunday" : "herald"}.jpg" width="640" alt="${sunday ? "The Sunday Herald" : "The Salty Herald"}" style="display:block;width:100%;max-width:640px;height:auto;border:0"></td></tr>
-   <tr><td align="center" style="padding:4px 20px 20px;font-family:${SANS};font-size:12px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:${MIST}">${esc(longDate(D))}</td></tr>
+       <div style="font-family:${SERIF};font-style:italic;font-size:17px;line-height:1.5;color:#4B5563;margin-top:10px">${esc(deck)}</div></td></tr>
+     ${hr && hr.img ? `<tr><td style="padding:14px 22px 0"><img src="${esc(hr.img)}" width="556" alt="${esc(h.caption || "The Herald's front page")}" style="display:block;width:100%;max-width:556px;height:auto;border:1px solid ${LINE};border-radius:10px"><div style="font-family:${SERIF};font-style:italic;font-size:13px;color:${MUTED};margin-top:6px">${esc(h.caption || "")}</div></td></tr>` : ""}
+     ${cols ? `<tr><td align="center" style="padding:22px 8px 0;font-size:0">${cols}</td></tr>` : `<tr><td style="padding:16px 22px 22px;font-family:${SERIF};font-style:italic;font-size:15px;color:${MUTED}">Gary is still writing up yesterday's stories. They'll be waiting in the game.</td></tr>`}
+     ${h.stop ? `<tr><td style="padding:0 22px 22px"><div style="background:#B23A2B;padding:12px 16px;font-family:${SANS};font-size:14px;font-weight:800;letter-spacing:.5px;color:#FFFFFF;text-align:center;border-radius:6px">${esc(h.stop)}</div></td></tr>` : ""}`, `background:${PAPER};border-radius:18px;border:1px solid ${LINE}`, `bgcolor="${PAPER}"`)}</td></tr>`;
+  const inner = `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${BG}" style="max-width:640px;margin:0 auto;background:${BG}">
+   <tr><td align="center" style="padding:26px 20px 22px">${kicker("Hundred Cannons")}<div style="font-family:${SERIF};font-size:44px;line-height:1.05;font-weight:bold;color:${INK};margin-top:8px">${sunday ? "The Sunday Herald" : "The Salty Herald"}</div><div style="font-family:${SANS};font-size:13px;color:${MUTED};margin-top:10px">${esc(longDate(D))} &middot; ${sunday ? "Weekly edition" : "Morning edition"} &middot; No. ${issue}</div></td></tr>
    ${today.block}<tr><td style="height:22px;font-size:0;line-height:0">&nbsp;</td></tr>
    ${week ? week.html : ""}
    ${score}
    ${paper}
-   <tr><td align="center" style="padding:6px 20px 34px">${button("Board the ship &rarr;", SITE)}<div style="font-family:${SERIF};font-style:italic;font-size:13px;color:${MIST};margin-top:18px">Printed at dawn by Gary the gull, Editor in Chief. He would like a chip.</div></td></tr>
+   <tr><td align="center" style="padding:6px 20px 34px">${button("Board the ship &rarr;", SITE)}<div style="font-family:${SERIF};font-style:italic;font-size:13px;color:${MUTED};margin-top:18px">Printed at dawn by Gary the gull, Editor in Chief. He would like a chip.</div></td></tr>
   </table>`;
   const subject = sunday ? `The Sunday Herald: ${n0(week!.dm)} DMs this week${week!.ch ? ` (${week!.ch > 0 ? "+" : ""}${week!.ch}%)` : ""}` : `The Salty Herald: ${head}`.slice(0, 110) + (today.n ? ` · ${today.n} on today` : "");
   const pre = `${today.n ? `Today: ${today.sum}.` : "A clear horizon today."} Yesterday: team ${Y.team}${Y.target ? " of " + Y.target : ""}.`;
@@ -241,19 +240,19 @@ async function heraldMail(D: string, sunday: boolean) {
 }
 
 // ---------- pet sighting ----------
-const RAR: Record<string, [string, string, string]> = { common: ["#B8C4D0", "small and slightly suspicious", "Common"], uncommon: ["#4FD69C", "unusual", "Uncommon"], rare: ["#5AA8FF", "properly rare", "Rare"], epic: ["#B286FF", "epic", "Epic"], legendary: ["#FFC94D", "legendary", "Legendary"], mythic: ["#FF6FA8", "mythic, which almost never happens,", "Mythic"] };
+const RAR: Record<string, [string, string, string]> = { common: ["#6B7785", "small and slightly suspicious", "Common"], uncommon: ["#1F9D6A", "unusual", "Uncommon"], rare: ["#2563EB", "properly rare", "Rare"], epic: ["#7C3AED", "epic", "Epic"], legendary: ["#C27C0E", "legendary", "Legendary"], mythic: ["#DB2777", "mythic, which almost never happens,", "Mythic"] };
 const JOKES = ["Gary saw it first and has not stopped talking about it.", "It looked at the lighthouse like it owns the place.", "The parrot is already jealous.", "It has not signed any paperwork yet.", "Please do not tell it about the cannons.", "Finders keepers is legally binding at sea."];
 function petHtml(D: string) {
   const s = sighting(D); const c = RAR[s.rar]; const an = /^[aeiou]/.test(s.rar) ? "An" : "A";
-  const tile = (v: string, l: string) => `<td width="33%" style="padding:5px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${NAVY};border:1px solid ${LINE};border-radius:16px"><tr><td align="center" style="padding:16px 4px;font-family:${SANS}"><div style="font-size:26px;font-weight:800;color:${c[0]};white-space:nowrap">${v}</div><div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:${MIST};margin-top:4px">${l}</div></td></tr></table></td>`;
-  const inner = `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${PANEL}" style="max-width:600px;margin:0 auto;background:${PANEL};border-radius:24px;overflow:hidden;border:1px solid ${LINE}">
+  const tile = (v: string, l: string) => `<td width="33%" style="padding:5px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${SOFT};border:1px solid ${LINE};border-radius:16px"><tr><td align="center" style="padding:16px 4px;font-family:${SANS}"><div style="font-size:26px;font-weight:800;color:${c[0]};white-space:nowrap">${v}</div><div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:${MUTED};margin-top:4px">${l}</div></td></tr></table></td>`;
+  const inner = `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${CARD}" style="max-width:600px;margin:0 auto;background:${CARD};border-radius:24px;overflow:hidden;border:1px solid ${LINE}">
    <tr><td style="line-height:0;font-size:0"><img src="${IMG}pet-${s.rar}.jpg" width="600" alt="Something glowing in the water at Funnal Cove" style="display:block;width:100%;max-width:600px;height:auto;border:0"></td></tr>
    <tr><td style="height:4px;background:${c[0]};font-size:0;line-height:0">&nbsp;</td></tr>
    <tr><td align="center" style="padding:28px 28px 6px">${kicker(`${c[2]} pet sighting`, c[0])}
-     <div style="font-family:${SERIF};font-size:32px;line-height:1.15;font-weight:bold;color:#FFFFFF;margin-top:10px">Something ${c[1]} has surfaced, captains.</div>
-     <p style="font-family:${SANS};font-size:16px;line-height:1.6;color:#C9D6E6;margin:14px 0 0">${an} <b style="color:${c[0]}">${s.rar}</b> pet is in Funnal Cove right now. Log <b style="color:#FFFFFF">${s.need} DMs</b> before <b style="color:#FFFFFF">${s.en}</b> and it's yours to keep.</p></td></tr>
+     <div style="font-family:${SERIF};font-size:32px;line-height:1.15;font-weight:bold;color:${INK};margin-top:10px">Something ${c[1]} has surfaced, captains.</div>
+     <p style="font-family:${SANS};font-size:16px;line-height:1.6;color:#4B5563;margin:14px 0 0">${an} <b style="color:${c[0]}">${s.rar}</b> pet is in Funnal Cove right now. Log <b style="color:${INK}">${s.need} DMs</b> before <b style="color:${INK}">${s.en}</b> and it's yours to keep.</p></td></tr>
    <tr><td style="padding:18px 22px 8px">${T(`<tr>${tile(String(s.need), "DMs to log")}${tile(String(s.win), "minutes")}${tile(s.en, "gone at")}</tr>`)}</td></tr>
-   <tr><td align="center" style="padding:20px 28px 30px">${button("Board the ship &rarr;", SITE)}<p style="font-family:${SERIF};font-style:italic;font-size:14px;line-height:1.5;color:${MIST};margin:20px 0 0">${JOKES[h32(D + "joke") % JOKES.length]} The pet stays a surprise until you claim it.<br>Gary the gull, Head of Pet Sightings</p></td></tr></table>`;
+   <tr><td align="center" style="padding:20px 28px 30px">${button("Board the ship &rarr;", SITE)}<p style="font-family:${SERIF};font-style:italic;font-size:14px;line-height:1.5;color:${MUTED};margin:20px 0 0">${JOKES[h32(D + "joke") % JOKES.length]} The pet stays a surprise until you claim it.<br>Gary the gull, Head of Pet Sightings</p></td></tr></table>`;
   return { s, subject: `${c[2]} pet sighted: ${s.need} DMs by ${s.en}`, html: page(`${an} ${s.rar} pet is in Funnal Cove until ${s.en}. Log ${s.need} DMs to claim it.`, inner), text: `${an} ${s.rar} pet is in Funnal Cove right now. Log ${s.need} DMs in Hundred Cannons by ${s.en} UK time to claim it. Board the ship: ${SITE}  -- Gary the gull` };
 }
 async function petMail(req: Request) {
