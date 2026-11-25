@@ -10363,9 +10363,11 @@ const igDm=h=>h?`https://ig.me/m/${encodeURIComponent(String(h).replace(/^@/,'')
 const WARM_BASE={video_needed:30,messaged:18,followed_up:22,talking:52,meeting:66,quote_sent:62,not_now:12,no_response:5,archived:0};
 function cWarm(r){if(!r||r.stage==='client'||r.stage==='archived')return null;let n=WARM_BASE[r.stage]??10;const why=[];
   const add=(v,t)=>{if(!v||!t)return;n+=v;why.push([v,t]);};
-  why.push(['base',n,(PIPE_BY[r.stage]||{}).name||'']);
+  why.push(['base',n,((PIPE_BY[r.stage]||{}).name||'')+' to start']);
   // a lead still waiting for its video: fresh ones are warmer, long waits cool off
-  if(r.stage==='video_needed'&&r.created_at){const age=-cDays(String(r.created_at).slice(0,10));add(age<=3?10:age<=7?5:age>21?-6:0,age<=3?'Fresh lead':age<=7?'Added this week':age>21?'Waiting a while for a video':'');}
+  // a lead waiting for its video starts Hot the day it's added and cools 5 points a day until the video is made
+  if(r.stage==='video_needed'){const age=Math.max(0,r.created_at?-cDays(String(r.created_at).slice(0,10)):0);n=Math.max(5,92-age*5);why.length=0;
+    why.push(['base',n,age===0?'Added today, still Hot':`Added ${age} day${age===1?'':'s'} ago with no video yet (cools 5 a day)`]);}
   const d=r.last_contact?-cDays(r.last_contact):null;
   if(d!=null&&r.stage!=='video_needed')add(d<=2?15:d<=7?10:d<=14?5:d<=30?0:-10,d<=2?'Spoke in the last 2 days':d<=7?'Spoke this week':d<=14?'Spoke in the last fortnight':'Not spoken for over a month');
   // their quote: recent visits are the strongest signal there is
@@ -10463,7 +10465,7 @@ CRM_ACT.igdm=(b,e)=>{const r=PIPE.rows.find(x=>x.id===b.dataset.id);igOpen(r&&r.
 {const _df=crmDrawerFill;crmDrawerFill=function(){_df.apply(this,arguments);const d=document.querySelector('#crm .crmDrawer');if(!d||!CRM.open)return;const r=PIPE.rows.find(x=>x.id===CRM.open);if(!r)return;
   const links=d.querySelector('.cLinks');
   if(links&&r.insta&&!links.querySelector('.cLinkDm'))links.insertAdjacentHTML('afterbegin',`<a class="cLinkBtn cLinkDm" data-c="igdm" data-id="${r.id}" href="${cEsc(igDm(r.insta))}" target="_blank" rel="noopener">${cSvg('dm')}Message</a>`);
-  const w=cWarm(r);if(links&&w&&!d.querySelector('.cWarmPanel'))links.insertAdjacentHTML('afterend',`<details class="cWarmPanel" style="--w:${w.col}"><summary><span class="cWarmDial" style="--p:${w.n}"><b>${w.n}</b></span><div><small>Warmth</small><b>${w.label}</b></div><span class="cUpWarmBar"><i style="--p:${w.n}%"></i></span></summary><ul>${w.why.map(x=>x[0]==='base'?`<li><span>${x[1]}</span>${cEsc(x[2])} to start</li>`:`<li><span class="${x[0]>0?'up':'dn'}">${x[0]>0?'+'+x[0]:x[0]}</span>${cEsc(x[1])}</li>`).join('')}</ul></details>`);
+  const w=cWarm(r);if(links&&w&&!d.querySelector('.cWarmPanel'))links.insertAdjacentHTML('afterend',`<details class="cWarmPanel" style="--w:${w.col}"><summary><span class="cWarmDial" style="--p:${w.n}"><b>${w.n}</b></span><div><small>Warmth</small><b>${w.label}</b></div><span class="cUpWarmBar"><i style="--p:${w.n}%"></i></span></summary><ul>${w.why.map(x=>x[0]==='base'?`<li><span>${x[1]}</span>${cEsc(x[2])}</li>`:`<li><span class="${x[0]>0?'up':'dn'}">${x[0]>0?'+'+x[0]:x[0]}</span>${cEsc(x[1])}</li>`).join('')}</ul></details>`);
   const tw=cDupes(r,r.id);if(tw.length&&!d.querySelector('.cDupe')){const at=d.querySelector('.cWarmPanel')||links;if(at)at.insertAdjacentHTML('afterend',dupBox(tw,tw.length===1?'Looks like a twin of':'Looks like twins of'));}};}
 
 /* ============================== 25 Nov: pipeline motion ==============================
