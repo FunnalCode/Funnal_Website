@@ -2055,3 +2055,52 @@ html[data-hc-theme=dark] .caseS.on,html[data-hc-theme=dark] .caseClue.fresh{back
 #crm .cSaveBtn.done{background:#2F9A63;color:#fff}
 #crm .cDHead .cIconBtn{margin-left:0}
 #crm .cUpAgo{display:block;margin-top:6px;color:var(--c-invMuted);font-size:13px;font-weight:600}
+/* 25 Nov: contrast on dark cards. Small text was picking up the page's muted brown */
+.evCard small,.evCard .muted{color:rgba(255,255,255,.86);opacity:1}
+.evCard.shoal small{color:#FFF3D6}
+.evCard p,.evCard .tiny{color:rgba(255,255,255,.92)}
+.s7Door small{display:block;margin-top:3px;color:rgba(255,255,255,.9);opacity:1;line-height:1.35}
+.s7Door.barge small{color:#E4FBF7}
+.sumTop small,.vaultHead small{color:rgba(255,255,255,.86);opacity:1}
+/* 25 Nov: warmth, Instagram, duplicates */
+#crm .cWarm{display:inline-flex;align-items:center;gap:3px;height:22px;padding:0 8px 0 6px;border-radius:999px;background:color-mix(in srgb,var(--w) 14%,transparent);color:var(--w);font-size:11.5px;white-space:nowrap}
+#crm .cWarm .cI{width:13px;height:13px;stroke:var(--w);fill:color-mix(in srgb,var(--w) 30%,transparent)}
+#crm .cWarm b{font-weight:700;color:var(--c-ink)}
+#crm .cWarm.sm{height:18px;padding:0 6px 0 4px;margin-right:6px;vertical-align:1px;font-size:10.5px}#crm .cWarm.sm .cI{width:11px;height:11px}
+#crm .cDmBtn{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--c-sunk);color:var(--c-ink2);margin-right:2px;transition:transform .2s var(--c-ease),background .2s}
+#crm .cDmBtn:hover{background:var(--c-sunk2);transform:scale(1.08)}#crm .cDmBtn .cI{width:14px;height:14px}
+#crm .cDmBtn2{text-decoration:none}
+#crm .cLinkDm{border-color:transparent;background:linear-gradient(120deg,#E1306C,#F77737);color:#fff}
+#crm .cLinkDm .cI{stroke:#fff}
+#crm .cUpWarm{display:flex;align-items:center;gap:10px;margin-top:10px}
+#crm .cUpWarm b{display:inline-flex;align-items:center;gap:4px;font-size:12.5px;white-space:nowrap}
+#crm .cUpWarm .cI{width:14px;height:14px;stroke:var(--w);fill:color-mix(in srgb,var(--w) 35%,transparent)}
+#crm .cUpWarmBar{flex:1;height:6px;border-radius:99px;background:rgba(127,127,127,.22);overflow:hidden;min-width:60px}
+#crm .cUpWarmBar i{display:block;height:100%;width:var(--p);border-radius:inherit;background:linear-gradient(90deg,#4F98C9,#E39B2D 55%,#E0563B);animation:cWarmGrow .9s var(--c-ease) both}
+@keyframes cWarmGrow{from{width:0}}
+#crm .cUpDm{display:inline-flex;align-items:center;gap:6px;text-decoration:none}#crm .cUpDm .cI{width:15px;height:15px}
+#crm .cWarmPanel{border:1px solid var(--c-line);border-radius:16px;margin:0 0 12px;padding:0;background:var(--c-surface)}
+#crm .cWarmPanel summary{display:flex;align-items:center;gap:12px;padding:10px 14px;cursor:pointer;list-style:none}
+#crm .cWarmPanel summary::-webkit-details-marker{display:none}
+#crm .cWarmPanel summary small{display:block;font-size:11px;color:var(--c-muted);font-weight:600}
+#crm .cWarmPanel summary b{font-size:14px;color:var(--w)}
+#crm .cWarmDial{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--w) calc(var(--p)*1%),var(--c-sunk2) 0);position:relative;flex:none}
+#crm .cWarmDial::before{content:"";position:absolute;inset:4px;border-radius:50%;background:var(--c-surface)}
+#crm .cWarmDial b{position:relative;font-size:13px!important;color:var(--c-ink)!important}
+#crm .cWarmPanel ul{list-style:none;margin:0;padding:0 14px 12px 66px;display:grid;gap:4px;font-size:12.5px;color:var(--c-ink2)}
+#crm .cWarmPanel li span{display:inline-block;min-width:30px;font-weight:700;color:var(--c-muted)}#crm .cWarmPanel li span.up{color:#2F9A63}#crm .cWarmPanel li span.dn{color:#C0392B}
+#crm .cDupe{display:flex;gap:10px;align-items:flex-start;background:#FFF4E5;border:1px solid #F2D3A6;color:#6B4A1E;border-radius:14px;padding:10px 12px;margin:10px 0 12px}
+#crm .cDupe>.cI{width:16px;height:16px;flex:none;margin-top:2px;stroke:#B8642A}
+#crm .cDupe>div{flex:1;min-width:0}#crm .cDupe b{display:block;font-size:12.5px;margin-bottom:4px}
+#crm .cDupeRow{display:block;width:100%;text-align:left;background:rgba(255,255,255,.7);border:0;border-radius:10px;padding:7px 10px;margin-top:4px;font:inherit;color:inherit;cursor:pointer}
+#crm .cDupeRow span{font-weight:700;font-size:13px}#crm .cDupeRow span span{font-weight:600;opacity:.75}
+#crm .cDupeRow small{display:block;font-size:11.5px;opacity:.85}
+html[data-hc-theme=dark] #crm .cDupe{background:rgba(230,160,80,.12);border-color:rgba(230,160,80,.3);color:#F2DCC0}
+html[data-hc-theme=dark] #crm .cDupeRow{background:rgba(255,255,255,.06)}
+#crm .crmAddIn{position:relative}
+#crm .cPaste{display:inline-flex;align-items:center;gap:5px;border:0;background:var(--c-sunk);color:var(--c-ink2);border-radius:999px;height:30px;padding:0 11px;font:600 12.5px inherit;cursor:pointer;flex:none}
+#crm .cPaste .cI{width:14px;height:14px}
+#crm .cAddPrev:empty{display:none}#crm .cAddNote{margin:10px 2px 0;font-size:13px;color:var(--c-ink2)}
+#crm .cShareHelp{display:block;margin:12px 2px 0;font-size:12.5px}
+.cShareSheet ol{padding-left:20px;display:grid;gap:8px;margin:12px 0}
+.cShareSheet code{display:block;margin:6px 0;padding:8px 10px;border-radius:10px;background:rgba(63,81,96,.08);font-size:12.5px;word-break:break-all}
