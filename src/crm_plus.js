@@ -21,10 +21,12 @@ function igHandle(s){s=String(s||'');let m=s.match(/instagram\.com\/stories\/([A
 const igDm=h=>h?`https://ig.me/m/${encodeURIComponent(String(h).replace(/^@/,''))}`:'';
 
 /* ---------- warmth ---------- */
-const WARM_BASE={video_needed:8,messaged:18,followed_up:22,talking:52,meeting:66,quote_sent:62,not_now:12,no_response:5,archived:0};
-function cWarm(r){if(!r||r.stage==='client'||r.stage==='archived'||r.stage==='video_needed')return null;let n=WARM_BASE[r.stage]??10;const why=[];
-  const add=(v,t)=>{if(!v)return;n+=v;why.push([v,t]);};
+const WARM_BASE={video_needed:30,messaged:18,followed_up:22,talking:52,meeting:66,quote_sent:62,not_now:12,no_response:5,archived:0};
+function cWarm(r){if(!r||r.stage==='client'||r.stage==='archived')return null;let n=WARM_BASE[r.stage]??10;const why=[];
+  const add=(v,t)=>{if(!v||!t)return;n+=v;why.push([v,t]);};
   why.push(['base',n,(PIPE_BY[r.stage]||{}).name||'']);
+  // a lead still waiting for its video: fresh ones are warmer, long waits cool off
+  if(r.stage==='video_needed'&&r.created_at){const age=-cDays(String(r.created_at).slice(0,10));add(age<=3?10:age<=7?5:age>21?-6:0,age<=3?'Fresh lead':age<=7?'Added this week':age>21?'Waiting a while for a video':'');}
   const d=r.last_contact?-cDays(r.last_contact):null;
   if(d!=null&&r.stage!=='video_needed')add(d<=2?15:d<=7?10:d<=14?5:d<=30?0:-10,d<=2?'Spoke in the last 2 days':d<=7?'Spoke this week':d<=14?'Spoke in the last fortnight':'Not spoken for over a month');
   // their quote: recent visits are the strongest signal there is
@@ -36,7 +38,7 @@ function cWarm(r){if(!r||r.stage==='client'||r.stage==='archived'||r.stage==='vi
   if(r.rag==='likely')add(12,'Marked likely');else if(r.rag==='unlikely')add(-15,'Marked unlikely');
   if(r.priority)add(5,'Priority');
   const fu=+r.follow_ups||0;if((r.stage==='messaged'||r.stage==='followed_up')&&fu>2)add(-Math.min(15,(fu-2)*5),`${fu} nudges, no reply yet`);
-  const due=pDue(r);if(due&&due.cls==='stale')add(-12,'Gone quiet');
+  const due=pDue(r);if(due&&due.cls==='stale'&&r.stage!=='video_needed')add(-12,'Gone quiet');
   n=Math.max(0,Math.min(100,Math.round(n)));
   const [label,col]=n>=70?['Hot','#E0563B']:n>=45?['Warm','#E39B2D']:n>=25?['Cool','#4F98C9']:['Cold','#8497A8'];
   return {n,label,col,why};}
@@ -110,10 +112,17 @@ ACT.copyAddBase=()=>{const t=`${location.origin}${location.pathname}?add=`;try{n
   if(w)h=h.replace('<small class="cUpAgo">',`<div class="cUpWarm" style="--w:${w.col}"><span class="cUpWarmBar"><i style="--p:${w.n}%"></i></span><b>${cSvg('flame')}${w.n} · ${w.label}</b></div><small class="cUpAgo">`);
   if(up.r.insta)h=h.replace('<footer><span class="grow"></span>',`<footer><a class="cUpGhost cUpDm" data-c="igdm" data-id="${up.r.id}" href="${cEsc(igDm(up.r.insta))}" target="_blank" rel="noopener">${cSvg('dm')}Message</a><span class="grow"></span>`);
   return h;};}
-CRM_ACT.igdm=()=>{};// the link does the work; this just stops the card opening underneath
+// on a phone, open the Instagram app on their profile (one tap on Message from there). If the app doesn't open,
+// fall back to ig.me. On a computer the ig.me link opens the DM on the web.
+const IG_PHONE=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+function igOpen(h,e){if(!h)return;if(!IG_PHONE)return;if(e)e.preventDefault();let left=false;const off=()=>{left=true;};
+  document.addEventListener('visibilitychange',off,{once:true});addEventListener('pagehide',off,{once:true});
+  location.href='instagram://user?username='+encodeURIComponent(h);
+  setTimeout(()=>{if(!left&&!document.hidden)location.href=igDm(h);},1600);}
+CRM_ACT.igdm=(b,e)=>{const r=PIPE.rows.find(x=>x.id===b.dataset.id);igOpen(r&&r.insta,e);};
 // the prospect panel: Message button, warmth breakdown, twin warning
 {const _df=crmDrawerFill;crmDrawerFill=function(){_df.apply(this,arguments);const d=document.querySelector('#crm .crmDrawer');if(!d||!CRM.open)return;const r=PIPE.rows.find(x=>x.id===CRM.open);if(!r)return;
   const links=d.querySelector('.cLinks');
-  if(links&&r.insta&&!links.querySelector('.cLinkDm'))links.insertAdjacentHTML('afterbegin',`<a class="cLinkBtn cLinkDm" href="${cEsc(igDm(r.insta))}" target="_blank" rel="noopener">${cSvg('dm')}Message</a>`);
+  if(links&&r.insta&&!links.querySelector('.cLinkDm'))links.insertAdjacentHTML('afterbegin',`<a class="cLinkBtn cLinkDm" data-c="igdm" data-id="${r.id}" href="${cEsc(igDm(r.insta))}" target="_blank" rel="noopener">${cSvg('dm')}Message</a>`);
   const w=cWarm(r);if(links&&w&&!d.querySelector('.cWarmPanel'))links.insertAdjacentHTML('afterend',`<details class="cWarmPanel" style="--w:${w.col}"><summary><span class="cWarmDial" style="--p:${w.n}"><b>${w.n}</b></span><div><small>Warmth</small><b>${w.label}</b></div><span class="cUpWarmBar"><i style="--p:${w.n}%"></i></span></summary><ul>${w.why.map(x=>x[0]==='base'?`<li><span>${x[1]}</span>${cEsc(x[2])} to start</li>`:`<li><span class="${x[0]>0?'up':'dn'}">${x[0]>0?'+'+x[0]:x[0]}</span>${cEsc(x[1])}</li>`).join('')}</ul></details>`);
   const tw=cDupes(r,r.id);if(tw.length&&!d.querySelector('.cDupe')){const at=d.querySelector('.cWarmPanel')||links;if(at)at.insertAdjacentHTML('afterend',dupBox(tw,tw.length===1?'Looks like a twin of':'Looks like twins of'));}};}

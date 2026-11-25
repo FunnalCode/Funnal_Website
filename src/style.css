@@ -2104,3 +2104,71 @@ html[data-hc-theme=dark] #crm .cDupeRow{background:rgba(255,255,255,.06)}
 #crm .cShareHelp{display:block;margin:12px 2px 0;font-size:12.5px}
 .cShareSheet ol{padding-left:20px;display:grid;gap:8px;margin:12px 0}
 .cShareSheet code{display:block;margin:6px 0;padding:8px 10px;border-radius:10px;background:rgba(63,81,96,.08);font-size:12.5px;word-break:break-all}
+/* 25 Nov: pipeline motion */
+#crm .cmGhost{box-shadow:0 14px 32px -12px rgba(30,40,50,.35)}
+#crm .cmCheck{position:absolute;right:14px;top:50%;width:34px;height:34px;margin-top:-17px;border-radius:50%;background:#2F9A63;display:grid;place-items:center;animation:cmCheckIn .35s cubic-bezier(.3,1.6,.5,1) both;box-shadow:0 6px 14px -4px rgba(47,154,99,.6)}
+#crm .cmCheck svg{width:20px;height:20px;fill:none;stroke:#fff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:24;stroke-dashoffset:24;animation:cmDraw .3s .15s ease-out forwards}
+#crm .cmDoneG{background:color-mix(in srgb,#2F9A63 10%,var(--c-surface))!important}
+@keyframes cmCheckIn{from{transform:scale(0) rotate(-30deg)}}
+@keyframes cmDraw{to{stroke-dashoffset:0}}
+#crm .cmSeal{position:absolute;right:12px;top:10px;z-index:2;font:800 12px/1 var(--display,inherit);letter-spacing:.12em;text-transform:uppercase;color:#7A5410;background:radial-gradient(circle at 35% 30%,#FBE3A6,#DDA94D 60%,#B8862F);border:2px solid #FFF1CC;border-radius:999px;padding:7px 12px;box-shadow:0 6px 16px -4px rgba(170,120,30,.6),inset 0 -2px 0 rgba(0,0,0,.12);animation:cmStamp .5s cubic-bezier(.2,1.6,.4,1) both;pointer-events:none}
+@keyframes cmStamp{0%{transform:scale(2.6) rotate(-18deg);opacity:0}60%{opacity:1}100%{transform:scale(1) rotate(-8deg)}}
+#crm .cmWonG{border-color:#DDA94D!important;box-shadow:0 0 0 2px rgba(221,169,77,.45),0 18px 40px -14px rgba(221,169,77,.7)!important}
+#crm .cmConf{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:9}
+#crm .cmWonBanner{position:fixed;left:50%;top:18px;z-index:9;transform:translateX(-50%);display:flex;align-items:center;gap:12px;min-width:min(340px,calc(100vw - 32px));padding:12px 18px 12px 12px;border-radius:20px;background:linear-gradient(120deg,#3F5160,#2C3E50);color:#fff;box-shadow:0 18px 40px -12px rgba(20,30,40,.55);animation:cmDrop .6s cubic-bezier(.2,1.4,.4,1) both}
+#crm .cmWonBanner.out{animation:cmRise .45s ease-in forwards}
+#crm .cmWonIc{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,#FBE3A6,#DDA94D 65%);flex:none}
+#crm .cmWonIc .cI{width:22px;height:22px;stroke:#7A5410;fill:#FFF1CC}
+#crm .cmWonBanner small{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#F2C462;font-weight:700}
+#crm .cmWonBanner b{display:block;font-size:16px}
+#crm .cmWonBanner span{font-size:12.5px;color:#DCE3EA}#crm .cmWonBanner em{font-style:normal;font-weight:700;color:#fff}
+@keyframes cmDrop{from{transform:translate(-50%,-90px) scale(.9);opacity:0}}
+@keyframes cmRise{to{transform:translate(-50%,-90px);opacity:0}}
+#crm .cmNew{animation:cmNew .7s cubic-bezier(.25,1.6,.45,1) both!important}
+@keyframes cmNew{0%{transform:translateY(-26px) scale(.86);opacity:0}55%{opacity:1}75%{transform:translateY(3px) scale(1.02)}100%{transform:none}}
+#crm .cmSettle{animation:cmSettle .5s cubic-bezier(.25,1.6,.45,1)}
+@keyframes cmSettle{0%{transform:scale(1.05)}100%{transform:none}}
+#crm .cmCatch{animation:cmCatch .7s cubic-bezier(.25,1.6,.45,1)}
+@keyframes cmCatch{0%{transform:scale(1)}30%{transform:scale(1.16)}100%{transform:none}}
+#crm .cmCatch i{animation:cmBumpK .7s ease}
+#crm .cmBump{display:inline-block;animation:cmBumpK .6s ease}
+@keyframes cmBumpK{30%{transform:translateY(-3px) scale(1.08)}}
+#crm .cmPop{animation:cmPopK .55s cubic-bezier(.25,1.8,.45,1)}
+@keyframes cmPopK{40%{transform:scale(1.3)}}
+/* Hot cards glow, Cold cards frost */
+#crm .cCard.wHot{border-color:rgba(224,86,59,.38);background-image:linear-gradient(110deg,transparent 35%,rgba(255,150,70,.12) 50%,transparent 65%);background-size:260% 100%;animation:cmEmber 4.5s linear infinite;box-shadow:0 8px 26px -14px rgba(224,86,59,.75)}
+#crm .enter .cCard.wHot{animation:cUp .55s var(--c-spring) both,cmEmber 4.5s linear 1s infinite}
+#crm .cCard.wHot .cWarm .cI{animation:cmFlicker 1.6s ease-in-out infinite;transform-origin:50% 90%}
+@keyframes cmEmber{from{background-position:130% 0}to{background-position:-130% 0}}
+@keyframes cmFlicker{0%,100%{transform:scale(1) rotate(0)}30%{transform:scale(1.12,0.95) rotate(-5deg)}60%{transform:scale(.95,1.1) rotate(4deg)}}
+#crm .cCard.wCold{border-color:rgba(127,170,210,.5);background-image:radial-gradient(130% 70% at 0 0,rgba(170,205,235,.22),transparent 60%),radial-gradient(90% 60% at 100% 100%,rgba(170,205,235,.12),transparent 60%)}
+html[data-hc-theme=dark] #crm .cCard.wCold{border-color:rgba(127,170,210,.35)}
+/* the warmth dial */
+#crm .cWarmDial.cmSpin{animation:cmSpinK .8s cubic-bezier(.2,.8,.2,1)}
+@keyframes cmSpinK{from{transform:rotate(-200deg) scale(.8)}}
+/* a quote opened live */
+#crm .cmEye{position:absolute;right:10px;bottom:10px;z-index:2;width:30px;height:30px;border-radius:50%;background:#486790;display:grid;place-items:center;box-shadow:0 0 0 0 rgba(72,103,144,.5);animation:cmEyeIn .4s cubic-bezier(.25,1.6,.45,1) both,cmRing 1.6s 0.4s ease-out 4}
+#crm .cUp .cmEye{top:18px;right:66px;bottom:auto;background:#fff}#crm .cUp .cmEye svg{stroke:#3F5160}
+#crm .cmEye svg{width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2;animation:cmBlink 3s ease-in-out infinite;transform-origin:50% 50%}
+@keyframes cmEyeIn{from{transform:scale(0)}}
+@keyframes cmBlink{0%,44%,52%,100%{transform:scaleY(1)}48%{transform:scaleY(.1)}}
+@keyframes cmRing{to{box-shadow:0 0 0 14px rgba(72,103,144,0)}}
+#crm .crmRow{position:relative}
+#crm .cmPeek{animation:cmPeekK 1.2s ease 2}
+@keyframes cmPeekK{30%{box-shadow:0 0 0 3px rgba(72,103,144,.45)}}
+/* duplicate glow behind the form */
+#crm .cmDupeGlow{box-shadow:0 0 0 3px #E39B2D,0 0 26px 4px rgba(227,155,45,.6)!important;animation:cmDupeK 1.4s ease-in-out infinite}
+@keyframes cmDupeK{50%{box-shadow:0 0 0 3px #E39B2D,0 0 10px 0 rgba(227,155,45,.3)}}
+/* the monthly goal */
+#crm .cStat.cmGoalHit{overflow:hidden}
+#crm .cmGoalHit .cMiniBar i{animation:cmFill 1s cubic-bezier(.2,.8,.2,1) both}
+@keyframes cmFill{from{width:0}}
+#crm .cmWave{position:absolute;left:-10%;right:-10%;bottom:0;width:120%;height:70%;fill:rgba(221,169,77,.35);animation:cmWaveK 3.2s cubic-bezier(.3,.7,.3,1) forwards;pointer-events:none}
+@keyframes cmWaveK{0%{transform:translate(-8%,100%)}35%{transform:translate(0,0)}70%{transform:translate(-6%,10%)}100%{transform:translate(0,110%);opacity:0}}
+@media (prefers-reduced-motion:reduce){#crm .cCard.wHot,#crm .cCard.wHot .cWarm .cI,#crm .cmDupeGlow{animation:none!important}}
+/* links in the pipeline never take the website's blue link colour */
+#crm a.cUpGhost,#crm a.cUpGhost:visited,#crm a.cUpGhost:hover{color:var(--c-invInk);text-decoration:none}
+#crm a.cDmBtn,#crm a.cDmBtn:visited,#crm a.cDmBtn2,#crm a.cDmBtn2:visited{color:var(--c-ink2);text-decoration:none}
+#crm a.cLinkDm,#crm a.cLinkDm:visited,#crm a.cLinkDm:hover{color:#fff;text-decoration:none}
+#crm a.cLinkBtn,#crm a.cLinkBtn:visited{text-decoration:none}
+#crm a.cLinkBtn:not(.cLinkDm),#crm a.cLinkBtn:not(.cLinkDm):visited{color:var(--c-ink2)}
