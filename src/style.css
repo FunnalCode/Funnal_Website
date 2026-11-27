@@ -2172,3 +2172,7 @@ html[data-hc-theme=dark] #crm .cCard.wCold{border-color:rgba(127,170,210,.35)}
 #crm a.cLinkDm,#crm a.cLinkDm:visited,#crm a.cLinkDm:hover{color:#fff;text-decoration:none}
 #crm a.cLinkBtn,#crm a.cLinkBtn:visited{text-decoration:none}
 #crm a.cLinkBtn:not(.cLinkDm),#crm a.cLinkBtn:not(.cLinkDm):visited{color:var(--c-ink2)}
+/* 27 Nov: a dyed item in the Wardrobe can be tapped to take the dye off */
+button.lvDyeSlot.lvDyeRm{font-family:inherit;background:none;cursor:pointer;padding-right:4px}
+button.lvDyeSlot.lvDyeRm b{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;background:rgba(127,127,127,.18);font-size:13px;line-height:1;margin-left:2px}
+button.lvDyeSlot.lvDyeRm:hover b{background:#C0392B;color:#fff}
